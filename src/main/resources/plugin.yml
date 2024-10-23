@@ -1,0 +1,4 @@
+name: customCrafting
+version: '1.0'
+main: org.oreo.customCrafting.CustomCrafting
+api-version: '1.20'
