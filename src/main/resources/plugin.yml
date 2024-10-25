@@ -1,4 +1,11 @@
-name: customCrafting
+name: oreosCustomCrafting
 version: '1.0'
-main: org.oreo.customCrafting.CustomCrafting
+main: org.oreo.oreosCustomCrafting.CustomCrafting
 api-version: '1.20'
+
+
+commands:
+
+  saveItem: #test
+    description: test
+    usage: /<command>
