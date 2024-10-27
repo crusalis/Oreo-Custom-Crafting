@@ -1,4 +1,4 @@
-package org.oreo.oreosCustomCrafting
+package org.oreo.oreosCustomCrafting.utils
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack

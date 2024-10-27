@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.oreo.oreosCustomCrafting.CustomCrafting
+import org.oreo.oreosCustomCrafting.utils.FileUtils
 
 class TestCommand(val plugin : CustomCrafting) : CommandExecutor {
     override fun onCommand(p0: CommandSender, p1: Command, p2: String, p3: Array<out String>?): Boolean {
@@ -17,7 +18,7 @@ class TestCommand(val plugin : CustomCrafting) : CommandExecutor {
         val itemInHand = p0.inventory.itemInMainHand
 
         if (itemInHand.type == Material.AIR){
-            plugin.giveSavedItems(p0)
+            FileUtils.giveSavedItems(p0,plugin)
             return true
         }
 
@@ -30,7 +31,7 @@ class TestCommand(val plugin : CustomCrafting) : CommandExecutor {
         // Extract the item name from the command arguments
         val itemName = p3[0]
 
-        plugin.saveCustomItemAsFile(itemInHand,itemName)
+        FileUtils.saveCustomItemAsFile(itemInHand,itemName,plugin)
         itemInHand.amount = 0
         return true
     }

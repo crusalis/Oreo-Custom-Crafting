@@ -4,97 +4,59 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.ShapedRecipe
-
+import org.bukkit.NamespacedKey
+import org.oreo.oreosCustomCrafting.utils.FileUtils
 
 data class ShapedRecipeData(
-    val rows : List<String>,
-    val ingredients : Map<Char, RecipeIngredient>,
-    val name : String
+    val rows: List<String>,
+    val name: String,
+    val ingredients: Map<Char, Material>, // Remain as Map<Char, Material>
+    val result: Material // Changed to Material
 )
-
-data class RecipeIngredient(
-    val type: IngredientType, // Either "Material" or "Exact"
-    val materials: List<String>? = null, // List of Material names for MaterialChoice
-    val items: List<Material>? = null // List of serialized ItemStack data for ExactChoice
-)
-
-enum class IngredientType {
-    EXACT,
-    MATERIAL,
-}
 
 /**
- * Converts data back into a Shaped recipe
+ * Converts data back into a ShapedRecipe.
  */
-fun dataToShapedRecipe(data: ShapedRecipeData, result: ItemStack): ShapedRecipe {
-    // Create a new ShapedRecipe with a unique key (you can customize the key if needed)
-    val name = data.name
-    val recipe = ShapedRecipe(org.bukkit.NamespacedKey.minecraft(name), result)
+fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
+    // Create the result ItemStack from the Material
+    val value = ItemStack(data.result)
 
-    // Set the shape (rows)
-    recipe.shape(*data.rows.toTypedArray())  // Convert List<String> to vararg Array
+    val recipe = ShapedRecipe(NamespacedKey.minecraft(data.name), value)
+
+    // Set the shape
+    recipe.shape(*data.rows.toTypedArray())
 
     // Map ingredients back to the recipe
-    data.ingredients.forEach { (char, ingredient) ->
-        when (ingredient.type) {
-            IngredientType.MATERIAL -> {
-                // Use RecipeChoice.MaterialChoice for a material-based ingredient
-                val materials = ingredient.materials?.map { Material.matchMaterial(it) } ?: emptyList()
-                if (materials.isNotEmpty()) {
-                    recipe.setIngredient(char, RecipeChoice.MaterialChoice(materials))
-                }
-            }
-            IngredientType.EXACT -> {
-                // Use RecipeChoice.ExactChoice for item-specific (ItemStack-based) ingredient
-                val items = ingredient.items?.map { ItemStack(it) } ?: emptyList()
-                if (items.isNotEmpty()) {
-                    recipe.setIngredient(char, RecipeChoice.ExactChoice(items[0]))  // Assuming one item per ingredient
-                }
-            }
-        }
+    data.ingredients.forEach { (char, material) ->
+        recipe.setIngredient(char, material)
     }
 
     return recipe
 }
 
 /**
- * Converts a shaped recipe into Serializable Data
+ * Converts a ShapedRecipe into ShapedRecipeData.
  */
 fun shapedRecipeToData(recipe: ShapedRecipe): ShapedRecipeData {
-    // Get the shape (rows) of the recipe
-    val shape = recipe.shape.toList()
+    val rows = recipe.shape.toList()
 
-    // Get the ingredient map (mapping characters to ItemStack/Material)
-    val ingredients = mutableMapOf<Char, RecipeIngredient>()
+    // Map ingredients to Material
+    val ingredients = mutableMapOf<Char, Material>()
 
     recipe.ingredientMap.forEach { (key, itemStack) ->
-        if (itemStack != null) {
-            val ingredient = if (itemStack.type != Material.AIR) {
-                // Handle Exact (ItemStack-based) and Material (Material-based)
-                if (itemStack.amount == 1) {
-                    RecipeIngredient(
-                        type = IngredientType.MATERIAL,
-                        materials = listOf(itemStack.type.name) // Material name for MaterialChoice
-                    )
-                } else {
-                    RecipeIngredient(
-                        type = IngredientType.EXACT,
-                        items = listOf(itemStack.type) // Exact choice with ItemStack data
-                    )
-                }
-            } else {
-                null
-            }
-
-            if (ingredient != null) {
-                ingredients[key] = ingredient
-            }
+        itemStack?.let {
+            // Directly use the Material type for ingredients
+            ingredients[key] = itemStack.type
         }
     }
 
+    // Get the result material directly
+    val result: Material = recipe.result.type
+
     return ShapedRecipeData(
-        rows = shape,
+        rows = rows,
         ingredients = ingredients,
-        name = recipe.key.toString()
+        name = recipe.key.key,
+        result = result
     )
 }
