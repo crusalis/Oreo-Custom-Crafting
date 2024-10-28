@@ -33,6 +33,9 @@ object FileUtils {
         try {
             // Write serialized item to the file
             newFile.writeText(itemSerialized)
+
+            CustomCrafting.customItems["$fileName.txt"] = item
+
             plugin.logger.info("Custom item file created successfully!")
         } catch (e: Exception) {
             plugin.logger.warning("Failed to write custom item to file: ${e.message}")
@@ -40,28 +43,8 @@ object FileUtils {
     }
 
     /**
-     * Gives all the saved items to the player
-     * This is for debugging and should be removed
+     * Searches through the list and gets an item with the corresponding name
      */
-    fun giveSavedItems(player: Player,plugin: CustomCrafting) {
-
-        // Ensure itemDir is not null and contains files
-        val files = plugin.itemDir?.listFiles() ?: return
-
-        for (file in files) {
-            if (file.isDirectory || !file.canRead()) continue
-
-            val serializedItem = file.readText()
-
-
-            // Deserialize the ItemStack from bytes
-            val item = SerializeUtils.deserializeItem(serializedItem)
-            if (item != null) {
-                player.inventory.addItem(item)
-            }
-        }
-    }
-
     fun getCustomItem(itemName : String) : ItemStack {
 
         return CustomCrafting.customItems[itemName]

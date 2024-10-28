@@ -21,7 +21,7 @@ class CustomCrafting : JavaPlugin() {
     private val gson = Gson()
     var itemDir: File? = null
 
-    var craftingDir : File? = null
+    private var craftingDir : File? = null
 
     /**
      * Handle all the directories and recipes on load
@@ -30,7 +30,7 @@ class CustomCrafting : JavaPlugin() {
         handleCustomItemDirectories()
 
         if (itemDir != null) {
-            initialiseCustomItems(itemDir!!, mutableListOf())
+            initialiseCustomItems(itemDir!!)
         } else {
             logger.warning("Failed to load custom Items")
         }
@@ -38,7 +38,7 @@ class CustomCrafting : JavaPlugin() {
 
     override fun onEnable() {
 
-        getCommand("saveItem")!!.setExecutor(TestCommand(this)) // Register a command
+        getCommand("oreosCrafting")!!.setExecutor(TestCommand(this)) // Register a command
 
         registerSavedRecipes()
 
@@ -114,7 +114,7 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Initialises all custom items and add them to the custom items list
      */
-    private fun initialiseCustomItems(itemDir: File, customItems: MutableList<ItemStack>) {
+    private fun initialiseCustomItems(itemDir: File) {
 
         // Ensure the itemDir contains files
         val files = itemDir.listFiles() ?: return
@@ -125,8 +125,11 @@ class CustomCrafting : JavaPlugin() {
             val serializedItem = file.readText()
 
             try {
-                // Deserialize the ItemStack from base64
-                SerializeUtils.deserializeItem(serializedItem)?.let { customItems.add(it) }
+                // Add the custom item to the custom Items list
+                val itemName : String = file.name ?: continue
+                val customItem = SerializeUtils.deserializeItem(serializedItem) ?: continue
+
+                customItems[itemName] = customItem
 
             } catch (e: Exception) {
                 logger.warning("Failed to deserialize item from file ${file.name}: ${e.message}")
@@ -136,7 +139,7 @@ class CustomCrafting : JavaPlugin() {
 
     /**
      * Creates a directory where its needed
-     * @return the directory created is returned if it already existed it returns the file in that path
+     * @return The directory created is returned if it already existed it returns the file in that path
     and null if it failed
      */
     private fun createDataDirectory(directoryName: String, dataFolder: File): File? {
@@ -159,9 +162,6 @@ class CustomCrafting : JavaPlugin() {
             return File(newDir.path)
         }
     }
-
-
-
 
 
     companion object {
