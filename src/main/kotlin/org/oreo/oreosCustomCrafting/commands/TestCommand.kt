@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.utils.FileUtils
+import org.oreo.oreosCustomCrafting.utils.Utils
 
 
 class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {
@@ -38,7 +38,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                     return false
                 }
                 val itemName = args[1]
-                FileUtils.saveCustomItemAsFile(itemInHand, itemName, plugin)
+                Utils.saveCustomItemAsFile(itemInHand, itemName, plugin)
                 itemInHand.amount = 0
                 sender.sendMessage("${ChatColor.GREEN}Item saved as $itemName.")
             }
@@ -49,7 +49,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                     return false
                 }
                 val itemName = args[1]
-                val customItem = FileUtils.getCustomItem(itemName)
+                val customItem = Utils.getCustomItem(itemName)
                 sender.inventory.addItem(customItem)
                 sender.sendMessage("${ChatColor.GREEN}Gave you one $itemName.")
             }

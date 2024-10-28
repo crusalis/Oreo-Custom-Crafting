@@ -163,7 +163,6 @@ class CustomCrafting : JavaPlugin() {
         }
     }
 
-
     companion object {
 
         /**

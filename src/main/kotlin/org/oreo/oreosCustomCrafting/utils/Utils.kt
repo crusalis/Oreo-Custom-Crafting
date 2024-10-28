@@ -1,11 +1,10 @@
 package org.oreo.oreosCustomCrafting.utils
 
-import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import java.io.File
 
-object FileUtils {
+object Utils {
 
 
     /**
@@ -49,6 +48,15 @@ object FileUtils {
 
         return CustomCrafting.customItems[itemName]
             ?: throw IllegalArgumentException("Item '$itemName' not found in custom items.")
+    }
+
+
+    /**
+     * Checks if the item has any custom properties
+     */
+    fun hasBasicNBT(item: ItemStack): Boolean {
+        val meta = item.itemMeta ?: return false
+        return meta.hasEnchants() || meta.hasLore() || meta.hasDisplayName()
     }
 
 

@@ -2,10 +2,8 @@ package org.oreo.oreosCustomCrafting.data
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.NamespacedKey
-import org.oreo.oreosCustomCrafting.utils.FileUtils
 
 data class ShapedRecipeData(
     val rows: List<String>,
