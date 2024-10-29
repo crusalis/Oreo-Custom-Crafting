@@ -56,6 +56,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                 }
                 sender.sendMessage("${ChatColor.GREEN}All custom items have been added to your inventory.")
             }
+
             else -> {
                 sender.sendMessage("${ChatColor.RED} Invalid subcommand. Use save, give <name>, or all.")
                 return false
@@ -64,7 +65,12 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
         return true
     }
 
-    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<out String>): List<String>? {
+    override fun onTabComplete(
+        sender: CommandSender,
+        command: Command,
+        alias: String,
+        args: Array<out String>
+    ): List<String>? {
         return when (args.size) {
             1 -> listOf("save", "give", "all").filter { it.startsWith(args[0], ignoreCase = true) }
             2 -> if (args[0].equals("give", ignoreCase = true)) {
@@ -72,6 +78,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
             } else {
                 emptyList()
             }
+
             else -> emptyList()
         }
     }

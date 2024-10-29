@@ -10,11 +10,11 @@ object Utils {
     /**
      * Saves the current item as a file
      */
-    fun saveCustomItemAsFile(item: ItemStack, plugin: CustomCrafting) : File? {
+    fun saveCustomItemAsFile(item: ItemStack, plugin: CustomCrafting): File? {
         // Initialize Gson with pretty printing for better readability
 
         // Serialize the ItemStack
-        val itemSerialized : String = SerializeUtils.serializeItem(item)
+        val itemSerialized: String = SerializeUtils.serializeItem(item)
 
         // Ensure itemDir is not null and directory exists
         if (plugin.itemDir == null) {
@@ -28,7 +28,7 @@ object Utils {
         }
 
         //Naming the file with a flat number for now
-        val fileNumber : Int = plugin.itemDir!!.listFiles()!!.size - 1
+        val fileNumber: Int = plugin.itemDir!!.listFiles()!!.size - 1
         // Create the file
         val newFile = File(directory, "$fileNumber.txt")
         try {
@@ -49,7 +49,7 @@ object Utils {
     /**
      * Searches through the list and gets an item with the corresponding name
      */
-    fun getCustomItem(itemName : String) : ItemStack {
+    fun getCustomItem(itemName: String): ItemStack {
 
         return CustomCrafting.customItems[itemName]
             ?: throw IllegalArgumentException("Item '$itemName' not found in custom items.")

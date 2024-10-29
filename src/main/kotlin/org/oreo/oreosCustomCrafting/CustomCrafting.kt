@@ -21,7 +21,7 @@ class CustomCrafting : JavaPlugin() {
     private val gson = Gson()
     var itemDir: File? = null
 
-    private var craftingDir : File? = null
+    private var craftingDir: File? = null
 
     /**
      * Handle all the directories and recipes on load
@@ -68,7 +68,7 @@ class CustomCrafting : JavaPlugin() {
             itemDir?.mkdirs()
         }
         val file = File(craftingDir, "recipe.json")
-        file.writeText(gson.toJson(shapedRecipeToData(sr)))
+        file.writeText(gson.toJson(shapedRecipeToData(sr, this)))
     }
 
     /**
@@ -126,7 +126,7 @@ class CustomCrafting : JavaPlugin() {
 
             try {
                 // Add the custom item to the custom Items list
-                val itemName : String = file.name ?: continue
+                val itemName: String = file.name ?: continue
                 val customItem = SerializeUtils.deserializeItem(serializedItem) ?: continue
 
                 customItems[itemName] = customItem
@@ -168,7 +168,7 @@ class CustomCrafting : JavaPlugin() {
         /**
          * A list of all custom items which is loaded from the save file
          */
-        val customItems: HashMap<String,ItemStack> = hashMapOf()
+        val customItems: HashMap<String, ItemStack> = hashMapOf()
     }
 
 }

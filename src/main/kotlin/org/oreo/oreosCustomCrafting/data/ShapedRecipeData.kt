@@ -1,14 +1,10 @@
 package org.oreo.oreosCustomCrafting.data
 
 import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import jdk.jshell.execution.Util
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
-import org.bukkit.NamespacedKey
-import org.bukkit.entity.Item
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
@@ -24,7 +20,7 @@ data class ShapedRecipeData(
  */
 fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
     // Create the result ItemStack from the Material
-    val value : ItemStack = when(data.result){
+    val value: ItemStack = when (data.result) {
 
         is Either.Left -> ItemStack(data.result.value)
 
@@ -50,7 +46,7 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
  * If the custom item doesn't exist it crates a new file for it
  * If the item is a default minecraft item it saves it as the MATERIAL enum
  */
-fun shapedRecipeToData(recipe: ShapedRecipe, plugin : CustomCrafting): ShapedRecipeData {
+fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedRecipeData {
     val rows = recipe.shape.toList()
 
     // Map ingredients to Material
@@ -67,10 +63,10 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin : CustomCrafting): ShapedRec
         val result = recipe.result
 
         if (Utils.customItemExists(result)) {
-            val customItemName : String = CustomCrafting.customItems.getKeyFromValue(result)!!
+            val customItemName: String = CustomCrafting.customItems.getKeyFromValue(result)!!
 
             Either.Right(customItemName)
-        } else  {
+        } else {
             val fileName = Utils.saveCustomItemAsFile(result, plugin = plugin)!!.name
 
             Either.Right(fileName)
