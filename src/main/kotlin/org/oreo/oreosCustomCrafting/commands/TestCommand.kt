@@ -33,14 +33,10 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                     sender.sendMessage("${ChatColor.RED}You must hold an item to save.")
                     return false
                 }
-                if (args.size < 2) {
-                    sender.sendMessage("${ChatColor.RED}Please provide a name for the item to save.")
-                    return false
-                }
-                val itemName = args[1]
-                Utils.saveCustomItemAsFile(itemInHand, itemName, plugin)
+
+                Utils.saveCustomItemAsFile(itemInHand, plugin)
                 itemInHand.amount = 0
-                sender.sendMessage("${ChatColor.GREEN}Item saved as $itemName.")
+                sender.sendMessage("${ChatColor.GREEN}Item saved.")
             }
 
             "give" -> {

@@ -10,7 +10,7 @@ object Utils {
     /**
      * Saves the current item as a file
      */
-    fun saveCustomItemAsFile(item: ItemStack, fileName : String, plugin: CustomCrafting) {
+    fun saveCustomItemAsFile(item: ItemStack, plugin: CustomCrafting) {
         // Initialize Gson with pretty printing for better readability
 
         // Serialize the ItemStack
@@ -27,7 +27,9 @@ object Utils {
             directory.mkdirs()  // Create directories if they don't exist
         }
 
-        // Create the file "test.json" inside the itemDir
+        //Naming the file with a flat number for now
+        val fileName : Int = plugin.itemDir!!.listFiles()!!.size - 1
+        // Create the file
         val newFile = File(directory, "$fileName.txt")
         try {
             // Write serialized item to the file
@@ -54,10 +56,16 @@ object Utils {
     /**
      * Checks if the item has any custom properties
      */
-    fun hasBasicNBT(item: ItemStack): Boolean {
+    fun isCustomItem(item: ItemStack): Boolean {
         val meta = item.itemMeta ?: return false
         return meta.hasEnchants() || meta.hasLore() || meta.hasDisplayName()
     }
 
+    /**
+     * Checks if the item exists already
+     */
+    fun customItemExists(customItem: ItemStack): Boolean {
+        return CustomCrafting.customItems.values.contains(customItem)
+    }
 
 }
