@@ -10,7 +10,7 @@ object Utils {
     /**
      * Saves the current item as a file
      */
-    fun saveCustomItemAsFile(item: ItemStack, plugin: CustomCrafting) {
+    fun saveCustomItemAsFile(item: ItemStack, plugin: CustomCrafting) : File? {
         // Initialize Gson with pretty printing for better readability
 
         // Serialize the ItemStack
@@ -19,7 +19,7 @@ object Utils {
         // Ensure itemDir is not null and directory exists
         if (plugin.itemDir == null) {
             plugin.logger.warning("Item directory is not set!")
-            return
+            return null
         }
 
         val directory = File(plugin.itemDir!!.path)
@@ -28,19 +28,22 @@ object Utils {
         }
 
         //Naming the file with a flat number for now
-        val fileName : Int = plugin.itemDir!!.listFiles()!!.size - 1
+        val fileNumber : Int = plugin.itemDir!!.listFiles()!!.size - 1
         // Create the file
-        val newFile = File(directory, "$fileName.txt")
+        val newFile = File(directory, "$fileNumber.txt")
         try {
             // Write serialized item to the file
             newFile.writeText(itemSerialized)
 
-            CustomCrafting.customItems["$fileName.txt"] = item
+            CustomCrafting.customItems["$fileNumber.txt"] = item
 
             plugin.logger.info("Custom item file created successfully!")
+            return newFile
         } catch (e: Exception) {
             plugin.logger.warning("Failed to write custom item to file: ${e.message}")
         }
+
+        return null
     }
 
     /**

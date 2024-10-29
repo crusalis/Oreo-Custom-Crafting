@@ -46,9 +46,11 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
 }
 
 /**
- * Converts a ShapedRecipe into ShapedRecipeData.
+ * Converts a ShapedRecipe into ShapedRecipeData for Json serialization
+ * If the custom item doesn't exist it crates a new file for it
+ * If the item is a default minecraft item it saves it as the MATERIAL enum
  */
-fun shapedRecipeToData(recipe: ShapedRecipe): ShapedRecipeData {
+fun shapedRecipeToData(recipe: ShapedRecipe, plugin : CustomCrafting): ShapedRecipeData {
     val rows = recipe.shape.toList()
 
     // Map ingredients to Material
@@ -69,8 +71,9 @@ fun shapedRecipeToData(recipe: ShapedRecipe): ShapedRecipeData {
 
             Either.Right(customItemName)
         } else  {
-            TODO()
+            val fileName = Utils.saveCustomItemAsFile(result, plugin = plugin)!!.name
 
+            Either.Right(fileName)
         }
 
 
