@@ -12,7 +12,7 @@ import org.oreo.oreosCustomCrafting.commands.TestCommand
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
-import org.oreo.oreosCustomCrafting.utils.InvUtils
+import org.oreo.oreosCustomCrafting.menu.CustomCraftingInventoryListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
 import java.io.FileReader
@@ -39,11 +39,11 @@ class CustomCrafting : JavaPlugin() {
 
     override fun onEnable() {
 
-        InvUtils.initializeMenuItems()
-
         getCommand("oreosCrafting")!!.setExecutor(TestCommand(this)) // Register a command
 
         registerSavedRecipes()
+
+        server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
 
         //craftSiegeBridge()
     }

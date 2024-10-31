@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.utils.InvUtils
+import org.oreo.oreosCustomCrafting.menu.CustomCraftingInventory
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 
@@ -52,7 +52,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
             }
 
             "craftin" -> {
-                sender.openInventory(InvUtils.getCustomCraftingInv())
+                CustomCraftingInventory(sender)
             }
 
             "all" -> {
