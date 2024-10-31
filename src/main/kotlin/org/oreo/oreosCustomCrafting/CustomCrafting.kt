@@ -45,7 +45,7 @@ class CustomCrafting : JavaPlugin() {
 
         registerSavedRecipes()
 
-        craftSiegeBridge()
+        //craftSiegeBridge()
     }
 
     override fun onDisable() {

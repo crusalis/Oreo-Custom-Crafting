@@ -85,7 +85,7 @@ object Utils {
         val meta = checkNotNull(item.itemMeta)
 
         meta.setDisplayName(name)
-        if (lore != null) {
+        if (lore.isEmpty()) {
             meta.lore = listOf(*lore)
         }
 
