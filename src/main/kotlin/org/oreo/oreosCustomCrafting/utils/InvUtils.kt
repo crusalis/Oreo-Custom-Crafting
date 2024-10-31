@@ -15,6 +15,9 @@ object InvUtils { //TODO make into a class and initialise listeners only while i
     val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
 
 
+    const val RESULT_SLOT = 24
+
+
     /**
      * The inventory filling isn't exactly optimised but uts more comprehensive
      */
