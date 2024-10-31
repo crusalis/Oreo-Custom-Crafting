@@ -70,10 +70,14 @@ class CustomCraftingInventory(player: Player) {
     }
 
     /**
-     * Saves the recipe from the inventory into a file
+     * Saves the recipe from the inventory into a file and registers it
      */
     fun saveRecipe(){
-        //TODO
+        val usedMaterials = HashMap<Material, Char>()
+
+        for (slot in CRAFTING_SLOTS){
+
+        }
     }
 
     companion object {

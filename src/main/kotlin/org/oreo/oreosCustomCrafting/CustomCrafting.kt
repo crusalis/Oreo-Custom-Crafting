@@ -55,7 +55,7 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Placeholder
      */
-    private fun craftSiegeBridge() {
+    private fun craftSiegeBridge() { //TODO fix the loading issue
 
         val sr: ShapedRecipe = ShapedRecipe(NamespacedKey.minecraft("siege-bridge"), ItemStack(Material.STONE))
         sr.shape(
