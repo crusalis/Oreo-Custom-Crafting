@@ -1,8 +1,10 @@
 package org.oreo.oreosCustomCrafting.utils
 
+import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import java.io.File
+import java.util.*
 
 object Utils {
 
@@ -69,6 +71,26 @@ object Utils {
      */
     fun customItemExists(customItem: ItemStack): Boolean {
         return CustomCrafting.customItems.values.contains(customItem)
+    }
+
+    /**
+     * @param material set the material it should be (what item)
+     * @param name How it should be called like any renamed item from an anvil
+     * @param lore This is to set extra text under the name itself it is optional
+     * @return it just returns the item now created
+     * This is a helper method to create items for a gui
+     */
+    fun createGuiItem(material: Material, name: String, vararg lore: String?): ItemStack {
+        val item = ItemStack(material, 1)
+        val meta = checkNotNull(item.itemMeta)
+
+        meta.setDisplayName(name)
+        if (lore != null) {
+            meta.lore = listOf(*lore)
+        }
+
+        item.setItemMeta(meta)
+        return item
     }
 
 }

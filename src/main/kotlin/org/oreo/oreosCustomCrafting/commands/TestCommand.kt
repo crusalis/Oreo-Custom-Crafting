@@ -50,6 +50,10 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                 sender.sendMessage("${ChatColor.GREEN}Gave you one $itemName.")
             }
 
+            "craftin" -> {
+
+            }
+
             "all" -> {
                 for (item in CustomCrafting.customItems.values) {
                     sender.inventory.addItem(item)
@@ -72,7 +76,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
         args: Array<out String>
     ): List<String>? {
         return when (args.size) {
-            1 -> listOf("save", "give", "all").filter { it.startsWith(args[0], ignoreCase = true) }
+            1 -> listOf("save", "give", "all","craftin").filter { it.startsWith(args[0], ignoreCase = true) }
             2 -> if (args[0].equals("give", ignoreCase = true)) {
                 CustomCrafting.customItems.keys.filter { it.startsWith(args[1], ignoreCase = true) }
             } else {
