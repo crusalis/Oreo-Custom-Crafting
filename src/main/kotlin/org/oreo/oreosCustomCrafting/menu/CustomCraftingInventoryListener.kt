@@ -34,8 +34,6 @@ class CustomCraftingInventoryListener : Listener {
         } else if (e.currentItem == craftInvInstance.cancelButton) {
             craftInvInstance.closeInventory()
         }
-
-
     }
 
 
