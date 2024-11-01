@@ -11,6 +11,9 @@ import java.io.IOException
 
 object SerializeUtils {
 
+    /**
+     * Serialize the item to save it in a file
+     */
     fun serializeItem(item: ItemStack?): String {
         try {
             val out = ByteArrayOutputStream()
@@ -25,7 +28,9 @@ object SerializeUtils {
         }
     }
 
-    // Deserialize base64 string to single ItemStack
+    /**
+     *     Deserialize base64 string to single ItemStack
+     */
     fun deserializeItem(base64: String?): ItemStack? {
         try {
             val input = ByteArrayInputStream(Base64Coder.decodeLines(base64))

@@ -54,7 +54,7 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
     }
 
     /**
-     * Opens the custom crafting inventory for a player.
+     * Opens the custom crafting inventory for a player, and write the object into the list
      */
     private fun openInventory(player: Player) {
         val newInventory = craftingInv
@@ -63,7 +63,7 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
     }
 
     /**
-     * Closes the custom crafting inventory for a player.
+     * Closes the custom crafting inventory for a player and remove its references
      */
     fun closeInventory() {
         openInventories.remove(craftingInv)
@@ -175,6 +175,9 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
             return openInventories.contains(inv)
         }
 
+        /**
+         * Get the entire CustomCraftingInventory instance from its inventory
+         */
         fun getCustomCraftingInventory(inv : Inventory): CustomCraftingInventory? {
 
             return openInventories[inv]

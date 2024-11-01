@@ -4,13 +4,12 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import java.io.File
-import java.util.*
 
 object Utils {
 
 
     /**
-     * Saves the current item as a file
+     * Saves the current item as a file to save on the system
      */
     fun saveCustomItemAsFile(item: ItemStack, plugin: CustomCrafting): File? {
         // Initialize Gson with pretty printing for better readability

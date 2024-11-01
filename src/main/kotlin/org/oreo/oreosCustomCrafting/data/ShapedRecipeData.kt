@@ -72,7 +72,9 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedReci
     )
 }
 
-
+/**
+ * Method for getting a key from a value because I cant reformat my code around that not being the case
+ */
 fun <K, V> HashMap<K, V>.getKeyFromValue(value: V): K? {
     return this.entries.firstOrNull { it.value == value }?.key
 }

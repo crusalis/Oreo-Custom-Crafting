@@ -154,7 +154,10 @@ class CustomCrafting : JavaPlugin() {
         }
     }
 
-
+    /**
+     * Tries to remove the recipe ith that nameSpaceKey
+     * @return Weather it succeeded
+     */
     fun removeCraftingRecipe(name: String) : Boolean {
 
         try {
