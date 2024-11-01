@@ -52,7 +52,14 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
             }
 
             "craftin" -> {
-                CustomCraftingInventory(sender)
+
+                if (args.size < 2) {
+                    sender.sendMessage("${ChatColor.RED}Please specify the name of the recipe.")
+                    return true
+                }
+
+                val recipeName = args[1]
+                CustomCraftingInventory(sender, recipeName, plugin)
             }
 
             "all" -> {

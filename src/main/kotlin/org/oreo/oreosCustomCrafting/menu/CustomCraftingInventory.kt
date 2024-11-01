@@ -2,12 +2,15 @@ package org.oreo.oreosCustomCrafting.menu
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.ShapedRecipe
+import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class CustomCraftingInventory(player: Player) {
+class CustomCraftingInventory(player: Player, private val recipeName : String, val plugin : CustomCrafting) {
 
     private val craftingInvName = "Create a custom recipe"
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
@@ -73,12 +76,95 @@ class CustomCraftingInventory(player: Player) {
      * Saves the recipe from the inventory into a file and registers it
      */
     fun saveRecipe(){
-        val usedMaterials = HashMap<Material, Char>()
 
-        for (slot in CRAFTING_SLOTS){
+        val resultSlotItem : ItemStack = craftingInv.getItem(RESULT_SLOT) ?: throw NullPointerException()
 
+        //Set up the resulting item and save it as a file if it hasn't been yet
+        val recipeResult : ItemStack = //TODO make this make sense :sob:
+            if (craftingInv.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem)) {
+
+                if (!Utils.customItemExists(resultSlotItem)){
+                    Utils.saveCustomItemAsFile(resultSlotItem,plugin)
+                }
+                resultSlotItem
+
+            } else {
+                resultSlotItem
+            }
+
+        val recipeMapping = handleStringConversion()
+
+        val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), recipeResult)
+        recipe.shape(recipeMapping.first[0],
+                     recipeMapping.first[1],
+                     recipeMapping.first[2])
+
+        for ((char, ingredient) in recipeMapping.second) {
+            recipe.setIngredient(char, ingredient)
         }
+
+        plugin.registerAndSaveRecipe(recipe,recipeName)
     }
+
+    /**
+     * Takes the items from the custom crafting inventory and converts them into a list of three strings
+     for the actual creation of the recipe along with the corresponding characters
+     */
+    private fun handleStringConversion(): Pair<List<String>, Map<Char, Material>> {
+        val items = ArrayList<ItemStack?>()
+        val materialMap = mutableMapOf<Material, Char>()
+        val charToMaterialMap = mutableMapOf<Char, Material>()
+        var currentChar = 'A'
+
+        // Fill the list with items
+        for (slot in CRAFTING_SLOTS) {
+            val item = craftingInv.getItem(slot)
+            items.add(item)
+        }
+
+        // Create a list to hold the output strings
+        val outputLines = mutableListOf<StringBuilder>()
+
+        // Initialize three lines
+        repeat(3) { outputLines.add(StringBuilder()) }
+
+        for (item in items) {
+            val char = when {
+                item == null || item.type == Material.AIR -> ' '
+                else -> materialMap.getOrPut(item.type) {
+                    currentChar++.also { if (currentChar > 'Z') currentChar = 'A' } // Reset to 'A' if over 'Z'
+                }
+            }
+
+            // Store the character and material in the inverted map
+            if (char != ' ') {
+                if (item != null) {
+                    charToMaterialMap[char] = item.type
+                }
+            }
+
+            // Append the character to the corresponding line
+            for (line in outputLines) {
+                if (line.length < 3) {
+                    line.append(char)
+                    break
+                }
+            }
+        }
+
+        // Ensure each line is exactly 3 characters long by padding with spaces
+        for (line in outputLines) {
+            while (line.length < 3) {
+                line.append(' ')
+            }
+        }
+
+        val outputStrings = outputLines.map { it.toString() }
+        return Pair(outputStrings, charToMaterialMap)
+    }
+
+
+
 
     companion object {
         const val RESULT_SLOT = 24
@@ -86,7 +172,10 @@ class CustomCraftingInventory(player: Player) {
         val CRAFTING_SLOTS = listOf(11,12,13,20,21,22,29,30,31)
 
         val openInventories = mutableMapOf<Inventory, CustomCraftingInventory>()
-        
+
+        /**
+         * Checks if the inventory is a custom crafting instance
+         */
         fun isCustomInventory(inv : Inventory): Boolean {
             return openInventories.contains(inv)
         }

@@ -3,8 +3,6 @@ package org.oreo.oreosCustomCrafting
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
@@ -20,6 +18,7 @@ import java.io.FileReader
 class CustomCrafting : JavaPlugin() {
 
     private val gson = Gson()
+
     var itemDir: File? = null
 
     private var craftingDir: File? = null
@@ -44,34 +43,21 @@ class CustomCrafting : JavaPlugin() {
         registerSavedRecipes()
 
         server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
-
-        //craftSiegeBridge()
-    }
-
-    override fun onDisable() {
-        // Plugin shutdown logic
     }
 
     /**
-     * Placeholder
+     * Register and save the recipe as a file
      */
-    private fun craftSiegeBridge() { //TODO fix the loading issue
+    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) {
 
-        val sr: ShapedRecipe = ShapedRecipe(NamespacedKey.minecraft("siege-bridge"), ItemStack(Material.STONE))
-        sr.shape(
-            "YXY",
-            "X T",
-            "TXX"
-        )
-        sr.setIngredient('Y', Material.YELLOW_DYE)
-        sr.setIngredient('X', Material.JUKEBOX)
-        sr.setIngredient('T', Material.TUFF)
+        Bukkit.getServer().addRecipe(recipe)
 
         if (!itemDir?.exists()!!) {
             itemDir?.mkdirs()
         }
-        val file = File(craftingDir, "recipe.json")
-        file.writeText(gson.toJson(shapedRecipeToData(sr, this)))
+        val file = File(craftingDir, "$recipeName.json")
+        file.writeText(gson.toJson(shapedRecipeToData(recipe, this)))
+
     }
 
     /**

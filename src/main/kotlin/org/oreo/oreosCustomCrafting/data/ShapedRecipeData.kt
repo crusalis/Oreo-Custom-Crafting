@@ -1,6 +1,5 @@
 package org.oreo.oreosCustomCrafting.data
 
-import arrow.core.Either
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
@@ -11,29 +10,25 @@ import org.oreo.oreosCustomCrafting.utils.Utils
 data class ShapedRecipeData(
     val rows: List<String>,
     val name: String,
-    val ingredients: Map<Char, Material>, // Remain as Map<Char, Material>
-    val result: Either<Material, String> // Changed to Material
+    val ingredients: Map<Char, Material>,
+    val fileResult : String?,
+    val materialResult: Material?,
 )
+
 
 /**
  * Converts data back into a ShapedRecipe.
  */
 fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
-    // Create the result ItemStack from the Material
-    val value: ItemStack = when (data.result) {
-
-        is Either.Left -> ItemStack(data.result.value)
-
-        is Either.Right -> Utils.getCustomItem(data.result.value)
-
+    val value: ItemStack = when {
+        data.fileResult != null -> Utils.getCustomItem(data.fileResult) // Get custom item by name
+        data.materialResult != null -> ItemStack(data.materialResult) // Use the material if it's a default item
+        else -> throw IllegalArgumentException("Invalid recipe result")
     }
 
     val recipe = ShapedRecipe(NamespacedKey.minecraft(data.name), value)
-
-    // Set the shape
     recipe.shape(*data.rows.toTypedArray())
 
-    // Map ingredients back to the recipe
     data.ingredients.forEach { (char, material) ->
         recipe.setIngredient(char, material)
     }
@@ -42,46 +37,38 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
 }
 
 /**
- * Converts a ShapedRecipe into ShapedRecipeData for Json serialization
- * If the custom item doesn't exist it crates a new file for it
- * If the item is a default minecraft item it saves it as the MATERIAL enum
+ * Converts a ShapedRecipe into ShapedRecipeData for Json serialization.
  */
 fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedRecipeData {
     val rows = recipe.shape.toList()
-
-    // Map ingredients to Material
     val ingredients = mutableMapOf<Char, Material>()
+
     recipe.ingredientMap.forEach { (key, itemStack) ->
         itemStack?.let {
             ingredients[key] = itemStack.type
         }
     }
 
-    // Determine if the result is a custom item or a regular material
-    val result: Either<Material, String> = if (Utils.isCustomItem(recipe.result)) {
+    val (fileResult, materialResult) = if (Utils.isCustomItem(recipe.result)) {
+        val resultItem = recipe.result
 
-        val result = recipe.result
-
-        if (Utils.customItemExists(result)) {
-            val customItemName: String = CustomCrafting.customItems.getKeyFromValue(result)!!
-
-            Either.Right(customItemName)
+        if (Utils.customItemExists(resultItem)) {
+            val customItemName: String = CustomCrafting.customItems.getKeyFromValue(resultItem)!!
+            Pair(customItemName, null) // Custom item, materialResult is null
         } else {
-            val fileName = Utils.saveCustomItemAsFile(result, plugin = plugin)!!.name
-
-            Either.Right(fileName)
+            val fileName = Utils.saveCustomItemAsFile(resultItem, plugin = plugin)!!.name
+            Pair(fileName, null) // Custom item, materialResult is null
         }
-
-
     } else {
-        Either.Left(recipe.result.type)
+        Pair(null, recipe.result.type) // Default item, fileResult is null
     }
 
     return ShapedRecipeData(
         rows = rows,
         ingredients = ingredients,
         name = recipe.key.key,
-        result = result
+        fileResult = fileResult,
+        materialResult = materialResult
     )
 }
 
