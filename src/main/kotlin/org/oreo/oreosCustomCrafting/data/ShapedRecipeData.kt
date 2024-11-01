@@ -13,6 +13,7 @@ data class ShapedRecipeData(
     val ingredients: Map<Char, Material>,
     val fileResult : String?,
     val materialResult: Material?,
+    val overridesDefaultRecipe : Boolean
 )
 
 
@@ -39,7 +40,7 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
 /**
  * Converts a ShapedRecipe into ShapedRecipeData for Json serialization.
  */
-fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedRecipeData {
+fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting,overrideRecipe : Boolean): ShapedRecipeData {
     val rows = recipe.shape.toList()
     val ingredients = mutableMapOf<Char, Material>()
 
@@ -68,7 +69,8 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedReci
         ingredients = ingredients,
         name = recipe.key.key,
         fileResult = fileResult,
-        materialResult = materialResult
+        materialResult = materialResult,
+        overridesDefaultRecipe = overrideRecipe
     )
 }
 

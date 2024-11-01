@@ -3,6 +3,7 @@ package org.oreo.oreosCustomCrafting
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
@@ -50,7 +51,7 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Register and save the recipe as a file
      */
-    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) {
+    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String, overrideRecipe : Boolean) {
 
         Bukkit.getServer().addRecipe(recipe)
 
@@ -58,7 +59,7 @@ class CustomCrafting : JavaPlugin() {
             itemDir?.mkdirs()
         }
         val file = File(craftingDir, "$recipeName.json")
-        file.writeText(gson.toJson(shapedRecipeToData(recipe, this)))
+        file.writeText(gson.toJson(shapedRecipeToData(recipe, this, overrideRecipe)))
 
     }
 
@@ -75,7 +76,17 @@ class CustomCrafting : JavaPlugin() {
                 FileReader(file).use { reader ->
                     val recipeData = gson.fromJson(reader, ShapedRecipeData::class.java)
                     if (recipeData != null) {
-                        Bukkit.getServer().addRecipe(dataToShapedRecipe(recipeData))
+
+                        val recipeFromData = dataToShapedRecipe(recipeData)
+
+                        Bukkit.getServer().addRecipe(recipeFromData)
+
+//                        if (recipeData.overridesDefaultRecipe){
+//                            for (recipe in Bukkit.getRecipesFor(ItemStack(recipeFromData.result.type))) {
+//                                Bukkit.removeRecipe(recipe.)
+//                            }
+//                        }
+
                         logger.info("Registered custom recipe ${recipeData.name} successfully")
                     }
                 }
