@@ -10,7 +10,7 @@ import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class CustomCraftingInventory(player: Player, private val recipeName : String, val plugin : CustomCrafting) {
+class CustomCraftingInventory(player: Player, private val recipeName : String, private val plugin : CustomCrafting) {
 
     private val craftingInvName = "Create a custom recipe"
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
@@ -79,22 +79,17 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, v
 
         val resultSlotItem : ItemStack = craftingInv.getItem(RESULT_SLOT) ?: throw NullPointerException()
 
-        //Set up the resulting item and save it as a file if it hasn't been yet
-        val recipeResult : ItemStack = //TODO make this make sense :sob:
-            if (craftingInv.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem)) {
+        if (craftingInv.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem)||
+            !Utils.customItemExists(resultSlotItem)) {
 
-                if (!Utils.customItemExists(resultSlotItem)){
-                    Utils.saveCustomItemAsFile(resultSlotItem,plugin)
-                }
-                resultSlotItem
+            Utils.saveCustomItemAsFile(resultSlotItem, plugin)
 
-            } else {
-                resultSlotItem
-            }
+        }
+
 
         val recipeMapping = handleStringConversion()
 
-        val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), recipeResult)
+        val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
         recipe.shape(recipeMapping.first[0],
                      recipeMapping.first[1],
                      recipeMapping.first[2])

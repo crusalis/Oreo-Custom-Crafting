@@ -3,6 +3,7 @@ package org.oreo.oreosCustomCrafting
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
@@ -15,13 +16,14 @@ import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
 import java.io.FileReader
 
+
 class CustomCrafting : JavaPlugin() {
 
     private val gson = Gson()
 
     var itemDir: File? = null
 
-    private var craftingDir: File? = null
+    var craftingDir: File? = null
 
     /**
      * Handle all the directories and recipes on load
@@ -150,6 +152,29 @@ class CustomCrafting : JavaPlugin() {
             logger.info("Custom crafting directory already exists: ${newDir.absolutePath}")
             return File(newDir.path)
         }
+    }
+
+
+    fun removeCraftingRecipe(name: String) : Boolean {
+
+        try {
+
+            val key : NamespacedKey = NamespacedKey.fromString(name)!!
+
+            Bukkit.getServer().removeRecipe(key)
+
+            for (file in craftingDir?.listFiles()!!){
+                if (file.name != "$name.json") continue
+
+                file.delete()
+                return true
+            }
+
+            return false
+        } catch (_: Exception) {
+            return false
+        }
+
     }
 
     companion object {
