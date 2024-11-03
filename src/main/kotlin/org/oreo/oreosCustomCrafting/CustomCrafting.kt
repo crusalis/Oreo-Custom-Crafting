@@ -3,7 +3,6 @@ package org.oreo.oreosCustomCrafting
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
@@ -51,7 +50,9 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Register and save the recipe as a file
      */
-    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String, overrideRecipe : Boolean) {
+    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) {
+
+        Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeName))
 
         Bukkit.getServer().addRecipe(recipe)
 
@@ -59,7 +60,17 @@ class CustomCrafting : JavaPlugin() {
             itemDir?.mkdirs()
         }
         val file = File(craftingDir, "$recipeName.json")
-        file.writeText(gson.toJson(shapedRecipeToData(recipe, this, overrideRecipe)))
+        file.writeText(gson.toJson(shapedRecipeToData(recipe, this)))
+
+
+        val recipeIterator = Bukkit.recipeIterator()
+
+        while (recipeIterator.hasNext()) {
+            val recipe1 = recipeIterator.next()
+            if (recipe1 != null) {
+                logger.info("Recipe for: " + recipe1.result.type.toString())
+            }
+        }
 
     }
 
@@ -79,13 +90,8 @@ class CustomCrafting : JavaPlugin() {
 
                         val recipeFromData = dataToShapedRecipe(recipeData)
 
+                        Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
-
-//                        if (recipeData.overridesDefaultRecipe){
-//                            for (recipe in Bukkit.getRecipesFor(ItemStack(recipeFromData.result.type))) {
-//                                Bukkit.removeRecipe(recipe.)
-//                            }
-//                        }
 
                         logger.info("Registered custom recipe ${recipeData.name} successfully")
                     }

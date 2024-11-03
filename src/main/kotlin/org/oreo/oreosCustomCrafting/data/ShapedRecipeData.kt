@@ -13,7 +13,7 @@ data class ShapedRecipeData(
     val ingredients: Map<Char, Material>,
     val fileResult : String?,
     val materialResult: Material?,
-    val overridesDefaultRecipe : Boolean
+    val amount: Int
 )
 
 
@@ -26,6 +26,8 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
         data.materialResult != null -> ItemStack(data.materialResult) // Use the material if it's a default item
         else -> throw IllegalArgumentException("Invalid recipe result")
     }
+
+    value.amount = data.amount
 
     val recipe = ShapedRecipe(NamespacedKey.minecraft(data.name), value)
     recipe.shape(*data.rows.toTypedArray())
@@ -40,7 +42,7 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
 /**
  * Converts a ShapedRecipe into ShapedRecipeData for Json serialization.
  */
-fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting,overrideRecipe : Boolean): ShapedRecipeData {
+fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedRecipeData {
     val rows = recipe.shape.toList()
     val ingredients = mutableMapOf<Char, Material>()
 
@@ -70,7 +72,7 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting,overrideReci
         name = recipe.key.key,
         fileResult = fileResult,
         materialResult = materialResult,
-        overridesDefaultRecipe = overrideRecipe
+        amount = recipe.result.amount
     )
 }
 

@@ -27,7 +27,7 @@ class CustomCraftingInventoryListener : Listener {
 
 
         if (e.currentItem == craftInvInstance!!.acceptButton){
-            craftInvInstance.saveRecipe(false)
+            craftInvInstance.saveRecipe()
             craftInvInstance.closeInventory()
         } else if (e.currentItem == craftInvInstance.cancelButton) {
             craftInvInstance.closeInventory()

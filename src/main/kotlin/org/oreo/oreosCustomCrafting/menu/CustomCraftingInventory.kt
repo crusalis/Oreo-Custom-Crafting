@@ -75,7 +75,7 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
     /**
      * Saves the recipe from the inventory into a file and registers it
      */
-    fun saveRecipe(override : Boolean){
+    fun saveRecipe(){
 
         val resultSlotItem : ItemStack = craftingInv.getItem(RESULT_SLOT) ?: throw NullPointerException()
 
@@ -83,7 +83,6 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
             !Utils.customItemExists(resultSlotItem)) {
 
             Utils.saveCustomItemAsFile(resultSlotItem, plugin)
-
         }
 
 
@@ -98,7 +97,7 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
             recipe.setIngredient(char, ingredient)
         }
 
-        plugin.registerAndSaveRecipe(recipe,recipeName,override)
+        plugin.registerAndSaveRecipe(recipe,recipeName)
     }
 
     /**
@@ -157,7 +156,6 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
         val outputStrings = outputLines.map { it.toString() }
         return Pair(outputStrings, charToMaterialMap)
     }
-
 
 
 
