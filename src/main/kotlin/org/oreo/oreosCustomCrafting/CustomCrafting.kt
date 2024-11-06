@@ -3,15 +3,17 @@ package org.oreo.oreosCustomCrafting
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.TestCommand
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
-import org.oreo.oreosCustomCrafting.menu.CustomCraftingInventoryListener
+import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
 import java.io.FileReader
@@ -203,6 +205,19 @@ class CustomCrafting : JavaPlugin() {
          * A list of all custom items which is loaded from the save file
          */
         val customItems: HashMap<String, ItemStack> = hashMapOf()
+
+
+        fun getAllRecipes(): List<Recipe> {
+            val recipes = mutableListOf<Recipe>()
+
+            // Iterate through all the registered recipes
+            for (recipe in Bukkit.recipeIterator()) {
+                recipes.add(recipe)
+            }
+
+            return recipes
+        }
     }
+
 
 }

@@ -7,7 +7,8 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.menu.CustomCraftingInventory
+import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeInventory
 
 
 class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {
@@ -61,6 +62,12 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                 }
 
             }
+
+            "see" -> {
+                RecipeInventory(sender)
+            }
+
+
         }
         return true
     }
@@ -72,7 +79,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
         args: Array<out String>
     ): List<String> {
         return when (args.size) {
-            1 -> listOf("add","remove").filter { it.startsWith(args[0], ignoreCase = true) }
+            1 -> listOf("add","remove","see").filter { it.startsWith(args[0], ignoreCase = true) }
 
             2 -> {
 

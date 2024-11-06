@@ -1,4 +1,4 @@
-package org.oreo.oreosCustomCrafting.menu
+package org.oreo.oreosCustomCrafting.menus.customCrafting
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
