@@ -65,8 +65,9 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
             }
 
             "see" -> {
-                if (args[1].isEmpty()){
+                if (args.size < 2 || args[1].isEmpty()){
                     sender.sendMessage("${ChatColor.RED}Please specify subcommand.")
+                    return true
                 }
                 when (args[1]) {
                     "all" -> RecipeInventory(sender,ViewType.ALL)

@@ -210,7 +210,7 @@ class CustomCrafting : JavaPlugin() {
          */
         val customItems: HashMap<String, ItemStack> = hashMapOf()
 
-        val disabledRecipes : List<Recipe> = arrayListOf()
+        val disabledRecipes : MutableList<Recipe> = mutableListOf()
 
         fun getAllRecipes(): List<Recipe> {
             val recipes = mutableListOf<Recipe>()
