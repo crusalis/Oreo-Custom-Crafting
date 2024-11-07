@@ -93,7 +93,7 @@ object Utils {
         return item
     }
 
-    fun createGuiItem(item: ItemStack, name: String, prefix : String? = null, vararg lore: String): ItemStack {
+    fun createGuiItem(item: ItemStack, name: String, prefix : String? = null, vararg lore: String?): ItemStack {
         val meta = checkNotNull(item.itemMeta)
 
         val itemName = if (prefix != null){

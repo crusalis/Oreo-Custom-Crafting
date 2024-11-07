@@ -9,6 +9,7 @@ import org.bukkit.entity.Player
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeInventory
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.ViewType
 
 
 class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {
@@ -64,7 +65,14 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
             }
 
             "see" -> {
-                RecipeInventory(sender)
+                if (args[1].isEmpty()){
+                    sender.sendMessage("${ChatColor.RED}Please specify subcommand.")
+                }
+                when (args[1]) {
+                    "all" -> RecipeInventory(sender,ViewType.ALL)
+                    "enabled" -> RecipeInventory(sender,ViewType.ENABLED)
+                    "disabled" -> RecipeInventory(sender,ViewType.DISABLED)
+                }
             }
 
 
@@ -83,15 +91,21 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
 
             2 -> {
 
-                if (args[0] != "remove") return emptyList()
+                var recipes = arrayListOf<String>()
 
-                val recipes = ArrayList<String>()
+                if (args[0] == "remove") {
 
-                for (file in plugin.craftingDir?.listFiles()!!){
+                    for (file in plugin.craftingDir?.listFiles()!!) {
 
-                    if (file.isDirectory) continue
-                    //drop the ".json" part to match the recipes identifier
-                    recipes.add(file.name.dropLast(5))
+                        if (file.isDirectory) continue
+                        //drop the ".json" part to match the recipes identifier
+                        recipes.add(file.name.dropLast(5))
+                    }
+                } else if (args[0] == "see") {
+
+                    recipes.add("all")
+                    recipes.add("enabled")
+                    recipes.add("disabled")
                 }
 
                 recipes

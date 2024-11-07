@@ -4,10 +4,11 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(val player: Player) {
+class RecipeInventory(val player: Player,type: ViewType) {
 
     private val rows = 5
     private val columns = 9
@@ -17,6 +18,12 @@ class RecipeInventory(val player: Player) {
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage : Int = 0
+
+    val recipes : List<Recipe> = when (type){
+        ViewType.ENABLED -> CustomCrafting.getAllRecipes()
+        ViewType.DISABLED -> CustomCrafting.disabledRecipes
+        ViewType.ALL -> (CustomCrafting.getAllRecipes() + CustomCrafting.disabledRecipes)
+    }
 
     init {
         loadPage(0)
@@ -31,33 +38,43 @@ class RecipeInventory(val player: Player) {
      */
     fun loadPage(page: Int) {
 
+        player.sendMessage("Loading page $page")
+
         currentPage = page
 
         craftingInv.clear() // Clear the inventory before loading the new page
 
-        val recipes = CustomCrafting.getAllRecipes()
         val startIndex = page * itemsPerPage
         val endIndex = minOf(startIndex + itemsPerPage, recipes.size)
 
         // Set the items for the current page
-        for (i in startIndex until endIndex) {
+        var i = startIndex
+        var recipeNumber = i
+        while (i < endIndex) {
             val slot = i - startIndex // Calculate the slot within the current page
-            val recipe = recipes[i]
+            val recipe : Recipe = recipes[recipeNumber]
 
-            craftingInv.setItem(
-                slot,
-                Utils.createGuiItem(
-                    item = recipe.result,
-                    name = "Enabled",
-                    prefix = "§l§a",
-                    recipe.result.itemMeta.displayName
-                )
-            )
+            if (recipe.result.type == Material.AIR) {
+                recipeNumber++
+                continue
+            }
+
+            val itemResult = Utils.createGuiItem(item = recipe.result, name = "Enabled", prefix = "§l§a", recipe.result.itemMeta?.displayName)
+
+            craftingInv.setItem(slot, itemResult)
+            recipeNumber++
+            i++ // Increment to the next recipe
         }
 
+
         // Set navigation items in the last row
-        craftingInv.setItem(invSize - 9, Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, "Previous", null))
-        craftingInv.setItem(invSize - 1, Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, "Next", null))
+        if (currentPage > 0){
+            craftingInv.setItem(invSize - 9, Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, "Previous", null))
+        }
+
+        if (!hasBlank()) {
+                craftingInv.setItem(invSize - 1, Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, "Next", null))
+        }
     }
 
     /**
@@ -86,10 +103,10 @@ class RecipeInventory(val player: Player) {
 
         val name = item.itemMeta?.displayName ?: return
 
-        if (name.contains("Next")){ //TODO this no worky worky
-            loadPage(currentPage++)
+        if (name.contains("Next")){
+            loadPage(currentPage + 1)
         } else if (name.contains("Previous")){
-            loadPage(currentPage--)
+            loadPage(currentPage-1)
         } else {
 
             if (name.contains("Enabled")){
@@ -104,6 +121,18 @@ class RecipeInventory(val player: Player) {
 
         }
 
+    }
+
+    private fun hasBlank() : Boolean {
+
+        for (row in 0 until rows-1) {
+            for (column in 0 until columns) {
+                val item = craftingInv.getItem(row * column)
+                if (item == null || item.type == Material.AIR) return true
+            }
+        }
+
+        return false
     }
 
     companion object {
@@ -126,4 +155,10 @@ class RecipeInventory(val player: Player) {
         }
     }
 
+}
+
+enum class ViewType {
+    ENABLED,
+    DISABLED,
+    ALL
 }
