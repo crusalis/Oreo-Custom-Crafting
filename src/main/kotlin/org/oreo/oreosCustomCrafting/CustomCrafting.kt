@@ -14,6 +14,8 @@ import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.DisabledRecipeListener
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeInventoryListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
 import java.io.FileReader
@@ -47,6 +49,8 @@ class CustomCrafting : JavaPlugin() {
         registerSavedRecipes()
 
         server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
+        server.pluginManager.registerEvents(DisabledRecipeListener(), this)
+        server.pluginManager.registerEvents(RecipeInventoryListener(), this)
     }
 
     /**
@@ -206,6 +210,7 @@ class CustomCrafting : JavaPlugin() {
          */
         val customItems: HashMap<String, ItemStack> = hashMapOf()
 
+        val disabledRecipes = mutableSetOf<Recipe>()
 
         fun getAllRecipes(): List<Recipe> {
             val recipes = mutableListOf<Recipe>()
