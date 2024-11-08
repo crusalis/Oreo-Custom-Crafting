@@ -9,12 +9,12 @@ import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(val player: Player,val type: ViewType) {
+class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom : Boolean) {
 
     private val rows = 5
     private val columns = 9
     private val invSize = rows * columns
-    private val craftingInvName = "Enable / Disable recipes"
+    private val craftingInvName = "Recipe settings"
     private val craftingInv = Bukkit.createInventory(null, invSize, craftingInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
@@ -30,16 +30,28 @@ class RecipeInventory(val player: Player,val type: ViewType) {
 
     /**
      * Loads a specified page of recipes into the crafting inventory.
-     *
      * @param page The page number to load (0-based).
      */
-    fun loadPage(page: Int) { //TODO fix updating
+    fun loadPage(page: Int) {
+
+        if (page < 0) throw IllegalArgumentException("Page can't be negative")
+
         // Update recipes based on current ViewType to reflect any changes
-        val recipes = when (type) {
-            ViewType.ENABLED -> CustomCrafting.getAllRecipes().filter { it !in CustomCrafting.disabledRecipes }
-            ViewType.DISABLED -> CustomCrafting.disabledRecipes
-            ViewType.ALL -> CustomCrafting.getAllRecipes() + CustomCrafting.disabledRecipes
+        val recipes = if(showOnlyCustom) { //TODO fix diz
+            when (type) {
+                ViewType.ENABLED -> CustomCrafting.customRecipes.filterNot { it in CustomCrafting.disabledRecipes }
+                ViewType.DISABLED -> CustomCrafting.customRecipes.filter { it in CustomCrafting.disabledRecipes }
+                ViewType.ALL -> CustomCrafting.customRecipes
+            }
+
+        } else {
+            when (type) {
+                ViewType.ENABLED -> CustomCrafting.allRecipesSaved.filterNot { it in CustomCrafting.disabledRecipes }
+                ViewType.DISABLED -> CustomCrafting.disabledRecipes
+                ViewType.ALL -> CustomCrafting.allRecipesSaved
+            }
         }
+
 
         slotToRecipe.clear()
         currentPage = page
@@ -79,10 +91,10 @@ class RecipeInventory(val player: Player,val type: ViewType) {
 
         // Set navigation items in the last row
         if (currentPage > 0) {
-            craftingInv.setItem(invSize - 9, Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, "Previous", null))
+            craftingInv.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
         }
         if (!hasBlank()) {
-            craftingInv.setItem(invSize - 1, Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, "Next", null))
+            craftingInv.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
         }
     }
 
@@ -121,7 +133,7 @@ class RecipeInventory(val player: Player,val type: ViewType) {
         } else {
 
             if (name.contains("Enabled")){
-                if(slotToRecipe[slot] ==null){
+                if(slotToRecipe[slot] == null){
                     player.sendMessage("${ChatColor.RED}An issue happened while enabling this recipe.")
                     return
                 }

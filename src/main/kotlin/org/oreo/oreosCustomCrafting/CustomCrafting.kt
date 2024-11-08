@@ -3,7 +3,6 @@ package org.oreo.oreosCustomCrafting
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
@@ -58,6 +57,9 @@ class CustomCrafting : JavaPlugin() {
      */
     fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) {
 
+        customRecipes.add(recipe)
+        allRecipesSaved.add(recipe)
+
         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeName))
 
         Bukkit.getServer().addRecipe(recipe)
@@ -98,6 +100,9 @@ class CustomCrafting : JavaPlugin() {
 
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
+
+                        customRecipes.add(recipeFromData)
+                        allRecipesSaved.add(recipeFromData)
 
                         logger.info("Registered custom recipe ${recipeData.name} successfully")
                     }
@@ -212,7 +217,15 @@ class CustomCrafting : JavaPlugin() {
 
         val disabledRecipes : MutableList<Recipe> = mutableListOf()
 
-        fun getAllRecipes(): List<Recipe> {
+        val customRecipes : MutableList<Recipe> = mutableListOf()
+
+        /**
+         * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
+         a different memory address every time and there's no such thing as .equals() for recipes
+         */
+        val allRecipesSaved : ArrayList<Recipe> = getAllRecipes()
+
+        private fun getAllRecipes(): ArrayList<Recipe> {
             val recipes = mutableListOf<Recipe>()
 
             // Iterate through all the registered recipes
@@ -220,7 +233,7 @@ class CustomCrafting : JavaPlugin() {
                 recipes.add(recipe)
             }
 
-            return recipes
+            return recipes as ArrayList<Recipe>
         }
     }
 

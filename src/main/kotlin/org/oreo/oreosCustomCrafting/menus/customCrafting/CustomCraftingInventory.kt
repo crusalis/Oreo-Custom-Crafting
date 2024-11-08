@@ -97,6 +97,8 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
             recipe.setIngredient(char, ingredient)
         }
 
+        CustomCrafting.allRecipesSaved.add(recipe)
+
         plugin.registerAndSaveRecipe(recipe,recipeName)
     }
 

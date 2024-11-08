@@ -64,19 +64,26 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
 
             }
 
-            "see" -> {
+            "toggle" -> {
                 if (args.size < 2 || args[1].isEmpty()){
                     sender.sendMessage("${ChatColor.RED}Please specify subcommand.")
                     return true
                 }
+                val showOnlyCustom = (args.size >= 3 && args[2].isNotEmpty() && args[2] == "custom")
                 when (args[1]) {
-                    "all" -> RecipeInventory(sender,ViewType.ALL)
-                    "enabled" -> RecipeInventory(sender,ViewType.ENABLED)
-                    "disabled" -> RecipeInventory(sender,ViewType.DISABLED)
+                    "all" -> {
+                        RecipeInventory(sender,ViewType.ALL,showOnlyCustom)
+
+                    }
+                    "enabled" -> RecipeInventory(sender,ViewType.ENABLED,showOnlyCustom)
+                    "disabled" -> RecipeInventory(sender,ViewType.DISABLED,showOnlyCustom)
+
+                    else -> {
+                        sender.sendMessage("${ChatColor.RED}Please specify subcommand.")
+                        return true
+                    }
                 }
             }
-
-
         }
         return true
     }
@@ -88,7 +95,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
         args: Array<out String>
     ): List<String> {
         return when (args.size) {
-            1 -> listOf("add","remove","see").filter { it.startsWith(args[0], ignoreCase = true) }
+            1 -> listOf("add","remove","toggle").filter { it.startsWith(args[0], ignoreCase = true) }
 
             2 -> {
 
@@ -102,7 +109,7 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                         //drop the ".json" part to match the recipes identifier
                         recipes.add(file.name.dropLast(5))
                     }
-                } else if (args[0] == "see") {
+                } else if (args[0] == "toggle") {
 
                     recipes.add("all")
                     recipes.add("enabled")
@@ -110,6 +117,15 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
                 }
 
                 recipes
+            }
+
+            3 -> {
+                if (args[0] == "toggle") {
+
+                    return listOf("custom")
+                }
+
+                return emptyList()
             }
 
             else -> emptyList()
