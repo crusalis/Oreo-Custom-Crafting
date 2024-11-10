@@ -26,11 +26,25 @@ class CustomCraftingInventoryListener : Listener {
         val craftInvInstance = CustomCraftingInventory.getCustomCraftingInventory(e.inventory)
 
 
-        if (e.currentItem == craftInvInstance!!.acceptButton){
-            craftInvInstance.saveRecipe()
-            craftInvInstance.closeInventory()
-        } else if (e.currentItem == craftInvInstance.cancelButton) {
-            craftInvInstance.closeInventory()
+        when (e.currentItem) {
+
+
+            craftInvInstance!!.acceptButton -> {
+                craftInvInstance.saveRecipe()
+                craftInvInstance.closeInventory()
+            }
+
+            craftInvInstance.cancelButton -> {
+                craftInvInstance.closeInventory()
+            }
+
+            craftInvInstance.shapedButton -> {
+                craftInvInstance.handleShapeLessToggle()
+            }
+
+            craftInvInstance.shapedLessButton -> {
+                craftInvInstance.handleShapedToggle()
+            }
         }
     }
 

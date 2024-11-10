@@ -45,13 +45,13 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
 
             "remove" -> {
 
-                val recipeName = args[1]
-
-                if (recipeName.isEmpty()) {
+                if (args.size <= 2 || args[1].isEmpty()) {
 
                     sender.sendMessage("${ChatColor.RED}Please specify a recipe name.")
                     return true
                 }
+
+                val recipeName = args[1]
 
                 if (plugin.removeCraftingRecipe(recipeName)){
 

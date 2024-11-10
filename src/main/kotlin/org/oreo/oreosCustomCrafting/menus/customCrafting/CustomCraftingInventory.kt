@@ -7,6 +7,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
@@ -18,6 +19,15 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
     val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
     val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
+
+    val shapedButton = Utils.createGuiItem(Material.BLUE_CONCRETE, "Shaped", null)
+    val shapedLessButton = Utils.createGuiItem(Material.YELLOW_CONCRETE, "Shapeless", null)
+
+    var isShaped = true
+
+    val toggleSlot = 49
+    val acceptSlot = 47
+    val cancelSlot = 51
 
     init {
         initializeMenuItems()
@@ -49,8 +59,11 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
         }
 
         // Set the buttons
-        craftingInv.setItem(47, ItemStack(acceptButton)) // Save button
-        craftingInv.setItem(51, ItemStack(cancelButton)) // Cancel button
+        craftingInv.setItem(acceptSlot, ItemStack(acceptButton)) // Save button
+
+        craftingInv.setItem(toggleSlot, ItemStack(shapedButton)) // Shaped/shapeless toggle
+
+        craftingInv.setItem(cancelSlot, ItemStack(cancelButton)) // Cancel button
     }
 
     /**
@@ -85,21 +98,39 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
             Utils.saveCustomItemAsFile(resultSlotItem, plugin)
         }
 
+        val returnRecipe = if (isShaped){
+            val recipeMapping = handleStringConversion()
 
-        val recipeMapping = handleStringConversion()
+            val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
+            recipe.shape(recipeMapping.first[0],
+                recipeMapping.first[1],
+                recipeMapping.first[2])
 
-        val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
-        recipe.shape(recipeMapping.first[0],
-                     recipeMapping.first[1],
-                     recipeMapping.first[2])
+            for ((char, ingredient) in recipeMapping.second) {
+                recipe.setIngredient(char, ingredient)
+            }
 
-        for ((char, ingredient) in recipeMapping.second) {
-            recipe.setIngredient(char, ingredient)
+            recipe
+        } else {
+            val recipe = ShapelessRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
+
+            for (slot in CRAFTING_SLOTS) {
+                val item = craftingInv.getItem(slot) ?: continue
+                recipe.addIngredient(item)
+            }
+
+            recipe
         }
+        
+        CustomCrafting.allRecipesSaved.add(returnRecipe)
 
-        CustomCrafting.allRecipesSaved.add(recipe)
-
-        plugin.registerAndSaveRecipe(recipe,recipeName)
+        if (returnRecipe is ShapedRecipe) {
+            plugin.registerAndSaveRecipe(returnRecipe,recipeName)
+        } else if (returnRecipe is ShapelessRecipe){
+            plugin.registerAndSaveRecipe(returnRecipe,recipeName)
+        } else{
+            plugin.logger.warning("Could not save recipe $craftingInvName")
+        }
     }
 
     /**
@@ -159,6 +190,23 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
         return Pair(outputStrings, charToMaterialMap)
     }
 
+    /**
+     * Handles the player toggling to "shaped" mode
+     */
+    fun handleShapedToggle(){
+
+        isShaped = true
+        craftingInv.setItem(toggleSlot,shapedButton)
+    }
+
+    /**
+     * Handles the player toggling to "shapeless" mode
+     */
+    fun handleShapeLessToggle(){
+
+        isShaped = false
+        craftingInv.setItem(toggleSlot,shapedLessButton)
+    }
 
 
     companion object {

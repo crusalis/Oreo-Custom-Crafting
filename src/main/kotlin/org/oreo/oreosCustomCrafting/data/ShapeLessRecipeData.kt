@@ -9,7 +9,8 @@ import org.oreo.oreosCustomCrafting.utils.Utils
 
 data class ShapeLessRecipeData(
     val name: String,
-    val ingredients: List<ItemStack>,
+    val ingredientsMaterials: List<Material>,
+    val ingredientsItems: List<String>,
     val fileResult : String?,
     val materialResult: Material?,
     val amount: Int
@@ -23,42 +24,58 @@ fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
         else -> throw IllegalArgumentException("Invalid recipe result")
     }
 
-
     val recipe = ShapelessRecipe(NamespacedKey.minecraft(data.name), result)
 
-    for (ingredient in data.ingredients){
+    for (ingredient in data.ingredientsMaterials) {
         recipe.addIngredient(ingredient)
+    }
+
+    for (ingredient in data.ingredientsItems) {
+
+        val item = Utils.getCustomItem(ingredient)
+
+        recipe.addIngredient(item)
     }
 
     return recipe
 }
 
 
-fun shapeLessRecipeToData(recipe : ShapelessRecipe , plugin: CustomCrafting) : ShapeLessRecipeData {
+fun shapeLessRecipeToData(recipe: ShapelessRecipe, plugin: CustomCrafting): ShapeLessRecipeData {
+    val ingredientsMaterials = mutableListOf<Material>()
+    val ingredientsItems = mutableListOf<String>()
 
-    recipe.ingredientList.forEach { ingredient ->}
-
-    val (fileResult, materialResult) = if (Utils.isCustomItem(recipe.result)) {
-        val resultItem = recipe.result
-
-        if (Utils.customItemExists(resultItem)) {
-            val customItemName: String = CustomCrafting.customItems.getKeyFromValue(resultItem)!!
-            Pair(customItemName, null) // Custom item, materialResult is null
-        } else {
-            val fileName = Utils.saveCustomItemAsFile(resultItem, plugin = plugin)!!.name
-            Pair(fileName, null) // Custom item, materialResult is null
+    // Process each ingredient in the recipe
+    recipe.ingredientList.forEach { ingredient ->
+        if (ingredient.type != Material.AIR) { // Avoid adding empty slots
+            if (Utils.isCustomItem(ingredient)) {
+                val customItemName = CustomCrafting.customItems.getKeyFromValue(ingredient) ?: run {
+                    Utils.saveCustomItemAsFile(ingredient, plugin)?.name
+                }
+                if (customItemName != null) ingredientsItems.add(customItemName)
+            } else {
+                ingredientsMaterials.add(ingredient.type)
+            }
         }
+    }
+
+    // Determine result item data
+    val (fileResult, materialResult) = if (Utils.isCustomItem(recipe.result)) {
+        val customItemName = CustomCrafting.customItems.getKeyFromValue(recipe.result)
+            ?: Utils.saveCustomItemAsFile(recipe.result, plugin)?.name
+        Pair(customItemName, null)
     } else {
-        Pair(null, recipe.result.type) // Default item, fileResult is null
+        Pair(null, recipe.result.type)
     }
 
     return ShapeLessRecipeData(
         name = recipe.key.key,
-        ingredients = recipe.ingredientList,
+        ingredientsMaterials = ingredientsMaterials,
+        ingredientsItems = ingredientsItems,
         fileResult = fileResult,
         materialResult = materialResult,
-        amount = recipe.result.amount,
+        amount = recipe.result.amount
     )
-
 }
+
 
