@@ -7,14 +7,18 @@ import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.ShapelessRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.TestCommand
+import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
+import org.oreo.oreosCustomCrafting.data.dataToShapeLessRecipe
 import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
+import org.oreo.oreosCustomCrafting.data.shapeLessRecipeToData
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
-import org.oreo.oreosCustomCrafting.menus.recipeMenu.DisabledRecipeListener
-import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeInventoryListener
+import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
+import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventoryListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
 import java.io.FileReader
@@ -27,6 +31,9 @@ class CustomCrafting : JavaPlugin() {
     var itemDir: File? = null
 
     var craftingDir: File? = null
+
+    var shapedRecipeDir: File? = null
+    var shapelessRecipeDir: File? = null
 
     /**
      * Handle all the directories and recipes on load
@@ -43,7 +50,7 @@ class CustomCrafting : JavaPlugin() {
 
     override fun onEnable() {
 
-        getCommand("oreosCrafting")!!.setExecutor(TestCommand(this)) // Register a command
+        getCommand("crusalisCrafting")!!.setExecutor(TestCommand(this)) // Register a command
 
         registerSavedRecipes()
 
@@ -67,19 +74,24 @@ class CustomCrafting : JavaPlugin() {
         if (!itemDir?.exists()!!) {
             itemDir?.mkdirs()
         }
-        val file = File(craftingDir, "$recipeName.json")
+        val file = File(shapedRecipeDir, "$recipeName.json")
         file.writeText(gson.toJson(shapedRecipeToData(recipe, this)))
+    }
 
+    fun registerAndSaveRecipe(recipe : ShapelessRecipe, recipeName : String){
 
-        val recipeIterator = Bukkit.recipeIterator()
+        customRecipes.add(recipe)
+        allRecipesSaved.add(recipe)
 
-        while (recipeIterator.hasNext()) {
-            val recipe1 = recipeIterator.next()
-            if (recipe1 != null) {
-                logger.info("Recipe for: " + recipe1.result.type.toString())
-            }
+        Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeName))
+
+        Bukkit.getServer().addRecipe(recipe)
+
+        if (!itemDir?.exists()!!) {
+            itemDir?.mkdirs()
         }
-
+        val file = File(shapelessRecipeDir, "$recipeName.json")
+        file.writeText(gson.toJson(shapeLessRecipeToData(recipe, this)))
     }
 
     /**
@@ -87,7 +99,7 @@ class CustomCrafting : JavaPlugin() {
      */
     private fun registerSavedRecipes() {
 
-        for (file in craftingDir?.listFiles()!!) {
+        for (file in shapedRecipeDir?.listFiles()!!) {
 
             if (!file.isFile || !file.extension.equals("json", ignoreCase = true)) continue
 
@@ -104,11 +116,37 @@ class CustomCrafting : JavaPlugin() {
                         customRecipes.add(recipeFromData)
                         allRecipesSaved.add(recipeFromData)
 
-                        logger.info("Registered custom recipe ${recipeData.name} successfully")
+                        logger.info("Registered custom shaped recipe ${recipeData.name} successfully")
                     }
                 }
             } catch (e: JsonSyntaxException) {
-                Bukkit.getLogger().warning("Failed to parse recipe in file ${file.name}: ${e.message}")
+                Bukkit.getLogger().warning("Failed to parse shaped recipe in file ${file.name}: ${e.message}")
+            }
+        }
+
+
+        for (file in shapelessRecipeDir?.listFiles()!!) {
+
+            if (!file.isFile || !file.extension.equals("json", ignoreCase = true)) continue
+
+            try {
+                FileReader(file).use { reader ->
+                    val recipeData = gson.fromJson(reader, ShapeLessRecipeData::class.java)
+                    if (recipeData != null) {
+
+                        val recipeFromData = dataToShapeLessRecipe(recipeData)
+
+                        Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
+                        Bukkit.getServer().addRecipe(recipeFromData)
+
+                        customRecipes.add(recipeFromData)
+                        allRecipesSaved.add(recipeFromData)
+
+                        logger.info("Registered custom shapeless recipe ${recipeData.name} successfully")
+                    }
+                }
+            } catch (e: JsonSyntaxException) {
+                Bukkit.getLogger().warning("Failed to parse shapeless recipe in file ${file.name}: ${e.message}")
             }
         }
     }
@@ -120,14 +158,16 @@ class CustomCrafting : JavaPlugin() {
 
         craftingDir = createDataDirectory("Recipes", dataFolder)
 
+        itemDir = createDataDirectory("Custom Items", dataFolder)
+
         if (craftingDir != null && craftingDir!!.exists()) {
 
-            itemDir = createDataDirectory("Custom Items", craftingDir!!)
+            shapedRecipeDir = createDataDirectory("Shaped Recipes", craftingDir!!)
+            shapelessRecipeDir = createDataDirectory("Shapeless Recipes", craftingDir!!)
 
         } else {
             logger.warning("Failed to create custom Recipes directory")
         }
-
     }
 
     /**

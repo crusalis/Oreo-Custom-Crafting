@@ -1,4 +1,4 @@
-package org.oreo.oreosCustomCrafting.menus.recipeMenu
+package org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu
 
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -37,7 +37,7 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
         // Update recipes based on current ViewType to reflect any changes
-        val recipes = if(showOnlyCustom) { //TODO fix diz
+        val recipes = if(showOnlyCustom) {
             when (type) {
                 ViewType.ENABLED -> CustomCrafting.customRecipes.filterNot { it in CustomCrafting.disabledRecipes }
                 ViewType.DISABLED -> CustomCrafting.customRecipes.filter { it in CustomCrafting.disabledRecipes }

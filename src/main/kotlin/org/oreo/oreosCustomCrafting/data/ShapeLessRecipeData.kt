@@ -3,55 +3,40 @@ package org.oreo.oreosCustomCrafting.data
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-data class ShapedRecipeData(
-    val rows: List<String>,
+data class ShapeLessRecipeData(
     val name: String,
-    val ingredients: Map<Char, Material>,
+    val ingredients: List<ItemStack>,
     val fileResult : String?,
     val materialResult: Material?,
     val amount: Int
 )
 
+fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
 
-/**
- * Converts data back into a ShapedRecipe.
- */
-fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe { //TODO add support for custom items as ingredients
-    val value: ItemStack = when {
+    val result: ItemStack = when {
         data.fileResult != null -> Utils.getCustomItem(data.fileResult) // Get custom item by name
         data.materialResult != null -> ItemStack(data.materialResult) // Use the material if it's a default item
         else -> throw IllegalArgumentException("Invalid recipe result")
     }
 
-    value.amount = data.amount
 
-    val recipe = ShapedRecipe(NamespacedKey.minecraft(data.name), value)
-    recipe.shape(*data.rows.toTypedArray())
+    val recipe = ShapelessRecipe(NamespacedKey.minecraft(data.name), result)
 
-    data.ingredients.forEach { (char, material) ->
-
-        recipe.setIngredient(char, material)
+    for (ingredient in data.ingredients){
+        recipe.addIngredient(ingredient)
     }
 
     return recipe
 }
 
-/**
- * Converts a ShapedRecipe into ShapedRecipeData for Json serialization.
- */
-fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedRecipeData {
-    val rows = recipe.shape.toList()
-    val ingredients = mutableMapOf<Char, Material>()
 
-    recipe.ingredientMap.forEach { (key, itemStack) ->
-        itemStack?.let {
-            ingredients[key] = itemStack.type
-        }
-    }
+fun shapeLessRecipeToData(recipe : ShapelessRecipe , plugin: CustomCrafting) : ShapeLessRecipeData {
+
+    recipe.ingredientList.forEach { ingredient ->}
 
     val (fileResult, materialResult) = if (Utils.isCustomItem(recipe.result)) {
         val resultItem = recipe.result
@@ -67,21 +52,13 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedReci
         Pair(null, recipe.result.type) // Default item, fileResult is null
     }
 
-    return ShapedRecipeData(
-        rows = rows,
-        ingredients = ingredients,
+    return ShapeLessRecipeData(
         name = recipe.key.key,
+        ingredients = recipe.ingredientList,
         fileResult = fileResult,
         materialResult = materialResult,
-        amount = recipe.result.amount
+        amount = recipe.result.amount,
     )
-}
 
-/**
- * Method for getting a key from a value because I cant reformat my code around that not being the case
- */
-fun <K, V> HashMap<K, V>.getKeyFromValue(value: V): K? {
-    return this.entries.firstOrNull { it.value == value }?.key
 }
-
 

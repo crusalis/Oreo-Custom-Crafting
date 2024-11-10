@@ -8,8 +8,8 @@ import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
-import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeInventory
-import org.oreo.oreosCustomCrafting.menus.recipeMenu.ViewType
+import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventory
+import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.ViewType
 
 
 class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {

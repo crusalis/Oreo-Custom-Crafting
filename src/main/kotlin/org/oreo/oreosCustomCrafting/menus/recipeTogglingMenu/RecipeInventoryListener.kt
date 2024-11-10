@@ -1,13 +1,10 @@
-package org.oreo.oreosCustomCrafting.menus.recipeMenu
+package org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu
 
-import org.bukkit.Bukkit
-import org.bukkit.Bukkit.getOnlinePlayers
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.PlayerInventory
-import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
 
 class RecipeInventoryListener : Listener {
 
