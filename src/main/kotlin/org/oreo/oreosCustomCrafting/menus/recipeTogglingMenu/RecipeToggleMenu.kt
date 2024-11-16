@@ -64,7 +64,13 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
         var recipeNumber = i
         while (i < endIndex) {
             val slot = i - startIndex
-            val recipe: Recipe = recipes[recipeNumber]
+
+            val recipe: Recipe = try {
+                recipes[recipeNumber]
+            } catch (e : IndexOutOfBoundsException) {
+                break
+            }
+
 
             if (recipe.result.type == Material.AIR) {
                 recipeNumber++

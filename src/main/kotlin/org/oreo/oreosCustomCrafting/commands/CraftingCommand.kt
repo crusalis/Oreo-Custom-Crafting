@@ -12,7 +12,7 @@ import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventory
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.ViewType
 
 
-class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {
+class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -95,7 +95,14 @@ class TestCommand(private val plugin: CustomCrafting) : CommandExecutor, TabComp
         args: Array<out String>
     ): List<String> {
         return when (args.size) {
-            1 -> listOf("add","remove","toggle").filter { it.startsWith(args[0], ignoreCase = true) }
+
+            1 -> {
+                return if (sender.isOp) {
+                    listOf("add","remove","toggle","recipes").filter { it.startsWith(args[0], ignoreCase = true) }
+                } else {
+                    listOf("recipes")
+                }
+            }
 
             2 -> {
 

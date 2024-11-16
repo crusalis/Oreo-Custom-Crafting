@@ -7,7 +7,7 @@ import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-data class ShapedRecipeData(
+data class ShapedRecipeData( //TODO add a function to get the result from
     val rows: List<String>,
     val name: String,
     val ingredients: Map<Char, Material>,

@@ -9,7 +9,7 @@ import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.bukkit.plugin.java.JavaPlugin
-import org.oreo.oreosCustomCrafting.commands.TestCommand
+import org.oreo.oreosCustomCrafting.commands.CraftingCommand
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.data.dataToShapeLessRecipe
@@ -17,14 +17,15 @@ import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
 import org.oreo.oreosCustomCrafting.data.shapeLessRecipeToData
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
-import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventoryListener
+import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
 import java.io.FileReader
 
 
-class CustomCrafting : JavaPlugin() {
+class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
     private val gson = Gson()
 
@@ -54,21 +55,23 @@ class CustomCrafting : JavaPlugin() {
             Bukkit.clearRecipes()
         }
 
-        getCommand("crusalisCrafting")!!.setExecutor(TestCommand(this)) // Register a command
+        getCommand("crusalisCrafting")!!.setExecutor(CraftingCommand(this)) // Register a command
 
         registerSavedRecipes()
 
         server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
         server.pluginManager.registerEvents(DisabledRecipeListener(), this)
-        server.pluginManager.registerEvents(RecipeInventoryListener(), this)
+        server.pluginManager.registerEvents(RecipeToggleMenuListener(), this)
+        server.pluginManager.registerEvents(RecipeMenuListener(), this)
 
         saveDefaultConfig()
+
     }
 
     /**
      * Register and save the recipe as a file
      */
-    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) {
+    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) { //Shaped recipes
 
         customRecipes.add(recipe)
         allRecipesSaved.add(recipe)
@@ -81,9 +84,15 @@ class CustomCrafting : JavaPlugin() {
             itemDir?.mkdirs()
         }
         val file = File(shapedRecipeDir, "$recipeName.json")
-        file.writeText(gson.toJson(shapedRecipeToData(recipe, this)))
+
+        val recipeData = shapedRecipeToData(recipe, this)
+
+        shapedRecipeDataList.add(recipeData)
+
+        file.writeText(gson.toJson(recipeData))
     }
 
+    // Shapeless recipes
     fun registerAndSaveRecipe(recipe : ShapelessRecipe, recipeName : String){
 
         customRecipes.add(recipe)
@@ -97,11 +106,16 @@ class CustomCrafting : JavaPlugin() {
             itemDir?.mkdirs()
         }
         val file = File(shapelessRecipeDir, "$recipeName.json")
-        file.writeText(gson.toJson(shapeLessRecipeToData(recipe, this)))
+
+        val recipeData = shapeLessRecipeToData(recipe, this)
+
+        shapelessRecipeDataList.add(recipeData)
+
+        file.writeText(gson.toJson(recipeData))
     }
 
     /**
-     * Registers all custom recipes saved in the file
+     * Registers all custom recipes saved
      */
     private fun registerSavedRecipes() {
 
@@ -113,6 +127,8 @@ class CustomCrafting : JavaPlugin() {
                 FileReader(file).use { reader ->
                     val recipeData = gson.fromJson(reader, ShapedRecipeData::class.java)
                     if (recipeData != null) {
+
+                        shapedRecipeDataList.add(recipeData)
 
                         val recipeFromData = dataToShapedRecipe(recipeData)
 
@@ -139,6 +155,8 @@ class CustomCrafting : JavaPlugin() {
                 FileReader(file).use { reader ->
                     val recipeData = gson.fromJson(reader, ShapeLessRecipeData::class.java)
                     if (recipeData != null) {
+
+                        shapelessRecipeDataList.add(recipeData)
 
                         val recipeFromData = dataToShapeLessRecipe(recipeData)
 
@@ -265,8 +283,8 @@ class CustomCrafting : JavaPlugin() {
 
         val customRecipes : MutableList<Recipe> = mutableListOf()
 
-        val customShapedRecipesJson : MutableList<ShapedRecipeData> = mutableListOf()
-        val customShapelessRecipesJson : MutableList<ShapeLessRecipeData> = mutableListOf()
+        val shapedRecipeDataList : MutableList<ShapedRecipeData> = mutableListOf()
+        val shapelessRecipeDataList : MutableList<ShapeLessRecipeData> = mutableListOf()
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
@@ -284,6 +302,8 @@ class CustomCrafting : JavaPlugin() {
 
             return recipes as ArrayList<Recipe>
         }
+
+
     }
 
 

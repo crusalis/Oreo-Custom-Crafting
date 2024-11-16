@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.PlayerInventory
 
-class RecipeInventoryListener : Listener {
+class RecipeToggleMenuListener : Listener {
 
     @EventHandler
     fun playerClickItem(e: InventoryClickEvent) {
