@@ -50,6 +50,10 @@ class CustomCrafting : JavaPlugin() {
 
     override fun onEnable() {
 
+        if (config.getBoolean("clear-all-recipes")){
+            Bukkit.clearRecipes()
+        }
+
         getCommand("crusalisCrafting")!!.setExecutor(TestCommand(this)) // Register a command
 
         registerSavedRecipes()
@@ -57,6 +61,8 @@ class CustomCrafting : JavaPlugin() {
         server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
         server.pluginManager.registerEvents(DisabledRecipeListener(), this)
         server.pluginManager.registerEvents(RecipeInventoryListener(), this)
+
+        saveDefaultConfig()
     }
 
     /**
@@ -258,6 +264,9 @@ class CustomCrafting : JavaPlugin() {
         val disabledRecipes : MutableList<Recipe> = mutableListOf()
 
         val customRecipes : MutableList<Recipe> = mutableListOf()
+
+        val customShapedRecipesJson : MutableList<ShapedRecipeData> = mutableListOf()
+        val customShapelessRecipesJson : MutableList<ShapeLessRecipeData> = mutableListOf()
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
