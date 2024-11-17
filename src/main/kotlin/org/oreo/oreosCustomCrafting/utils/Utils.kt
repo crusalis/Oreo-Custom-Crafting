@@ -93,22 +93,23 @@ object Utils {
         return item
     }
 
-    fun createGuiItem(item: ItemStack, name: String, prefix : String? = null, vararg lore: String?): ItemStack {
-        val meta = checkNotNull(item.itemMeta)
+    fun createGuiItem(item: ItemStack, name: String, prefix: String? = null, vararg lore: String?): ItemStack {
+        val meta = item.itemMeta ?: return item // Safely handle null meta by returning the original item
 
-        val itemName = if (prefix != null){
+        val itemName = if (prefix != null) {
             prefix + name
         } else {
             name
         }
 
         meta.setDisplayName(itemName)
-        if (lore.isEmpty()) {
-            meta.lore = listOf(*lore)
+        if (lore.isNotEmpty()) {
+            meta.lore = lore.filterNotNull() // Ensure no null entries in the lore
         }
 
         item.setItemMeta(meta)
         return item
     }
+
 
 }

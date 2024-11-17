@@ -7,7 +7,6 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 
 class DisabledRecipeListener : Listener {
 

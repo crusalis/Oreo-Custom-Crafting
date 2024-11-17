@@ -72,7 +72,6 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
 
 
 
-
         slotToRecipe.clear()
         currentPage = page
         craftingInv.clear() // Clear the inventory before loading the new page

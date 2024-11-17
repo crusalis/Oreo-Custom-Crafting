@@ -6,12 +6,15 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
+import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
+import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu (val player: Player) {
+class RecipeMenu (val player: Player, group : String? ) {
 
     private val rows = 5
     private val columns = 9
@@ -22,10 +25,15 @@ class RecipeMenu (val player: Player) {
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage : Int = 0
 
-    private val recipes = CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }  .map {it.recipeData}
+    private val recipes : List<CustomRecipeData> = if(group == null) {
+        CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
+    } else {
+        RecipeGroupMenu.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name")
+    }
 
 
     init {
+
         loadPage(0)
         openInventory()
     }
@@ -49,7 +57,7 @@ class RecipeMenu (val player: Player) {
         var recipeNumber = i
         while (i < endIndex) {
             val slot = i - startIndex
-            val recipe = recipes[recipeNumber]
+            val recipe = recipes[recipeNumber].recipeData
 
             val itemResult : ItemStack = if (recipe is ShapedRecipeData) {
 
@@ -113,7 +121,7 @@ class RecipeMenu (val player: Player) {
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){ //TODO this
+    fun handleClickedItem(slot : Int){
 
         val item = recipeMenuInv.getItem(slot) ?: return
 

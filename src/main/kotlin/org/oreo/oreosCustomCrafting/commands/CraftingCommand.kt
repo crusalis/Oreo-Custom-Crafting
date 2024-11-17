@@ -1,6 +1,7 @@
 package org.oreo.oreosCustomCrafting.commands
 
 import net.md_5.bungee.api.ChatColor
+import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -10,6 +11,8 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
+import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
+import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu.Companion.groups
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventory
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.ViewType
@@ -36,7 +39,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
         when (args[0].lowercase()) {
 
             "recipes" -> {
-                RecipeMenu(player = sender)
+                RecipeGroupMenu(sender)
             }
 
             "add" -> {
@@ -106,6 +109,50 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                     }
                 }
             }
+
+            "groups" -> {
+                if (args.size < 2 || args[1].isEmpty()) {
+                    sender.sendMessage("${ChatColor.RED}Please specify a subcommand (add/remove).")
+                    return true
+                }
+
+                if (args.size < 3 || args[2].isEmpty()) {
+                    sender.sendMessage("${ChatColor.RED}Please specify a group name.")
+                    return true
+                }
+
+                when (args[1].lowercase()) {
+                    "add" -> {
+                        if (groups.contains(args[2])) {
+                            sender.sendMessage("${ChatColor.RED}The group '${args[2]}' already exists.")
+                            return true
+                        }
+                        if (sender.inventory.itemInMainHand.type == Material.AIR){
+                            sender.sendMessage("${ChatColor.RED}You need to hold an item to set as the groups icon.")
+                            return true
+                        }
+                        groups[args[2]] = Pair(sender.inventory.itemInMainHand,listOf())
+                        sender.sendMessage("${ChatColor.GREEN}Group '${args[2]}' created successfully.")
+                        return true
+                    }
+
+                    "remove" -> {
+                        if (groups.contains(args[2])) {
+                            groups.remove(args[2])
+                            sender.sendMessage("${ChatColor.GREEN}Group '${args[2]}' removed successfully.")
+                        } else {
+                            sender.sendMessage("${ChatColor.RED}The group '${args[2]}' does not exist.")
+                        }
+                        return true
+                    }
+
+                    else -> {
+                        sender.sendMessage("${ChatColor.RED}Unknown subcommand '${args[1]}'. Please use add/remove.")
+                        return true
+                    }
+                }
+            }
+
         }
         return true
     }
@@ -120,7 +167,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
             1 -> {
                 return if (sender.isOp) {
-                    listOf("add","remove","toggle","recipes").filter { it.startsWith(args[0], ignoreCase = true) }
+                    listOf("add","remove","toggle","recipes","groups").filter { it.startsWith(args[0], ignoreCase = true) }
                 } else {
                     listOf("recipes")
                 }
@@ -149,6 +196,10 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                     recipes.add("all")
                     recipes.add("enabled")
                     recipes.add("disabled")
+
+                } else if (args[0] == "groups") {
+                    recipes.add("add")
+                    recipes.add("remove")
                 }
 
                 recipes

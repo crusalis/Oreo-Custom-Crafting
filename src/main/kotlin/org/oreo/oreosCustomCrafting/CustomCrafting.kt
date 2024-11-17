@@ -10,7 +10,6 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.CraftingCommand
-import org.oreo.oreosCustomCrafting.customException.WtfIsHappeningException
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
@@ -19,6 +18,7 @@ import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
 import org.oreo.oreosCustomCrafting.data.shapeLessRecipeToData
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
+import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuListener
@@ -65,6 +65,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         server.pluginManager.registerEvents(DisabledRecipeListener(), this)
         server.pluginManager.registerEvents(RecipeToggleMenuListener(), this)
         server.pluginManager.registerEvents(RecipeMenuListener(), this)
+        server.pluginManager.registerEvents(RecipeGroupMenuListener(), this)
 
         saveDefaultConfig()
 
