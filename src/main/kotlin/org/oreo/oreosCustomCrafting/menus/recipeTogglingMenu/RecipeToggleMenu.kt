@@ -37,20 +37,40 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
         // Update recipes based on current ViewType to reflect any changes
-        val recipes = if(showOnlyCustom) {
+        val recipes: List<Recipe> = if (showOnlyCustom) {
             when (type) {
-                ViewType.ENABLED -> CustomCrafting.customRecipes.filterNot { it in CustomCrafting.disabledRecipes }
-                ViewType.DISABLED -> CustomCrafting.customRecipes.filter { it in CustomCrafting.disabledRecipes }
-                ViewType.ALL -> CustomCrafting.customRecipes
-            }
+                // ViewType.ENABLED: Only get enabled recipes (those not in disabledRecipes)
+                ViewType.ENABLED -> CustomCrafting.customRecipes
+                    .filterNot { it.recipe in CustomCrafting.disabledRecipes }
+                    .map { it.recipe }
 
+                // ViewType.DISABLED: Only get disabled recipes (those in disabledRecipes)
+                ViewType.DISABLED -> CustomCrafting.customRecipes
+                    .filter { it.recipe in CustomCrafting.disabledRecipes }
+                    .map { it.recipe }
+
+                // ViewType.ALL: Get all recipes, regardless of their state
+                ViewType.ALL -> CustomCrafting.customRecipes.map { it.recipe }
+            }
         } else {
             when (type) {
-                ViewType.ENABLED -> CustomCrafting.allRecipesSaved.filterNot { it in CustomCrafting.disabledRecipes }
-                ViewType.DISABLED -> CustomCrafting.disabledRecipes
+                // ViewType.ENABLED: Get all enabled recipes (those not in disabledRecipes)
+                ViewType.ENABLED -> CustomCrafting.allRecipesSaved
+                    .filterNot { it in CustomCrafting.disabledRecipes }
+
+                // ViewType.DISABLED: Combine disabledRecipes and non-enabled recipes from customRecipes
+                ViewType.DISABLED -> CustomCrafting.disabledRecipes.plus(
+                    CustomCrafting.customRecipes
+                        .filter { it.recipe in CustomCrafting.disabledRecipes }
+                        .map { it.recipe }
+                )
+
+                // ViewType.ALL: Get all saved recipes, including custom and disabled ones
                 ViewType.ALL -> CustomCrafting.allRecipesSaved
             }
         }
+
+
 
 
         slotToRecipe.clear()
@@ -77,8 +97,11 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
                 continue
             }
 
+
+
             // Update item status based on whether it’s enabled or disabled
-            val isDisabled = CustomCrafting.disabledRecipes.contains(recipe)
+            val isDisabled : Boolean = CustomCrafting.disabledRecipes.contains(recipe)
+
             val statusName = if (isDisabled) "Disabled" else "Enabled"
             val statusPrefix = if (isDisabled) "§l§c" else "§l§a"
 
@@ -138,21 +161,31 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
             loadPage(currentPage-1)
         } else {
 
-            if (name.contains("Enabled")){
-                if(slotToRecipe[slot] == null){
-                    player.sendMessage("${ChatColor.RED}An issue happened while enabling this recipe.")
-                    return
+            val recipe = slotToRecipe[slot] ?: return
+
+            if (name.contains("Enabled")) {
+
+                if (!CustomCrafting.disabledRecipes.contains(recipe)) {
+                    CustomCrafting.disabledRecipes.add(recipe)
                 }
-                if (!CustomCrafting.disabledRecipes.contains(slotToRecipe[slot]!!)){
-                    CustomCrafting.disabledRecipes.add(slotToRecipe[slot]!!)
-                }
-                craftingInv.setItem(slot, Utils.createGuiItem(item = item, name = "Disabled",
-                    prefix = "§l§c",name))
+                craftingInv.setItem(
+                    slot, Utils.createGuiItem(
+                        item = item, name = "Disabled",
+                        prefix = "§l§c", name
+                    )
+                )
             } else if (name.contains("Disabled")) {
-                CustomCrafting.disabledRecipes.remove(slotToRecipe[slot])
-                craftingInv.setItem(slot, Utils.createGuiItem(item = item, name = "Enabled",
-                    prefix = "§l§a",name))
+                CustomCrafting.disabledRecipes.remove(recipe)
+                craftingInv.setItem(
+                    slot, Utils.createGuiItem(
+                        item = item, name = "Enabled",
+                        prefix = "§l§a", name
+                    )
+                )
             }
+
+
+
         }
     }
 

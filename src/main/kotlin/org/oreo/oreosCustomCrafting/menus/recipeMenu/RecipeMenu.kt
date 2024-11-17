@@ -22,7 +22,7 @@ class RecipeMenu (val player: Player) {
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage : Int = 0
 
-    private val recipes = CustomCrafting.shapedRecipeDataList.plus(CustomCrafting.shapelessRecipeDataList)
+    private val recipes = CustomCrafting.customRecipes.map {it.recipeData}
 
 
     init {

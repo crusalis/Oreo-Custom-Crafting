@@ -6,8 +6,11 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventory
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.ViewType
 
@@ -32,6 +35,10 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
         when (args[0].lowercase()) {
 
+            "recipes" -> {
+                RecipeMenu(player = sender)
+            }
+
             "add" -> {
 
                 if (args.size < 2) {
@@ -40,12 +47,28 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 }
 
                 val recipeName = args[1]
+
+                for (recipe in CustomCrafting.customRecipes){
+                    val customRecipeName = if (recipe.recipe is ShapedRecipe){
+                        recipe.recipe.key.key
+                    } else if (recipe.recipe is ShapelessRecipe){
+                        recipe.recipe.key.key
+                    } else {
+                        throw IllegalArgumentException("recipe is of unexpected type")
+                    }
+
+                    if (recipeName == customRecipeName){
+                        sender.sendMessage("${ChatColor.RED}A recipe already has this name.")
+                        return true
+                    }
+                }
+
                 CustomCraftingInventory(sender, recipeName, plugin)
             }
 
             "remove" -> {
 
-                if (args.size <= 2 || args[1].isEmpty()) {
+                if (args.size < 2 || args[1].isEmpty()) {
 
                     sender.sendMessage("${ChatColor.RED}Please specify a recipe name.")
                     return true
@@ -59,7 +82,6 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
                 } else {
                     sender.sendMessage("${ChatColor.RED}Recipe $recipeName does not exist.")
-                    sender.sendMessage("${ChatColor.RED}or something has gone terribly wrong.")
                 }
 
             }
@@ -110,7 +132,13 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
                 if (args[0] == "remove") {
 
-                    for (file in plugin.craftingDir?.listFiles()!!) {
+                    for (file in plugin.shapedRecipeDir?.listFiles()!!) {
+
+                        if (file.isDirectory) continue
+                        //drop the ".json" part to match the recipes identifier
+                        recipes.add(file.name.dropLast(5))
+                    }
+                    for (file in plugin.shapelessRecipeDir?.listFiles()!!) {
 
                         if (file.isDirectory) continue
                         //drop the ".json" part to match the recipes identifier

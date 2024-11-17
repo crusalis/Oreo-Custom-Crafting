@@ -10,6 +10,8 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.CraftingCommand
+import org.oreo.oreosCustomCrafting.customException.WtfIsHappeningException
+import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.data.dataToShapeLessRecipe
@@ -73,7 +75,6 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
      */
     fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) { //Shaped recipes
 
-        customRecipes.add(recipe)
         allRecipesSaved.add(recipe)
 
         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeName))
@@ -87,7 +88,10 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         val recipeData = shapedRecipeToData(recipe, this)
 
-        shapedRecipeDataList.add(recipeData)
+        customRecipes.add(CustomRecipeData(
+            recipe = recipe,
+            recipeData = recipeData,
+        ))
 
         file.writeText(gson.toJson(recipeData))
     }
@@ -95,7 +99,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     // Shapeless recipes
     fun registerAndSaveRecipe(recipe : ShapelessRecipe, recipeName : String){
 
-        customRecipes.add(recipe)
+
         allRecipesSaved.add(recipe)
 
         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeName))
@@ -109,7 +113,10 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         val recipeData = shapeLessRecipeToData(recipe, this)
 
-        shapelessRecipeDataList.add(recipeData)
+        customRecipes.add(CustomRecipeData(
+            recipe = recipe,
+            recipeData = recipeData,
+        ))
 
         file.writeText(gson.toJson(recipeData))
     }
@@ -128,14 +135,15 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
                     val recipeData = gson.fromJson(reader, ShapedRecipeData::class.java)
                     if (recipeData != null) {
 
-                        shapedRecipeDataList.add(recipeData)
-
                         val recipeFromData = dataToShapedRecipe(recipeData)
 
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
 
-                        customRecipes.add(recipeFromData)
+                        customRecipes.add(CustomRecipeData(
+                            recipe = recipeFromData,
+                            recipeData = recipeData,
+                        ))
                         allRecipesSaved.add(recipeFromData)
 
                         logger.info("Registered custom shaped recipe ${recipeData.name} successfully")
@@ -156,14 +164,15 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
                     val recipeData = gson.fromJson(reader, ShapeLessRecipeData::class.java)
                     if (recipeData != null) {
 
-                        shapelessRecipeDataList.add(recipeData)
-
                         val recipeFromData = dataToShapeLessRecipe(recipeData)
 
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
 
-                        customRecipes.add(recipeFromData)
+                        customRecipes.add(CustomRecipeData(
+                            recipe = recipeFromData,
+                            recipeData = recipeData,
+                        ))
                         allRecipesSaved.add(recipeFromData)
 
                         logger.info("Registered custom shapeless recipe ${recipeData.name} successfully")
@@ -258,6 +267,24 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
             Bukkit.getServer().removeRecipe(key)
 
+            for (recipe in customRecipes) {
+
+                val recipeData = recipe.recipeData
+
+                if (recipeData is ShapedRecipeData) {
+                    if (recipeData.name == name) {
+                        customRecipes.remove(recipe)
+                        break
+                    }
+
+                } else if (recipeData is ShapeLessRecipeData){
+                    if (recipeData.name == name) {
+                        customRecipes.remove(recipe)
+                        break
+                    }
+                }
+            }
+
             for (file in craftingDir?.listFiles()!!){
                 if (file.name != "$name.json") continue
 
@@ -279,12 +306,9 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
          */
         val customItems: HashMap<String, ItemStack> = hashMapOf()
 
+        val customRecipes : MutableList<CustomRecipeData> = mutableListOf()
+
         val disabledRecipes : MutableList<Recipe> = mutableListOf()
-
-        val customRecipes : MutableList<Recipe> = mutableListOf()
-
-        val shapedRecipeDataList : MutableList<ShapedRecipeData> = mutableListOf()
-        val shapelessRecipeDataList : MutableList<ShapeLessRecipeData> = mutableListOf()
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
@@ -302,9 +326,5 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
             return recipes as ArrayList<Recipe>
         }
-
-
     }
-
-
 }
