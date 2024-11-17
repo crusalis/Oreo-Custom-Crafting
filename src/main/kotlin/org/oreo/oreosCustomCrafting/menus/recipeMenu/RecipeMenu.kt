@@ -115,6 +115,16 @@ class RecipeMenu (val player: Player) {
      */
     fun handleClickedItem(slot : Int){ //TODO this
 
+        val item = recipeMenuInv.getItem(slot) ?: return
+
+        val name = item.itemMeta?.displayName ?: return
+
+        if (name.contains("Next")){
+            loadPage(currentPage + 1)
+        } else if (name.contains("Previous")) {
+            loadPage(currentPage - 1)
+        }
+
     }
 
     /**
@@ -122,7 +132,7 @@ class RecipeMenu (val player: Player) {
      */
     private fun hasBlank() : Boolean {
 
-        for (row in 0 until rows-1) {
+        for (row in 0 until rows /*-1*/) {
             for (column in 0 until columns) {
                 val item = recipeMenuInv.getItem(row * column)
                 if (item == null || item.type == Material.AIR) return true

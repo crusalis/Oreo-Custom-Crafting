@@ -1,6 +1,7 @@
 package org.oreo.oreosCustomCrafting.menus.customCrafting
 
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -11,7 +12,7 @@ import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class CustomCraftingInventory(player: Player, private val recipeName : String, private val plugin : CustomCrafting) {
+class CustomCraftingInventory(val player: Player, private val recipeName : String, private val plugin : CustomCrafting) {
 
     private val craftingInvName = "Create a custom recipe"
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
@@ -98,28 +99,34 @@ class CustomCraftingInventory(player: Player, private val recipeName : String, p
             Utils.saveCustomItemAsFile(resultSlotItem, plugin)
         }
 
-        val returnRecipe = if (isShaped){
-            val recipeMapping = handleStringConversion()
 
-            val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
-            recipe.shape(recipeMapping.first[0],
-                recipeMapping.first[1],
-                recipeMapping.first[2])
+        val returnRecipe = try {
+            if (isShaped){
+                val recipeMapping = handleStringConversion()
 
-            for ((char, ingredient) in recipeMapping.second) {
-                recipe.setIngredient(char, ingredient)
+                val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
+                recipe.shape(recipeMapping.first[0],
+                    recipeMapping.first[1],
+                    recipeMapping.first[2])
+
+                for ((char, ingredient) in recipeMapping.second) {
+                    recipe.setIngredient(char, ingredient)
+                }
+
+                recipe
+            } else {
+                val recipe = ShapelessRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
+
+                for (slot in CRAFTING_SLOTS) {
+                    val item = craftingInv.getItem(slot) ?: continue
+                    recipe.addIngredient(item)
+                }
+
+                recipe
             }
-
-            recipe
-        } else {
-            val recipe = ShapelessRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
-
-            for (slot in CRAFTING_SLOTS) {
-                val item = craftingInv.getItem(slot) ?: continue
-                recipe.addIngredient(item)
-            }
-
-            recipe
+        } catch (e:IllegalArgumentException) {
+            player.sendMessage("${ChatColor.RED}${e.localizedMessage}")
+            return
         }
         
         CustomCrafting.allRecipesSaved.add(returnRecipe)

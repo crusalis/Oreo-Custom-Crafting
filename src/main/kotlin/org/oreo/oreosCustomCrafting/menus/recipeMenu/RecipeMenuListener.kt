@@ -14,6 +14,8 @@ class RecipeMenuListener : Listener {
 
         val menuInventory = RecipeMenu.getInstance(e.inventory) ?: return
 
+        menuInventory.handleClickedItem(e.slot)
+
         e.isCancelled = true
     }
 
