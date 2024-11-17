@@ -285,7 +285,14 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
                 }
             }
 
-            for (file in craftingDir?.listFiles()!!){
+            for (file in shapedRecipeDir?.listFiles()!!){
+                if (file.name != "$name.json") continue
+
+                file.delete()
+                return true
+            }
+
+            for (file in shapelessRecipeDir?.listFiles()!!){
                 if (file.name != "$name.json") continue
 
                 file.delete()
