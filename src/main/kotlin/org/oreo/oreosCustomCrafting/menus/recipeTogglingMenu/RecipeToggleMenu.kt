@@ -194,7 +194,7 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
      */
     private fun hasBlank() : Boolean {
 
-        for (row in 0 until rows-1) {
+        for (row in 0 until rows) {
             for (column in 0 until columns) {
                 val item = craftingInv.getItem(row * column)
                 if (item == null || item.type == Material.AIR) return true

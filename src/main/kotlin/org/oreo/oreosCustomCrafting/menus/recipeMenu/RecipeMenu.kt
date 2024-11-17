@@ -22,7 +22,7 @@ class RecipeMenu (val player: Player) {
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage : Int = 0
 
-    private val recipes = CustomCrafting.customRecipes.map {it.recipeData}
+    private val recipes = CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }  .map {it.recipeData}
 
 
     init {
@@ -124,7 +124,6 @@ class RecipeMenu (val player: Player) {
         } else if (name.contains("Previous")) {
             loadPage(currentPage - 1)
         }
-
     }
 
     /**
@@ -132,7 +131,7 @@ class RecipeMenu (val player: Player) {
      */
     private fun hasBlank() : Boolean {
 
-        for (row in 0 until rows /*-1*/) {
+        for (row in 0 until rows) {
             for (column in 0 until columns) {
                 val item = recipeMenuInv.getItem(row * column)
                 if (item == null || item.type == Material.AIR) return true
@@ -141,7 +140,6 @@ class RecipeMenu (val player: Player) {
 
         return false
     }
-
 
 
     companion object {
