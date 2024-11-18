@@ -146,6 +146,10 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                         return true
                     }
 
+                    "addTo" -> {
+
+                    }
+
                     else -> {
                         sender.sendMessage("${ChatColor.RED}Unknown subcommand '${args[1]}'. Please use add/remove.")
                         return true
@@ -200,6 +204,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 } else if (args[0] == "groups") {
                     recipes.add("add")
                     recipes.add("remove")
+                    recipes.add("addTo")
                 }
 
                 recipes
@@ -209,6 +214,8 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 if (args[0] == "toggle") {
 
                     return listOf("custom")
+                } else if (args[1] == "addTo") {
+                    return groups.keys.toList()
                 }
 
                 return emptyList()

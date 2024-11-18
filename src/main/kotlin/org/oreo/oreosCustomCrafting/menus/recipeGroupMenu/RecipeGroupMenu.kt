@@ -82,7 +82,7 @@ class RecipeGroupMenu(val player : Player) {
             return
         }
 
-        when (slot){ //TODO
+        when (slot){
 
             0 -> RecipeMenu(player,null)
 

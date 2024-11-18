@@ -33,7 +33,6 @@ class RecipeMenu (val player: Player, group : String? ) {
 
 
     init {
-
         loadPage(0)
         openInventory()
     }
