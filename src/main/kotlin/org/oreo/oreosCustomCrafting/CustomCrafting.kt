@@ -18,6 +18,7 @@ import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
 import org.oreo.oreosCustomCrafting.data.shapeLessRecipeToData
 import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
+import org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu.RecipeGroupAssignmentMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
@@ -66,6 +67,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         server.pluginManager.registerEvents(RecipeToggleMenuListener(), this)
         server.pluginManager.registerEvents(RecipeMenuListener(), this)
         server.pluginManager.registerEvents(RecipeGroupMenuListener(), this)
+        server.pluginManager.registerEvents(RecipeGroupAssignmentMenuListener(), this)
 
         saveDefaultConfig()
 

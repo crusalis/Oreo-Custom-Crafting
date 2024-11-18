@@ -1,20 +1,21 @@
-package org.oreo.oreosCustomCrafting.menus.recipeMenu
+package org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu
 
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
+import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu (val player: Player, group : String? ) {
+class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
 
     private val rows = 5
     private val columns = 9
@@ -28,9 +29,16 @@ class RecipeMenu (val player: Player, group : String? ) {
     private val recipes : List<CustomRecipeData> = if(group == null) {
         CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
     } else {
-        RecipeGroupMenu.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name")
+        CustomCrafting.customRecipes.filterNot {
+            it in (RecipeGroupMenu.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name"))
+        }
     }
 
+    val groupIcon : ItemStack = if(group == null) {
+        Utils.createGuiItem(Material.GRAY_CONCRETE,"§lNo group",null)
+    } else {
+        Utils.createGuiItem(RecipeGroupMenu.groups[group]?.first!!,"§l$group",null )
+    }
 
     init {
         loadPage(0)
@@ -89,6 +97,8 @@ class RecipeMenu (val player: Player, group : String? ) {
             i++
         }
 
+        recipeMenuInv.setItem(invSize - 5, groupIcon)
+
         // Set navigation items in the last row
         if (currentPage > 0) {
             recipeMenuInv.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
@@ -120,9 +130,35 @@ class RecipeMenu (val player: Player, group : String? ) {
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){ //TODO add the recipe preview
+    fun handleClickedItem(slot : Int){
 
         val item = recipeMenuInv.getItem(slot) ?: return
+
+        if (item == groupIcon){
+
+            val groupNames = RecipeGroupMenu.groups.keys.toList() // Ensure it's a list if it's a set or other collection
+
+            val groupIndex = if (group != null) {
+                groupNames.indexOf(group)
+            } else {
+                -1
+            }
+
+            // Safely get the next group, or null if out of bounds
+            val nextGroupName = try{
+                groupNames[groupIndex + 1]
+            } catch (_: IndexOutOfBoundsException){
+                null
+            }
+
+            if (nextGroupName != null) {
+                RecipeGroupAssignmentMenu(player, nextGroupName)
+            } else {
+                // Handle the case where there is no "next" group
+                println("No next group found!")
+            }
+
+        }
 
         val name = item.itemMeta?.displayName ?: return
 
@@ -151,12 +187,12 @@ class RecipeMenu (val player: Player, group : String? ) {
 
     companion object {
 
-        val openInventories = mutableMapOf<Inventory, RecipeMenu>()
+        val openInventories = mutableMapOf<Inventory, RecipeGroupAssignmentMenu>()
 
         /**
          * Get the entire CustomCraftingInventory instance from its inventory
          */
-        fun getInstance(inv: Inventory): RecipeMenu? {
+        fun getInstance(inv: Inventory): RecipeGroupAssignmentMenu? {
             return openInventories[inv]
         }
     }

@@ -11,6 +11,7 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
+import org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu.RecipeGroupAssignmentMenu
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu.Companion.groups
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
@@ -149,10 +150,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                     "addTo" -> {
                         if (args.size < 4 || args[2].isNotEmpty()){
 
-                            if (!groups.contains(args[2])){
-                                sender.sendMessage("${ChatColor.RED}The group '${args[2]}' does not exist.")
-                                return true
-                            }
+                            RecipeGroupAssignmentMenu(sender,null)
 
                             //TODO open a new menu YAAAAAAAAAAAAAAAAY more menus AHSDAHSKAS
 
@@ -225,8 +223,6 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 if (args[0] == "toggle") {
 
                     return listOf("custom")
-                } else if (args[1] == "addTo") {
-                    return groups.keys.toList()
                 }
 
                 return emptyList()

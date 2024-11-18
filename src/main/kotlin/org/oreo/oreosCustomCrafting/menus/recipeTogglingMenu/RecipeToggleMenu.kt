@@ -148,7 +148,7 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){
+    fun handleClickedItem(slot : Int){ //TODO add enchant glint and handle items staying disabled when switching pages
 
         val item = craftingInv.getItem(slot) ?: return
 
