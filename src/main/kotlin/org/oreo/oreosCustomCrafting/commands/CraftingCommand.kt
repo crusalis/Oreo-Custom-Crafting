@@ -147,7 +147,18 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                     }
 
                     "addTo" -> {
+                        if (args.size < 4 || args[2].isNotEmpty()){
 
+                            if (!groups.contains(args[2])){
+                                sender.sendMessage("${ChatColor.RED}The group '${args[2]}' does not exist.")
+                                return true
+                            }
+
+                            //TODO open a new menu YAAAAAAAAAAAAAAAAY more menus AHSDAHSKAS
+
+                        } else {
+                            sender.sendMessage("${ChatColor.RED}Please specify a group name.")
+                        }
                     }
 
                     else -> {
