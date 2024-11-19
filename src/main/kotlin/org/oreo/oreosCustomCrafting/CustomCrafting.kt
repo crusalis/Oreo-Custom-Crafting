@@ -2,6 +2,7 @@ package org.oreo.oreosCustomCrafting
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import com.google.gson.reflect.TypeToken
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
@@ -25,6 +26,7 @@ import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListe
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileReader
 
 
@@ -71,7 +73,11 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         server.pluginManager.registerEvents(RecipeGroupAssignmentMenuListener(), this)
 
         saveDefaultConfig()
+        loadGroupsFromFile()
+    }
 
+    override fun onDisable() {
+        saveDefaultConfig()
     }
 
     /**
@@ -306,10 +312,44 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         } catch (_: Exception) {
             return false
         }
+    }
 
+    // Function to save the hashmap to a file
+    fun saveGroupsToFile(
+        groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>,
+    ) {
+        val gson = Gson()
+        val jsonString = gson.toJson(groups)
+        val file = File(dataFolder, GROUP_FILE)
+
+        // Ensure the plugin directory exists
+        if (!file.parentFile.exists()) {
+            file.parentFile.mkdirs()
+        }
+
+        file.writeText(jsonString)
+        this.logger.info("Groups saved to file: ${file.absolutePath}")
+    }
+
+    // Function to load the hashmap from a file
+    fun loadGroupsFromFile(
+    ): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
+        val gson = Gson()
+        val file = File(dataFolder, GROUP_FILE)
+
+        if (!file.exists()) {
+            logger.warning("Group file not found: ${file.absolutePath}")
+            return HashMap() // Return an empty HashMap if the file doesn't exist
+        }
+
+        val jsonString = file.readText()
+        val type = object : TypeToken<HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>>() {}.type
+        return gson.fromJson(jsonString, type)
     }
 
     companion object {
+
+        const val GROUP_FILE = "groups.json"
 
         /**
          * A list of all custom items which is loaded from the save file
@@ -320,7 +360,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         val disabledRecipes : MutableList<Recipe> = mutableListOf()
 
-        val groups = hashMapOf<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>() //TODO save this as base 64
+        var groups : HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>  = hashMapOf() //TODO save this as base 64
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
