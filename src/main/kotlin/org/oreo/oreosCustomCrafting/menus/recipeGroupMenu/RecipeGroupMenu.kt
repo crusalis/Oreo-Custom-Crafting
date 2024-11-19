@@ -100,7 +100,7 @@ class RecipeGroupMenu(val player : Player) {
 
     companion object{
 
-        val groups = hashMapOf<String, Pair<ItemStack, List<CustomRecipeData>>>() //TODO save this as base 64
+        val groups = hashMapOf<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>() //TODO save this as base 64
 
         val openInventories = mutableMapOf<Inventory, RecipeGroupMenu>()
 

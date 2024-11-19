@@ -3,7 +3,6 @@ package org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -12,10 +11,10 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
-import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
+import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu.Companion.groups
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
+class RecipeGroupAssignmentMenu (val player: Player,val group : String,val removeRecipes : Boolean) {
 
     private val rows = 5
     private val columns = 9
@@ -26,19 +25,21 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage : Int = 0
 
-    private val recipes : List<CustomRecipeData> = if(group == null) {
-        CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+
+    private val recipesToCahnge = arrayListOf<CustomRecipeData>()
+
+    private val recipes : List<CustomRecipeData> = if(removeRecipes) {
+        CustomCrafting.customRecipes.filter {
+            it in (groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
+        }
     } else {
         CustomCrafting.customRecipes.filterNot {
-            it in (RecipeGroupMenu.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name"))
+            it in (groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
         }
     }
 
-    val groupIcon : ItemStack = if(group == null) {
-        Utils.createGuiItem(Material.GRAY_CONCRETE,"§lNo group",null)
-    } else {
-        Utils.createGuiItem(RecipeGroupMenu.groups[group]?.first!!,"§l$group",null )
-    }
+    val groupIcon: ItemStack = Utils.createGuiItem(groups[group]?.first!!, "§l$group", null)
 
     init {
         loadPage(0)
@@ -53,6 +54,11 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
     fun loadPage(page: Int) {
 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
+
+
+        for (slot in (rows - 1) * columns..invSize - 1) {
+            recipeMenuInv.setItem(slot ,blank)
+        }
 
         currentPage = page
         recipeMenuInv.clear() // Clear the inventory before loading the new page
@@ -92,7 +98,19 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
                 throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
             }
 
-            recipeMenuInv.setItem(slot, itemResult)
+            val itemName = if (recipe is ShapedRecipeData) {
+                recipe.name
+            } else if  (recipe is ShapeLessRecipeData) {
+                recipe.name
+            } else {
+                closeInventory()
+                player.sendMessage("${ChatColor.RED}ERROR item is not of correct type")
+                throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
+            }
+
+            val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
+
+            recipeMenuInv.setItem(slot, itemToAdd)
             recipeNumber++
             i++
         }
@@ -122,6 +140,12 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
      */
     fun closeInventory() {
         openInventories.remove(recipeMenuInv)
+        if (removeRecipes) {
+            groups[group]!!.second.removeAll(recipesToCahnge)
+        } else {
+            groups[group]!!.second.addAll(recipesToCahnge)
+        }
+
         try {
             recipeMenuInv.close()
         } catch (_: Exception){}
@@ -130,44 +154,87 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String? ) {
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){
+    fun handleClickedItem(slot: Int) {
+        // Ignore slots in the bottom row (reserved for navigation)
+
+        // Validate the slot is within the inventory size
+        if (slot !in 0 until recipeMenuInv.size) return
 
         val item = recipeMenuInv.getItem(slot) ?: return
 
-        if (item == groupIcon){
 
-            val groupNames = RecipeGroupMenu.groups.keys.toList() // Ensure it's a list if it's a set or other collection
+        // Handle group icon click
+        if (item == groupIcon) {
+            try {
+                val groupNames = groups.keys.toList() // Ensure it's a list
+                val groupIndex = group.let { groupNames.indexOf(it) }
+                val nextGroupName = groupNames[groupIndex + 1]
 
-            val groupIndex = if (group != null) {
-                groupNames.indexOf(group)
-            } else {
-                -1
+                RecipeGroupAssignmentMenu(player, nextGroupName,removeRecipes)
+            } catch (_: IndexOutOfBoundsException) {
+                RecipeGroupAssignmentMenu(player, groups.keys.toList()[0],removeRecipes)
             }
 
-            // Safely get the next group, or null if out of bounds
-            val nextGroupName = try{
-                groupNames[groupIndex + 1]
-            } catch (_: IndexOutOfBoundsException){
-                null
-            }
-
-            if (nextGroupName != null) {
-                RecipeGroupAssignmentMenu(player, nextGroupName)
-            } else {
-                // Handle the case where there is no "next" group
-                println("No next group found!")
-            }
-
+            return
         }
 
-        val name = item.itemMeta?.displayName ?: return
 
-        if (name.contains("Next")){
-            loadPage(currentPage + 1)
-        } else if (name.contains("Previous")) {
-            loadPage(currentPage - 1)
+        // Calculate the recipe index, ensuring it ignores the bottom row
+        val recipeIndex = currentPage * itemsPerPage + slot
+
+        if (recipeIndex in recipes.indices) {
+            val recipe = recipes[recipeIndex].recipeData
+
+            if (item.itemMeta?.displayName == "§a§lAdded" || item.itemMeta?.displayName == "§c§lRemoved") {
+                // Item is marked as added; revert it
+                val originalName = if (recipe is ShapedRecipeData) {
+                    recipe.fileResult ?: recipe.materialResult?.toString()
+                } else if(recipe is ShapeLessRecipeData){
+                    recipe.fileResult ?: recipe.materialResult?.toString()
+                } else {
+                    "Unknown Item"
+                }
+                item.itemMeta = item.itemMeta?.apply {
+                    setDisplayName(originalName)
+                    removeEnchant(org.bukkit.enchantments.Enchantment.LUCK)
+                }
+                recipesToCahnge.remove(recipe)
+            } else {
+                // Item is not marked; mark as added
+                item.itemMeta = item.itemMeta?.apply {
+                    if (removeRecipes){
+                        setDisplayName("§c§lRemoved")
+                    } else {
+                        setDisplayName("§a§lAdded")
+                    }
+
+                    addEnchant(org.bukkit.enchantments.Enchantment.LUCK, 1, true)
+                    addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS)
+                }
+                if (!removeRecipes){
+                    if (!groups[group]!!.second.contains(recipes[recipeIndex])){
+                        recipesToCahnge.add(recipes[recipeIndex])
+                    }
+                } else {
+                    recipesToCahnge.add(recipes[recipeIndex])
+                }
+            }
+            recipeMenuInv.setItem(slot, item) // Update the item in the inventory
+            return
+        }
+
+        // Handle navigation if it's in the bottom row
+        if (slot in (invSize - columns until invSize)) {
+            val name = item.itemMeta?.displayName ?: return
+            when {
+                name.contains("Next", true) -> loadPage(currentPage + 1)
+                name.contains("Previous", true) -> loadPage(currentPage - 1)
+            }
+            return
         }
     }
+
+
 
     /**
      * Checks if the inventory has a blank space

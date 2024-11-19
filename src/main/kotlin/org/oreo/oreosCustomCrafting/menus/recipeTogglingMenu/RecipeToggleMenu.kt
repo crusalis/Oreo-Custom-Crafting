@@ -22,6 +22,8 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
 
     var slotToRecipe : MutableMap<Int, Recipe> = mutableMapOf()
 
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+
     init {
         loadPage(0)
         openInventory()
@@ -70,7 +72,9 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
             }
         }
 
-
+        for (slot in (rows - 1) * columns..invSize - 1) {
+            craftingInv.setItem(slot ,blank)
+        }
 
         slotToRecipe.clear()
         currentPage = page

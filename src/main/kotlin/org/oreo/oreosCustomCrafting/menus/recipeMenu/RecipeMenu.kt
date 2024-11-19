@@ -25,6 +25,8 @@ class RecipeMenu (val player: Player, group : String? ) {
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage : Int = 0
 
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+
     private val recipes : List<CustomRecipeData> = if(group == null) {
         CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
     } else {
@@ -45,6 +47,10 @@ class RecipeMenu (val player: Player, group : String? ) {
     fun loadPage(page: Int) {
 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
+
+        for (slot in (rows - 1) * columns..invSize - 1) {
+            recipeMenuInv.setItem(slot ,blank)
+        }
 
         currentPage = page
         recipeMenuInv.clear() // Clear the inventory before loading the new page
@@ -84,7 +90,19 @@ class RecipeMenu (val player: Player, group : String? ) {
                 throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
             }
 
-            recipeMenuInv.setItem(slot, itemResult)
+            val itemName = if (recipe is ShapedRecipeData) {
+                recipe.name
+            } else if  (recipe is ShapeLessRecipeData) {
+                recipe.name
+            } else {
+                closeInventory()
+                player.sendMessage("${ChatColor.RED}ERROR item is not of correct type")
+                throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
+            }
+
+            val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
+
+            recipeMenuInv.setItem(slot, itemToAdd)
             recipeNumber++
             i++
         }

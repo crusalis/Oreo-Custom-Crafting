@@ -117,13 +117,14 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                     return true
                 }
 
-                if (args.size < 3 || args[2].isEmpty()) {
-                    sender.sendMessage("${ChatColor.RED}Please specify a group name.")
-                    return true
-                }
-
                 when (args[1].lowercase()) {
                     "add" -> {
+
+                        if (args.size < 3 || args[2].isEmpty()) {
+                            sender.sendMessage("${ChatColor.RED}Please specify a group name.")
+                            return true
+                        }
+
                         if (groups.contains(args[2])) {
                             sender.sendMessage("${ChatColor.RED}The group '${args[2]}' already exists.")
                             return true
@@ -132,12 +133,18 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                             sender.sendMessage("${ChatColor.RED}You need to hold an item to set as the groups icon.")
                             return true
                         }
-                        groups[args[2]] = Pair(sender.inventory.itemInMainHand,listOf())
+                        groups[args[2]] = Pair(sender.inventory.itemInMainHand,arrayListOf())
                         sender.sendMessage("${ChatColor.GREEN}Group '${args[2]}' created successfully.")
                         return true
                     }
 
                     "remove" -> {
+
+                        if (args.size < 3 || args[2].isEmpty()) {
+                            sender.sendMessage("${ChatColor.RED}Please specify a group name.")
+                            return true
+                        }
+
                         if (groups.contains(args[2])) {
                             groups.remove(args[2])
                             sender.sendMessage("${ChatColor.GREEN}Group '${args[2]}' removed successfully.")
@@ -147,16 +154,28 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                         return true
                     }
 
-                    "addTo" -> {
-                        if (args.size < 4 || args[2].isNotEmpty()){
+                    "additems" -> {
 
-                            RecipeGroupAssignmentMenu(sender,null)
-
-                            //TODO open a new menu YAAAAAAAAAAAAAAAAY more menus AHSDAHSKAS
-
-                        } else {
-                            sender.sendMessage("${ChatColor.RED}Please specify a group name.")
+                        if (groups.keys.isEmpty()){
+                            sender.sendMessage("${ChatColor.RED}There are no groups.")
+                            return true
                         }
+
+                        RecipeGroupAssignmentMenu(sender,groups.keys.toList()[0],false)
+
+                        return true
+                    }
+
+                    "removeitems" ->{
+
+                        if (groups.keys.isEmpty()){
+                            sender.sendMessage("${ChatColor.RED}There are no groups.")
+                            return true
+                        }
+
+
+                        RecipeGroupAssignmentMenu(sender, groups.keys.toList()[0],true)
+                        return true
                     }
 
                     else -> {
@@ -213,7 +232,8 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 } else if (args[0] == "groups") {
                     recipes.add("add")
                     recipes.add("remove")
-                    recipes.add("addTo")
+                    recipes.add("additems")
+                    recipes.add("removeitems")
                 }
 
                 recipes
@@ -223,6 +243,8 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 if (args[0] == "toggle") {
 
                     return listOf("custom")
+                } else if (args[1] == "remove") {
+                    return groups.keys.toList()
                 }
 
                 return emptyList()
