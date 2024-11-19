@@ -10,8 +10,6 @@ import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
-import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
-import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu.Companion.groups
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeGroupAssignmentMenu (val player: Player,val group : String,val removeRecipes : Boolean) {
@@ -27,19 +25,19 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
-    private val recipesToCahnge = arrayListOf<CustomRecipeData>()
+    private val recipesToChange = arrayListOf<CustomRecipeData>()
 
     private val recipes : List<CustomRecipeData> = if(removeRecipes) {
         CustomCrafting.customRecipes.filter {
-            it in (groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
+            it in (CustomCrafting.groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
         }
     } else {
         CustomCrafting.customRecipes.filterNot {
-            it in (groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
+            it in (CustomCrafting.groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
         }
     }
 
-    val groupIcon: ItemStack = Utils.createGuiItem(groups[group]?.first!!, "§l$group", null)
+    val groupIcon: ItemStack = Utils.createGuiItem(CustomCrafting.groups[group]?.first!!, "§l$group", null)
 
     init {
         loadPage(0)
@@ -141,9 +139,9 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
     fun closeInventory() {
         openInventories.remove(recipeMenuInv)
         if (removeRecipes) {
-            groups[group]!!.second.removeAll(recipesToCahnge)
+            CustomCrafting.groups[group]!!.second.removeAll(recipesToChange)
         } else {
-            groups[group]!!.second.addAll(recipesToCahnge)
+            CustomCrafting.groups[group]!!.second.addAll(recipesToChange)
         }
 
         try {
@@ -166,13 +164,13 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
         // Handle group icon click
         if (item == groupIcon) {
             try {
-                val groupNames = groups.keys.toList() // Ensure it's a list
+                val groupNames = CustomCrafting.groups.keys.toList() // Ensure it's a list
                 val groupIndex = group.let { groupNames.indexOf(it) }
                 val nextGroupName = groupNames[groupIndex + 1]
 
                 RecipeGroupAssignmentMenu(player, nextGroupName,removeRecipes)
             } catch (_: IndexOutOfBoundsException) {
-                RecipeGroupAssignmentMenu(player, groups.keys.toList()[0],removeRecipes)
+                RecipeGroupAssignmentMenu(player, CustomCrafting.groups.keys.toList()[0],removeRecipes)
             }
 
             return
@@ -198,7 +196,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
                     setDisplayName(originalName)
                     removeEnchant(org.bukkit.enchantments.Enchantment.LUCK)
                 }
-                recipesToCahnge.remove(recipe)
+                recipesToChange.remove(recipe)
             } else {
                 // Item is not marked; mark as added
                 item.itemMeta = item.itemMeta?.apply {
@@ -212,11 +210,11 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
                     addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS)
                 }
                 if (!removeRecipes){
-                    if (!groups[group]!!.second.contains(recipes[recipeIndex])){
-                        recipesToCahnge.add(recipes[recipeIndex])
+                    if (!CustomCrafting.groups[group]!!.second.contains(recipes[recipeIndex])){
+                        recipesToChange.add(recipes[recipeIndex])
                     }
                 } else {
-                    recipesToCahnge.add(recipes[recipeIndex])
+                    recipesToChange.add(recipes[recipeIndex])
                 }
             }
             recipeMenuInv.setItem(slot, item) // Update the item in the inventory

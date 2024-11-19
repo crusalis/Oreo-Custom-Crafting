@@ -5,7 +5,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.oreo.oreosCustomCrafting.data.CustomRecipeData
+import org.oreo.oreosCustomCrafting.CustomCrafting
 
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
@@ -36,10 +36,10 @@ class RecipeGroupMenu(val player : Player) {
 
         recipeGroupMenuInv.setItem(0,allRecipesButton)
 
-        val keys = groups.keys.toList() // Convert keys to a list for indexed access
+        val keys = CustomCrafting.groups.keys.toList() // Convert keys to a list for indexed access
 
         for (i in keys.indices) { // Iterate over valid indices
-            val item: ItemStack? = groups[keys[i]]?.first // Get the first element of the Pair
+            val item: ItemStack? = CustomCrafting.groups[keys[i]]?.first // Get the first element of the Pair
 
             Utils.createGuiItem(item!!, "§l${keys[i]}",null)
 
@@ -88,7 +88,7 @@ class RecipeGroupMenu(val player : Player) {
 
             else -> {
 
-                val keys = groups.keys.toList()
+                val keys = CustomCrafting.groups.keys.toList()
 
                 val groupName = keys[slot - 1]
 
@@ -99,8 +99,6 @@ class RecipeGroupMenu(val player : Player) {
 
 
     companion object{
-
-        val groups = hashMapOf<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>() //TODO save this as base 64
 
         val openInventories = mutableMapOf<Inventory, RecipeGroupMenu>()
 

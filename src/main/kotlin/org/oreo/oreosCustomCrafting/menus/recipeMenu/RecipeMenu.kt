@@ -30,7 +30,7 @@ class RecipeMenu (val player: Player, group : String? ) {
     private val recipes : List<CustomRecipeData> = if(group == null) {
         CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
     } else {
-        RecipeGroupMenu.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name")
+        CustomCrafting.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name")
     }
 
 

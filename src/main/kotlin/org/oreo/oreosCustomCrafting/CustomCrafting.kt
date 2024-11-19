@@ -29,6 +29,7 @@ import java.io.FileReader
 
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
+    //TODO make a button to add a recipe on the crafting menu eventually
 
     private val gson = Gson()
 
@@ -101,7 +102,6 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
     // Shapeless recipes
     fun registerAndSaveRecipe(recipe : ShapelessRecipe, recipeName : String){
-
 
         allRecipesSaved.add(recipe)
 
@@ -319,6 +319,8 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         val customRecipes : MutableList<CustomRecipeData> = mutableListOf()
 
         val disabledRecipes : MutableList<Recipe> = mutableListOf()
+
+        val groups = hashMapOf<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>() //TODO save this as base 64
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
