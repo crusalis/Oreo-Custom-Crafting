@@ -8,6 +8,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
+import org.oreo.oreosCustomCrafting.data.RecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
@@ -70,41 +71,16 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
             val slot = i - startIndex
             val recipe = recipes[recipeNumber].recipeData
 
-            val itemResult : ItemStack = if (recipe is ShapedRecipeData) {
+            val itemResult : ItemStack = if (recipe.fileResult != null){
 
-                if (recipe.fileResult != null){
-
-                    CustomCrafting.customItems.get(recipe.fileResult)!!
-
-                } else {
-                    ItemStack(recipe.materialResult!!)
-                }
-
-            } else if (recipe is ShapeLessRecipeData) {
-
-                if (recipe.fileResult != null){
-
-                    CustomCrafting.customItems.get(recipe.fileResult)!!
-
-                } else {
-                    ItemStack(recipe.materialResult!!)
-                }
+                CustomCrafting.customItems.get(recipe.fileResult)!!
 
             } else {
-                closeInventory()
-                player.sendMessage("${ChatColor.RED}ERROR item is not of correct type")
-                throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
+                ItemStack(recipe.materialResult!!)
             }
 
-            val itemName = if (recipe is ShapedRecipeData) {
-                recipe.name
-            } else if  (recipe is ShapeLessRecipeData) {
-                recipe.name
-            } else {
-                closeInventory()
-                player.sendMessage("${ChatColor.RED}ERROR item is not of correct type")
-                throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
-            }
+            val itemName = recipe.name
+
 
             val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
 
@@ -181,22 +157,17 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
         val recipeIndex = currentPage * itemsPerPage + slot
 
         if (recipeIndex in recipes.indices) {
-            val recipe = recipes[recipeIndex].recipeData
+            val recipe : RecipeData = recipes[recipeIndex].recipeData
 
             if (item.itemMeta?.displayName == "§a§lAdded" || item.itemMeta?.displayName == "§c§lRemoved") {
                 // Item is marked as added; revert it
-                val originalName = if (recipe is ShapedRecipeData) {
-                    recipe.fileResult ?: recipe.materialResult?.toString()
-                } else if(recipe is ShapeLessRecipeData){
-                    recipe.fileResult ?: recipe.materialResult?.toString()
-                } else {
-                    "Unknown Item"
-                }
+                val originalName = recipe.fileResult ?: recipe.materialResult?.toString()
+
                 item.itemMeta = item.itemMeta?.apply {
                     setDisplayName(originalName)
                     removeEnchant(org.bukkit.enchantments.Enchantment.LUCK)
                 }
-                recipesToChange.remove(recipe)
+                recipesToChange.remove(recipes[recipeIndex])
             } else {
                 // Item is not marked; mark as added
                 item.itemMeta = item.itemMeta?.apply {

@@ -4,7 +4,7 @@ import org.bukkit.inventory.Recipe
 
 data class CustomRecipeData(
     val recipe: Recipe,
-    val recipeData: Any
+    val recipeData: RecipeData
 )
 
 

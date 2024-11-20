@@ -30,7 +30,7 @@ class RecipeMenu (val player: Player, group : String? ) {
     private val recipes : List<CustomRecipeData> = if(group == null) {
         CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
     } else {
-        CustomCrafting.groups.get(group)?.second ?: throw IllegalArgumentException("Invalid group name")
+        CustomCrafting.groups[group]?.second ?: throw IllegalArgumentException("Invalid group name")
     }
 
 
@@ -64,41 +64,16 @@ class RecipeMenu (val player: Player, group : String? ) {
             val slot = i - startIndex
             val recipe = recipes[recipeNumber].recipeData
 
-            val itemResult : ItemStack = if (recipe is ShapedRecipeData) {
+            val itemResult : ItemStack = if (recipe.fileResult != null){
 
-                if (recipe.fileResult != null){
-
-                    CustomCrafting.customItems.get(recipe.fileResult)!!
-
-                } else {
-                    ItemStack(recipe.materialResult!!)
-                }
-
-            } else if (recipe is ShapeLessRecipeData) {
-
-                if (recipe.fileResult != null){
-
-                    CustomCrafting.customItems.get(recipe.fileResult)!!
-
-                } else {
-                    ItemStack(recipe.materialResult!!)
-                }
+                CustomCrafting.customItems.get(recipe.fileResult)!!
 
             } else {
-                closeInventory()
-                player.sendMessage("${ChatColor.RED}ERROR item is not of correct type")
-                throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
+                ItemStack(recipe.materialResult!!)
             }
 
-            val itemName = if (recipe is ShapedRecipeData) {
-                recipe.name
-            } else if  (recipe is ShapeLessRecipeData) {
-                recipe.name
-            } else {
-                closeInventory()
-                player.sendMessage("${ChatColor.RED}ERROR item is not of correct type")
-                throw IllegalArgumentException("Unexpected object type withing RecipeMenu instance 'recipes' list")
-            }
+            val itemName = recipe.name
+
 
             val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
 

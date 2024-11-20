@@ -4,10 +4,13 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream
+import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 object SerializeUtils {
 
@@ -46,5 +49,26 @@ object SerializeUtils {
             throw RuntimeException("Failed to deserialize item", e)
         }
     }
+
+
+
+    // Serialize an object to a byte array
+    fun serializeGroups(obj: Any): ByteArray {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
+        objectOutputStream.writeObject(obj)
+        objectOutputStream.flush()
+        return byteArrayOutputStream.toByteArray()
+    }
+
+    // Deserialize a byte array back to an object
+    fun deserializeGroups(byteArray: ByteArray): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
+        val byteArrayInputStream = ByteArrayInputStream(byteArray)
+        val objectInputStream = ObjectInputStream(byteArrayInputStream)
+        @Suppress("UNCHECKED_CAST")
+        return objectInputStream.readObject() as HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>
+    }
+
+
 
 }

@@ -7,14 +7,16 @@ import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-data class ShapeLessRecipeData( //TODO add a function to get the result from
-    val name: String,
+data class ShapeLessRecipeData(
     val ingredientsMaterials: List<Material>,
     val ingredientsItems: List<String>,
-    val fileResult : String?,
-    val materialResult: Material?,
-    val amount: Int
-)
+    override val name: String,
+    override val fileResult: String?,
+    override val materialResult: Material?,
+    override val amount: Int
+) : RecipeData(name, fileResult, materialResult, amount)
+
+//TODO add a function to get the result from
 
 fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
 

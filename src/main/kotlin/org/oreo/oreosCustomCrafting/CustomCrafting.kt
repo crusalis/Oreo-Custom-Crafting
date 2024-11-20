@@ -26,7 +26,6 @@ import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListe
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileReader
 
 
@@ -78,6 +77,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
     override fun onDisable() {
         saveDefaultConfig()
+        saveGroupsToFile(groups)
     }
 
     /**
@@ -288,7 +288,6 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
                 } else if (recipeData is ShapeLessRecipeData){
                     if (recipeData.name == name) {
-                        customRecipes.remove(recipe)
                         break
                     }
                 }
@@ -315,37 +314,15 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     }
 
     // Function to save the hashmap to a file
-    fun saveGroupsToFile(
-        groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>,
-    ) {
-        val gson = Gson()
-        val jsonString = gson.toJson(groups)
-        val file = File(dataFolder, GROUP_FILE)
-
-        // Ensure the plugin directory exists
-        if (!file.parentFile.exists()) {
-            file.parentFile.mkdirs()
-        }
-
-        file.writeText(jsonString)
-        this.logger.info("Groups saved to file: ${file.absolutePath}")
+    fun saveGroupsToFile(groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>) {
+        TODO("Will do once I have the more important stuff done")
     }
 
-    // Function to load the hashmap from a file
-    fun loadGroupsFromFile(
-    ): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
-        val gson = Gson()
-        val file = File(dataFolder, GROUP_FILE)
 
-        if (!file.exists()) {
-            logger.warning("Group file not found: ${file.absolutePath}")
-            return HashMap() // Return an empty HashMap if the file doesn't exist
-        }
-
-        val jsonString = file.readText()
-        val type = object : TypeToken<HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>>() {}.type
-        return gson.fromJson(jsonString, type)
+    fun loadGroupsFromFile(): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
+        TODO("Will do once I have the more important stuff done")
     }
+
 
     companion object {
 
@@ -360,7 +337,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         val disabledRecipes : MutableList<Recipe> = mutableListOf()
 
-        var groups : HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>  = hashMapOf() //TODO save this as base 64
+        var groups : HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>  = hashMapOf() //TODO save this somehow
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
