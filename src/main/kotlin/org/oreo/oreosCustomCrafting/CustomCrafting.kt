@@ -72,12 +72,12 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         server.pluginManager.registerEvents(RecipeGroupAssignmentMenuListener(), this)
 
         saveDefaultConfig()
-        loadGroupsFromFile()
+        //loadGroupsFromFile()
     }
 
     override fun onDisable() {
         saveDefaultConfig()
-        saveGroupsToFile(groups)
+        //saveGroupsToFile(groups)
     }
 
     /**
@@ -314,14 +314,14 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     }
 
     // Function to save the hashmap to a file
-    fun saveGroupsToFile(groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>) {
-        TODO("Will do once I have the more important stuff done")
-    }
-
-
-    fun loadGroupsFromFile(): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
-        TODO("Will do once I have the more important stuff done")
-    }
+//    fun saveGroupsToFile(groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>) {
+//        TODO("Will do once I have the more important stuff done")
+//    }
+//
+//
+//    fun loadGroupsFromFile(): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
+//        TODO("Will do once I have the more important stuff done")
+//    }
 
 
     companion object {

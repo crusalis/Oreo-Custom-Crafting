@@ -9,9 +9,11 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
+import org.oreo.oreosCustomCrafting.data.RecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
+import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventory
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeMenu (val player: Player, group : String? ) {
@@ -26,6 +28,8 @@ class RecipeMenu (val player: Player, group : String? ) {
     private var currentPage : Int = 0
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+
+    private val slotToRecipeData = hashMapOf<Int, CustomRecipeData>()
 
     private val recipes : List<CustomRecipeData> = if(group == null) {
         CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
@@ -58,6 +62,8 @@ class RecipeMenu (val player: Player, group : String? ) {
         val startIndex = page * itemsPerPage
         val endIndex = minOf(startIndex + itemsPerPage, recipes.size)
 
+        slotToRecipeData.clear()
+
         var i = startIndex
         var recipeNumber = i
         while (i < endIndex) {
@@ -66,14 +72,15 @@ class RecipeMenu (val player: Player, group : String? ) {
 
             val itemResult : ItemStack = if (recipe.fileResult != null){
 
-                CustomCrafting.customItems.get(recipe.fileResult)!!
+                CustomCrafting.customItems[recipe.fileResult]!!
 
             } else {
                 ItemStack(recipe.materialResult!!)
             }
 
-            val itemName = recipe.name
+            slotToRecipeData.put(slot,recipes[recipeNumber])
 
+            val itemName = recipe.name
 
             val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
 
@@ -118,6 +125,12 @@ class RecipeMenu (val player: Player, group : String? ) {
         val item = recipeMenuInv.getItem(slot) ?: return
 
         val name = item.itemMeta?.displayName ?: return
+
+        if (slotToRecipeData.containsKey(slot)) {
+            RecipeShowoffInventory(player,slotToRecipeData.get(slot)!!)
+            closeInventory()
+            return
+        }
 
         if (name.contains("Next")){
             loadPage(currentPage + 1)

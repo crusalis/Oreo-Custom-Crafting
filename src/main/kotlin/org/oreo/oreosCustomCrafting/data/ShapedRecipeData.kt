@@ -1,5 +1,6 @@
 package org.oreo.oreosCustomCrafting.data
 
+import com.google.gson.annotations.SerializedName
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
@@ -11,11 +12,11 @@ import org.oreo.oreosCustomCrafting.utils.Utils
 data class ShapedRecipeData(
     val rows: List<String>,
     val ingredients: Map<Char, Material>,
-    override val name: String,
+    @SerializedName("name") override val name: String,
     override val fileResult: String?,
     override val materialResult: Material?,
     override val amount: Int
-) : RecipeData(name, fileResult, materialResult, amount)
+) : RecipeData()
 
 
 /**

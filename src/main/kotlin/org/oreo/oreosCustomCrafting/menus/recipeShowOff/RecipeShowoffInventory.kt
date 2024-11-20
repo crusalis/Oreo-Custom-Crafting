@@ -15,7 +15,7 @@ import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeShowoffInventory(val player: Player, private val recipe : CustomRecipeData) {
+class RecipeShowoffInventory(val player: Player, private val recipe : CustomRecipeData) { //TODO close button
 
     private val name = recipe.recipeData.name
 
@@ -36,26 +36,62 @@ class RecipeShowoffInventory(val player: Player, private val recipe : CustomReci
      */
     private fun initializeMenuItems() {
 
-        val realRecipe = try {
-            recipe.recipeData as ShapedRecipeData
-        } catch (_: Exception) {
-            recipe.recipeData as ShapeLessRecipeData
-        }
+        val recipeData = recipe.recipeData
 
         // Fill all slots with blank items first
         for (i in 0..53) {
             craftingInv.setItem(i, blank)
         }
 
-        // Create a 3x3 square in the middle (slots 20 to 28)
-        for (row in -1..1) {
-            for (col in 0..2) {
-                craftingInv.setItem(20 + (row * 9) + col, ItemStack(Material.AIR))
+        // Fill the result slots
+        if (recipeData is ShapedRecipeData) {
+            var slotIndex = 0
+
+            // Loop through each row in the recipe
+            for (row in recipeData.rows) {
+                // Loop through each character in the row
+                for (char in row) {
+                    if (char == ' ') {
+                        // Empty slot in the crafting grid
+                        craftingInv.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
+                    } else {
+                        // Get the material corresponding to the character from ingredients map
+                        val material = recipeData.ingredients[char]
+                        if (material != null) {
+                            craftingInv.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(material))
+                        } else {
+                            // If no material is found, set the slot to AIR
+                            craftingInv.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
+                        }
+                    }
+                    slotIndex++
+                }
             }
+        } else if (recipeData is ShapeLessRecipeData) {
+
+            for (slot in CRAFTING_SLOTS) {
+                craftingInv.setItem(slot, ItemStack(Material.AIR))
+            }
+
+            for (slot in CRAFTING_SLOTS) {
+
+                try {
+                    val item = ItemStack(recipeData.ingredientsMaterials[CRAFTING_SLOTS.indexOf(slot)])
+                    craftingInv.setItem(slot, item)
+
+                } catch (_: IndexOutOfBoundsException) {
+                    break
+                }
+            }
+
+        } else {
+            player.sendMessage("${ChatColor.RED}RecipeData is of unknown type")
+            throw IllegalArgumentException("RecipeData is of unknown type")
+            player.closeInventory()
         }
 
-        // Leave one empty square (slot 24)
-        craftingInv.setItem(RESULT_SLOT, recipe.recipe.result) // Empty square
+        // Result slot
+        craftingInv.setItem(RESULT_SLOT, recipe.recipe.result)
 
         // Fill the remaining bottom row slots (48 to 53) with blank items
         for (i in 44..53) {

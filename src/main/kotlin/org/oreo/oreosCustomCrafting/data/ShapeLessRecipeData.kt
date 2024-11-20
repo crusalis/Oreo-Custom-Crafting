@@ -1,5 +1,6 @@
 package org.oreo.oreosCustomCrafting.data
 
+import com.google.gson.annotations.SerializedName
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
@@ -10,13 +11,11 @@ import org.oreo.oreosCustomCrafting.utils.Utils
 data class ShapeLessRecipeData(
     val ingredientsMaterials: List<Material>,
     val ingredientsItems: List<String>,
-    override val name: String,
+    @SerializedName("name") override val name: String,
     override val fileResult: String?,
     override val materialResult: Material?,
     override val amount: Int
-) : RecipeData(name, fileResult, materialResult, amount)
-
-//TODO add a function to get the result from
+) : RecipeData()
 
 fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
 

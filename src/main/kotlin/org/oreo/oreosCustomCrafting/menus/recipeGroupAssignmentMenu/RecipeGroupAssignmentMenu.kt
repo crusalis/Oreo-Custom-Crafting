@@ -1,7 +1,6 @@
 package org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu
 
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
@@ -9,8 +8,6 @@ import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.RecipeData
-import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
-import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeGroupAssignmentMenu (val player: Player,val group : String,val removeRecipes : Boolean) {
