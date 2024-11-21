@@ -12,6 +12,7 @@ import org.oreo.oreosCustomCrafting.utils.Utils
 data class ShapedRecipeData(
     val rows: List<String>,
     val ingredients: Map<Char, Material>,
+    val customIngredients : List<String>,
     @SerializedName("name") override val name: String,
     override val fileResult: String?,
     override val materialResult: Material?,
@@ -45,7 +46,7 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe { //TODO add suppor
 /**
  * Converts a ShapedRecipe into ShapedRecipeData for Json serialization.
  */
-fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedRecipeData {
+fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting ,ingredientsCustom : List<String>): ShapedRecipeData {
     val rows = recipe.shape.toList()
     val ingredients = mutableMapOf<Char, Material>()
 
@@ -54,6 +55,7 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedReci
             ingredients[key] = itemStack.type
         }
     }
+
 
     val (fileResult, materialResult) = if (Utils.isCustomItem(recipe.result)) {
         val resultItem = recipe.result
@@ -72,6 +74,7 @@ fun shapedRecipeToData(recipe: ShapedRecipe, plugin: CustomCrafting): ShapedReci
     return ShapedRecipeData(
         rows = rows,
         ingredients = ingredients,
+        customIngredients = ingredientsCustom,
         name = recipe.key.key,
         fileResult = fileResult,
         materialResult = materialResult,

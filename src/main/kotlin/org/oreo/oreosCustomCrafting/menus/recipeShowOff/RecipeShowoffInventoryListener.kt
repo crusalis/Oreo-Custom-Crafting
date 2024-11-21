@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.PlayerInventory
 
-class CustomCraftingInventoryListener : Listener {
+class RecipeShowoffInventoryListener : Listener {
 
     /**
      * Handles any clicking of items that shouldn't be moved.

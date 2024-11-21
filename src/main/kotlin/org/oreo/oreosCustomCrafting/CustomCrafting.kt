@@ -2,15 +2,16 @@ package org.oreo.oreosCustomCrafting
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import com.google.gson.reflect.TypeToken
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.CraftingCommand
+import org.oreo.oreosCustomCrafting.customIngredientListener.CustomIngredientListener
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
@@ -22,11 +23,14 @@ import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
 import org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu.RecipeGroupAssignmentMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenuListener
+import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventoryListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
+import org.oreo.oreosCustomCrafting.utils.Utils
 import java.io.File
 import java.io.FileReader
+import kotlin.collections.hashMapOf
 
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
@@ -70,6 +74,8 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         server.pluginManager.registerEvents(RecipeMenuListener(), this)
         server.pluginManager.registerEvents(RecipeGroupMenuListener(), this)
         server.pluginManager.registerEvents(RecipeGroupAssignmentMenuListener(), this)
+        server.pluginManager.registerEvents(RecipeShowoffInventoryListener(), this)
+        server.pluginManager.registerEvents(CustomIngredientListener(), this)
 
         saveDefaultConfig()
         //loadGroupsFromFile()
@@ -83,7 +89,11 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     /**
      * Register and save the recipe as a file
      */
-    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String) { //Shaped recipes
+    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String, customItemIngredients : List<String>) { //Shaped recipes
+
+        val recipeData = shapedRecipeToData(recipe, this, customItemIngredients)
+
+        saveCustomIngredientRecipe(recipeData,recipe)
 
         allRecipesSaved.add(recipe)
 
@@ -95,8 +105,6 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
             itemDir?.mkdirs()
         }
         val file = File(shapedRecipeDir, "$recipeName.json")
-
-        val recipeData = shapedRecipeToData(recipe, this)
 
         customRecipes.add(CustomRecipeData(
             recipe = recipe,
@@ -146,6 +154,9 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
                         val recipeFromData = dataToShapedRecipe(recipeData)
 
+
+                        saveCustomIngredientRecipe(recipeData,recipeFromData)
+
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
 
@@ -190,6 +201,18 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
             } catch (e: JsonSyntaxException) {
                 Bukkit.getLogger().warning("Failed to parse shapeless recipe in file ${file.name}: ${e.message}")
             }
+        }
+    }
+
+
+    fun saveCustomIngredientRecipe(recipeData : ShapedRecipeData, recipe : Recipe){
+        if (recipeData.customIngredients != null && recipeData.customIngredients.isNotEmpty()) {
+            val customItems : ArrayList<ItemStack> = arrayListOf()
+
+            for (itemName in  recipeData.customIngredients){
+                customItems.add(Utils.getCustomItem(itemName))
+            }
+            customIngredientRecipes.add(Pair(customItems.toList(),recipe.result))
         }
     }
 
@@ -327,6 +350,8 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     companion object {
 
         const val GROUP_FILE = "groups.json"
+
+        val customIngredientRecipes : ArrayList<Pair<List<ItemStack>, ItemStack>> = arrayListOf()
 
         /**
          * A list of all custom items which is loaded from the save file

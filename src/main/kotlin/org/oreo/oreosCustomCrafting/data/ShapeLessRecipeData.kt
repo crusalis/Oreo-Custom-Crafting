@@ -17,7 +17,7 @@ data class ShapeLessRecipeData(
     override val amount: Int
 ) : RecipeData()
 
-fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
+fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe { //TODO add the custom items
 
     val result: ItemStack = when {
         data.fileResult != null -> Utils.getCustomItem(data.fileResult) // Get custom item by name

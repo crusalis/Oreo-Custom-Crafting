@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
+import org.oreo.oreosCustomCrafting.data.getKeyFromValue
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class CustomCraftingInventory(val player: Player, private val recipeName : String, private val plugin : CustomCrafting) {
@@ -29,6 +30,8 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
     val toggleSlot = 49
     val acceptSlot = 47
     val cancelSlot = 51
+
+    val customRecipeMaterials = arrayListOf<String>()
 
     init {
         initializeMenuItems()
@@ -102,6 +105,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
 
         val returnRecipe = try {
             if (isShaped){
+
                 val recipeMapping = handleStringConversion()
 
                 val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
@@ -132,7 +136,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
         CustomCrafting.allRecipesSaved.add(returnRecipe)
 
         if (returnRecipe is ShapedRecipe) {
-            plugin.registerAndSaveRecipe(returnRecipe,recipeName)
+            plugin.registerAndSaveRecipe(returnRecipe,recipeName,customRecipeMaterials)
         } else if (returnRecipe is ShapelessRecipe){
             plugin.registerAndSaveRecipe(returnRecipe,recipeName)
         } else{
@@ -172,8 +176,18 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
 
             // Store the character and material in the inverted map
             if (char != ' ') {
-                if (item != null) {
+
+                if (item != null) {  //TODO put this somewhere else sob
                     charToMaterialMap[char] = item.type
+
+                    val stringToAdd = if (Utils.customItemExists(item)){
+                        val customItemName: String = CustomCrafting.customItems.getKeyFromValue(item)!!
+                        customItemName
+                    } else {
+                        val fileName = Utils.saveCustomItemAsFile(item, plugin = plugin)!!.name
+                        fileName
+                    }
+                    customRecipeMaterials.add(stringToAdd)
                 }
             }
 

@@ -25,7 +25,6 @@ class RecipeShowoffInventory(val player: Player, private val recipe : CustomReci
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
 
-
     init {
         initializeMenuItems()
         openInventory(player)
@@ -97,7 +96,6 @@ class RecipeShowoffInventory(val player: Player, private val recipe : CustomReci
         for (i in 44..53) {
             craftingInv.setItem(i, blank)
         }
-
     }
 
     /**

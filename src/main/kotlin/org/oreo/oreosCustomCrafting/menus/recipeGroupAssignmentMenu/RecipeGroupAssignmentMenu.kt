@@ -70,7 +70,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
 
             val itemResult : ItemStack = if (recipe.fileResult != null){
 
-                CustomCrafting.customItems.get(recipe.fileResult)!!
+                CustomCrafting.customItems[recipe.fileResult]!!
 
             } else {
                 ItemStack(recipe.materialResult!!)

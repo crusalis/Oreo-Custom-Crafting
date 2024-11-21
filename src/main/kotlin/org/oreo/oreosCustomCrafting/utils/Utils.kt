@@ -1,6 +1,5 @@
 package org.oreo.oreosCustomCrafting.utils
 
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
