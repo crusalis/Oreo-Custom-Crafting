@@ -1,22 +1,16 @@
 package org.oreo.oreosCustomCrafting.menus.recipeMenu
 
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
-import org.oreo.oreosCustomCrafting.data.RecipeData
-import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
-import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
-import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
 import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventory
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu (val player: Player, group : String? ) {
+class RecipeMenu(val player: Player, group: String?) {
 
     private val rows = 5
     private val columns = 9
@@ -25,14 +19,14 @@ class RecipeMenu (val player: Player, group : String? ) {
     private val recipeMenuInv = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
-    private var currentPage : Int = 0
+    private var currentPage: Int = 0
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
     private val slotToRecipeData = hashMapOf<Int, CustomRecipeData>()
 
-    private val recipes : List<CustomRecipeData> = if(group == null) {
-        CustomCrafting.customRecipes.filterNot {it.recipe in CustomCrafting.disabledRecipes }
+    private val recipes: List<CustomRecipeData> = if (group == null) {
+        CustomCrafting.customRecipes.filterNot { it.recipe in CustomCrafting.disabledRecipes }
     } else {
         CustomCrafting.groups[group]?.second ?: throw IllegalArgumentException("Invalid group name")
     }
@@ -53,7 +47,7 @@ class RecipeMenu (val player: Player, group : String? ) {
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
         for (slot in (rows - 1) * columns..invSize - 1) {
-            recipeMenuInv.setItem(slot ,blank)
+            recipeMenuInv.setItem(slot, blank)
         }
 
         currentPage = page
@@ -70,7 +64,7 @@ class RecipeMenu (val player: Player, group : String? ) {
             val slot = i - startIndex
             val recipe = recipes[recipeNumber].recipeData
 
-            val itemResult : ItemStack = if (recipe.fileResult != null){
+            val itemResult: ItemStack = if (recipe.fileResult != null) {
 
                 CustomCrafting.customItems[recipe.fileResult]!!
 
@@ -78,11 +72,11 @@ class RecipeMenu (val player: Player, group : String? ) {
                 ItemStack(recipe.materialResult!!)
             }
 
-            slotToRecipeData.put(slot,recipes[recipeNumber])
+            slotToRecipeData.put(slot, recipes[recipeNumber])
 
             val itemName = recipe.name
 
-            val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
+            val itemToAdd = Utils.createGuiItem(itemResult, itemName, null)
 
             recipeMenuInv.setItem(slot, itemToAdd)
             recipeNumber++
@@ -114,25 +108,26 @@ class RecipeMenu (val player: Player, group : String? ) {
         openInventories.remove(recipeMenuInv)
         try {
             recipeMenuInv.close()
-        } catch (_: Exception){}
+        } catch (_: Exception) {
+        }
     }
 
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){ //TODO add the recipe preview
+    fun handleClickedItem(slot: Int) { //TODO add the recipe preview
 
         val item = recipeMenuInv.getItem(slot) ?: return
 
         val name = item.itemMeta?.displayName ?: return
 
         if (slotToRecipeData.containsKey(slot)) {
-            RecipeShowoffInventory(player,slotToRecipeData.get(slot)!!)
+            RecipeShowoffInventory(player, slotToRecipeData.get(slot)!!)
             closeInventory()
             return
         }
 
-        if (name.contains("Next")){
+        if (name.contains("Next")) {
             loadPage(currentPage + 1)
         } else if (name.contains("Previous")) {
             loadPage(currentPage - 1)
@@ -142,7 +137,7 @@ class RecipeMenu (val player: Player, group : String? ) {
     /**
      * Checks if the inventory has a blank space
      */
-    private fun hasBlank() : Boolean {
+    private fun hasBlank(): Boolean {
 
         for (row in 0 until rows) {
             for (column in 0 until columns) {

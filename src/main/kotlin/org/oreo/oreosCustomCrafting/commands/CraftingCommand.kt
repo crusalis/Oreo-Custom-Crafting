@@ -25,7 +25,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
             return false
         }
 
-        if (!sender.isOp){
+        if (!sender.isOp) {
             sender.sendMessage("${ChatColor.RED} This command can only be used by players.")
             return true
         }
@@ -50,16 +50,16 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
                 val recipeName = args[1]
 
-                for (recipe in CustomCrafting.customRecipes){
-                    val customRecipeName = if (recipe.recipe is ShapedRecipe){
+                for (recipe in CustomCrafting.customRecipes) {
+                    val customRecipeName = if (recipe.recipe is ShapedRecipe) {
                         recipe.recipe.key.key
-                    } else if (recipe.recipe is ShapelessRecipe){
+                    } else if (recipe.recipe is ShapelessRecipe) {
                         recipe.recipe.key.key
                     } else {
                         throw IllegalArgumentException("recipe is of unexpected type")
                     }
 
-                    if (recipeName == customRecipeName){
+                    if (recipeName == customRecipeName) {
                         sender.sendMessage("${ChatColor.RED}A recipe already has this name.")
                         return true
                     }
@@ -78,7 +78,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
                 val recipeName = args[1]
 
-                if (plugin.removeCraftingRecipe(recipeName)){
+                if (plugin.removeCraftingRecipe(recipeName)) {
 
                     sender.sendMessage("${ChatColor.GREEN}Recipe $recipeName was removed successfully.")
 
@@ -89,18 +89,19 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
             }
 
             "toggle" -> {
-                if (args.size < 2 || args[1].isEmpty()){
+                if (args.size < 2 || args[1].isEmpty()) {
                     sender.sendMessage("${ChatColor.RED}Please specify subcommand.")
                     return true
                 }
                 val showOnlyCustom = (args.size >= 3 && args[2].isNotEmpty() && args[2] == "custom")
                 when (args[1]) {
                     "all" -> {
-                        RecipeInventory(sender,ViewType.ALL,showOnlyCustom)
+                        RecipeInventory(sender, ViewType.ALL, showOnlyCustom)
 
                     }
-                    "enabled" -> RecipeInventory(sender,ViewType.ENABLED,showOnlyCustom)
-                    "disabled" -> RecipeInventory(sender,ViewType.DISABLED,showOnlyCustom)
+
+                    "enabled" -> RecipeInventory(sender, ViewType.ENABLED, showOnlyCustom)
+                    "disabled" -> RecipeInventory(sender, ViewType.DISABLED, showOnlyCustom)
 
                     else -> {
                         sender.sendMessage("${ChatColor.RED}Please specify subcommand.")
@@ -127,11 +128,11 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                             sender.sendMessage("${ChatColor.RED}The group '${args[2]}' already exists.")
                             return true
                         }
-                        if (sender.inventory.itemInMainHand.type == Material.AIR){
+                        if (sender.inventory.itemInMainHand.type == Material.AIR) {
                             sender.sendMessage("${ChatColor.RED}You need to hold an item to set as the groups icon.")
                             return true
                         }
-                        CustomCrafting.groups[args[2]] = Pair(sender.inventory.itemInMainHand,arrayListOf())
+                        CustomCrafting.groups[args[2]] = Pair(sender.inventory.itemInMainHand, arrayListOf())
                         sender.sendMessage("${ChatColor.GREEN}Group '${args[2]}' created successfully.")
                         return true
                     }
@@ -154,25 +155,25 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
                     "additems" -> {
 
-                        if (CustomCrafting.groups.keys.isEmpty()){
+                        if (CustomCrafting.groups.keys.isEmpty()) {
                             sender.sendMessage("${ChatColor.RED}There are no groups.")
                             return true
                         }
 
-                        RecipeGroupAssignmentMenu(sender,CustomCrafting.groups.keys.toList()[0],false)
+                        RecipeGroupAssignmentMenu(sender, CustomCrafting.groups.keys.toList()[0], false)
 
                         return true
                     }
 
-                    "removeitems" ->{
+                    "removeitems" -> {
 
-                        if (CustomCrafting.groups.keys.isEmpty()){
+                        if (CustomCrafting.groups.keys.isEmpty()) {
                             sender.sendMessage("${ChatColor.RED}There are no groups.")
                             return true
                         }
 
 
-                        RecipeGroupAssignmentMenu(sender, CustomCrafting.groups.keys.toList()[0],true)
+                        RecipeGroupAssignmentMenu(sender, CustomCrafting.groups.keys.toList()[0], true)
                         return true
                     }
 
@@ -197,7 +198,12 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
 
             1 -> {
                 return if (sender.isOp) {
-                    listOf("add","remove","toggle","recipes","groups").filter { it.startsWith(args[0], ignoreCase = true) }
+                    listOf("add", "remove", "toggle", "recipes", "groups").filter {
+                        it.startsWith(
+                            args[0],
+                            ignoreCase = true
+                        )
+                    }
                 } else {
                     listOf("recipes")
                 }

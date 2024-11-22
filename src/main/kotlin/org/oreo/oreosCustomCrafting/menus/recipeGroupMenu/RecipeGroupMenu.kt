@@ -6,12 +6,10 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
-
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
-import kotlin.collections.set
 
-class RecipeGroupMenu(val player : Player) {
+class RecipeGroupMenu(val player: Player) {
 
 
     private val rows = 3
@@ -22,26 +20,26 @@ class RecipeGroupMenu(val player : Player) {
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
     private val allRecipesButton = Utils.createGuiItem(Material.CRAFTING_TABLE, "§6§lAll Recipes", null)
-    private val closeItem = Utils.createGuiItem(Material.BARRIER,"Close",null)
+    private val closeItem = Utils.createGuiItem(Material.BARRIER, "Close", null)
 
     init {
         initialiseItems()
         openInventory()
     }
 
-    fun initialiseItems(){
-        for (i in 0..recipeGroupMenuInv.size -1){
-            recipeGroupMenuInv.setItem(i,blank)
+    fun initialiseItems() {
+        for (i in 0..recipeGroupMenuInv.size - 1) {
+            recipeGroupMenuInv.setItem(i, blank)
         }
 
-        recipeGroupMenuInv.setItem(0,allRecipesButton)
+        recipeGroupMenuInv.setItem(0, allRecipesButton)
 
         val keys = CustomCrafting.groups.keys.toList() // Convert keys to a list for indexed access
 
         for (i in keys.indices) { // Iterate over valid indices
             val item: ItemStack? = CustomCrafting.groups[keys[i]]?.first // Get the first element of the Pair
 
-            Utils.createGuiItem(item!!, "§l${keys[i]}",null)
+            Utils.createGuiItem(item!!, "§l${keys[i]}", null)
 
             recipeGroupMenuInv.setItem(i + 1, item) // Use a fallback if item is null
         }
@@ -67,24 +65,25 @@ class RecipeGroupMenu(val player : Player) {
         openInventories.remove(recipeGroupMenuInv)
         try {
             recipeGroupMenuInv.close()
-        } catch (_: Exception){}
+        } catch (_: Exception) {
+        }
     }
 
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){
+    fun handleClickedItem(slot: Int) {
 
-        val clickedItem : ItemStack = recipeGroupMenuInv.getItem(slot) ?: return
+        val clickedItem: ItemStack = recipeGroupMenuInv.getItem(slot) ?: return
 
         if (clickedItem == closeItem) {
             closeInventory()
             return
         }
 
-        when (slot){
+        when (slot) {
 
-            0 -> RecipeMenu(player,null)
+            0 -> RecipeMenu(player, null)
 
             else -> {
 
@@ -92,13 +91,13 @@ class RecipeGroupMenu(val player : Player) {
 
                 val groupName = keys[slot - 1]
 
-                RecipeMenu(player,groupName)
+                RecipeMenu(player, groupName)
             }
         }
     }
 
 
-    companion object{
+    companion object {
 
         val openInventories = mutableMapOf<Inventory, RecipeGroupMenu>()
 

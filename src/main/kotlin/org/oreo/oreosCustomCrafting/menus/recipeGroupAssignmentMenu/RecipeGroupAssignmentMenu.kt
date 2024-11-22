@@ -10,7 +10,7 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.RecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeGroupAssignmentMenu (val player: Player,val group : String,val removeRecipes : Boolean) {
+class RecipeGroupAssignmentMenu(val player: Player, val group: String, val removeRecipes: Boolean) {
 
     private val rows = 5
     private val columns = 9
@@ -19,13 +19,13 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
     private val recipeMenuInv = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
-    private var currentPage : Int = 0
+    private var currentPage: Int = 0
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
     private val recipesToChange = arrayListOf<CustomRecipeData>()
 
-    private val recipes : List<CustomRecipeData> = if(removeRecipes) {
+    private val recipes: List<CustomRecipeData> = if (removeRecipes) {
         CustomCrafting.customRecipes.filter {
             it in (CustomCrafting.groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
         }
@@ -53,7 +53,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
 
 
         for (slot in (rows - 1) * columns..invSize - 1) {
-            recipeMenuInv.setItem(slot ,blank)
+            recipeMenuInv.setItem(slot, blank)
         }
 
         currentPage = page
@@ -68,7 +68,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
             val slot = i - startIndex
             val recipe = recipes[recipeNumber].recipeData
 
-            val itemResult : ItemStack = if (recipe.fileResult != null){
+            val itemResult: ItemStack = if (recipe.fileResult != null) {
 
                 CustomCrafting.customItems[recipe.fileResult]!!
 
@@ -79,7 +79,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
             val itemName = recipe.name
 
 
-            val itemToAdd = Utils.createGuiItem(itemResult,itemName,null)
+            val itemToAdd = Utils.createGuiItem(itemResult, itemName, null)
 
             recipeMenuInv.setItem(slot, itemToAdd)
             recipeNumber++
@@ -119,7 +119,8 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
 
         try {
             recipeMenuInv.close()
-        } catch (_: Exception){}
+        } catch (_: Exception) {
+        }
     }
 
     /**
@@ -141,9 +142,9 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
                 val groupIndex = group.let { groupNames.indexOf(it) }
                 val nextGroupName = groupNames[groupIndex + 1]
 
-                RecipeGroupAssignmentMenu(player, nextGroupName,removeRecipes)
+                RecipeGroupAssignmentMenu(player, nextGroupName, removeRecipes)
             } catch (_: IndexOutOfBoundsException) {
-                RecipeGroupAssignmentMenu(player, CustomCrafting.groups.keys.toList()[0],removeRecipes)
+                RecipeGroupAssignmentMenu(player, CustomCrafting.groups.keys.toList()[0], removeRecipes)
             }
 
             return
@@ -154,7 +155,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
         val recipeIndex = currentPage * itemsPerPage + slot
 
         if (recipeIndex in recipes.indices) {
-            val recipe : RecipeData = recipes[recipeIndex].recipeData
+            val recipe: RecipeData = recipes[recipeIndex].recipeData
 
             if (item.itemMeta?.displayName == "§a§lAdded" || item.itemMeta?.displayName == "§c§lRemoved") {
                 // Item is marked as added; revert it
@@ -168,7 +169,7 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
             } else {
                 // Item is not marked; mark as added
                 item.itemMeta = item.itemMeta?.apply {
-                    if (removeRecipes){
+                    if (removeRecipes) {
                         setDisplayName("§c§lRemoved")
                     } else {
                         setDisplayName("§a§lAdded")
@@ -177,8 +178,8 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
                     addEnchant(org.bukkit.enchantments.Enchantment.LUCK, 1, true)
                     addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS)
                 }
-                if (!removeRecipes){
-                    if (!CustomCrafting.groups[group]!!.second.contains(recipes[recipeIndex])){
+                if (!removeRecipes) {
+                    if (!CustomCrafting.groups[group]!!.second.contains(recipes[recipeIndex])) {
                         recipesToChange.add(recipes[recipeIndex])
                     }
                 } else {
@@ -201,11 +202,10 @@ class RecipeGroupAssignmentMenu (val player: Player,val group : String,val remov
     }
 
 
-
     /**
      * Checks if the inventory has a blank space
      */
-    private fun hasBlank() : Boolean {
+    private fun hasBlank(): Boolean {
 
         for (row in 0 until rows) {
             for (column in 0 until columns) {

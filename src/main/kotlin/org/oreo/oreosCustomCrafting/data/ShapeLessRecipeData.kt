@@ -17,7 +17,7 @@ data class ShapeLessRecipeData(
     override val amount: Int
 ) : RecipeData()
 
-fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
+fun dataToShapeLessRecipe(data: ShapeLessRecipeData): ShapelessRecipe {
 
     val result: ItemStack = when {
         data.fileResult != null -> {
@@ -25,7 +25,10 @@ fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
             customItem.amount = data.amount
             customItem
         } // Get custom item by name
-        data.materialResult != null -> ItemStack(data.materialResult,data.amount) // Use the material if it's a default item
+        data.materialResult != null -> ItemStack(
+            data.materialResult,
+            data.amount
+        ) // Use the material if it's a default item
         else -> throw IllegalArgumentException("Invalid recipe result")
     }
 
@@ -46,7 +49,11 @@ fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe {
 }
 
 
-fun shapeLessRecipeToData(recipe: ShapelessRecipe, plugin: CustomCrafting, ingredientsItems: List<String>): ShapeLessRecipeData {
+fun shapeLessRecipeToData(
+    recipe: ShapelessRecipe,
+    plugin: CustomCrafting,
+    ingredientsItems: List<String>
+): ShapeLessRecipeData {
     val ingredientsMaterials = mutableListOf<Material>()
 
     // Process each ingredient in the recipe

@@ -3,19 +3,15 @@ package org.oreo.oreosCustomCrafting.menus.recipeShowOff
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.ShapedRecipe
-import org.bukkit.inventory.ShapelessRecipe
-import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeShowoffInventory(val player: Player, private val recipe : CustomRecipeData) { //TODO close button
+class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecipeData) { //TODO close button
 
     private val name = recipe.recipeData.name
 
@@ -114,28 +110,29 @@ class RecipeShowoffInventory(val player: Player, private val recipe : CustomReci
         openInventories.remove(craftingInv)
         try {
             craftingInv.close()
-        } catch (_: Exception){}
+        } catch (_: Exception) {
+        }
     }
 
-   
+
     companion object {
         const val RESULT_SLOT = 24
 
-        val CRAFTING_SLOTS = listOf(11,12,13,20,21,22,29,30,31)
+        val CRAFTING_SLOTS = listOf(11, 12, 13, 20, 21, 22, 29, 30, 31)
 
         val openInventories = mutableMapOf<Inventory, RecipeShowoffInventory>()
 
         /**
          * Checks if the inventory is a custom crafting instance
          */
-        fun isCustomInventory(inv : Inventory): Boolean {
+        fun isCustomInventory(inv: Inventory): Boolean {
             return openInventories.contains(inv)
         }
 
         /**
          * Get the entire CustomCraftingInventory instance from its inventory
          */
-        fun getCustomCraftingInventory(inv : Inventory): RecipeShowoffInventory? {
+        fun getCustomCraftingInventory(inv: Inventory): RecipeShowoffInventory? {
 
             return openInventories[inv]
         }

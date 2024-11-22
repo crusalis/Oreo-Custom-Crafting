@@ -1,7 +1,6 @@
 package org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu
 
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
@@ -9,7 +8,7 @@ import org.bukkit.inventory.Recipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom : Boolean) {
+class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom: Boolean) {
 
     private val rows = 5
     private val columns = 9
@@ -18,9 +17,9 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
     private val craftingInv = Bukkit.createInventory(null, invSize, craftingInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
-    private var currentPage : Int = 0
+    private var currentPage: Int = 0
 
-    var slotToRecipe : MutableMap<Int, Recipe> = mutableMapOf()
+    var slotToRecipe: MutableMap<Int, Recipe> = mutableMapOf()
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
@@ -73,7 +72,7 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
         }
 
         for (slot in (rows - 1) * columns..invSize - 1) {
-            craftingInv.setItem(slot ,blank)
+            craftingInv.setItem(slot, blank)
         }
 
         slotToRecipe.clear()
@@ -90,7 +89,7 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
 
             val recipe: Recipe = try {
                 recipes[recipeNumber]
-            } catch (e : IndexOutOfBoundsException) {
+            } catch (e: IndexOutOfBoundsException) {
                 break
             }
 
@@ -101,9 +100,8 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
             }
 
 
-
             // Update item status based on whether it’s enabled or disabled
-            val isDisabled : Boolean = CustomCrafting.disabledRecipes.contains(recipe)
+            val isDisabled: Boolean = CustomCrafting.disabledRecipes.contains(recipe)
 
             val statusName = if (isDisabled) "Disabled" else "Enabled"
             val statusPrefix = if (isDisabled) "§l§c" else "§l§a"
@@ -146,22 +144,23 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
         openInventories.remove(craftingInv)
         try {
             craftingInv.close()
-        } catch (_: Exception){}
+        } catch (_: Exception) {
+        }
     }
 
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot : Int){ //TODO add enchant glint and handle items staying disabled when switching pages
+    fun handleClickedItem(slot: Int) { //TODO add enchant glint and handle items staying disabled when switching pages
 
         val item = craftingInv.getItem(slot) ?: return
 
         val name = item.itemMeta?.displayName ?: return
 
-        if (name.contains("Next")){
+        if (name.contains("Next")) {
             loadPage(currentPage + 1)
-        } else if (name.contains("Previous")){
-            loadPage(currentPage-1)
+        } else if (name.contains("Previous")) {
+            loadPage(currentPage - 1)
         } else {
 
             val recipe = slotToRecipe[slot] ?: return
@@ -188,14 +187,13 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
             }
 
 
-
         }
     }
 
     /**
      * Checks if the inventory has a blank space
      */
-    private fun hasBlank() : Boolean {
+    private fun hasBlank(): Boolean {
 
         for (row in 0 until rows) {
             for (column in 0 until columns) {
@@ -206,7 +204,6 @@ class RecipeInventory(val player: Player,val type: ViewType, val showOnlyCustom 
 
         return false
     }
-
 
 
     companion object {

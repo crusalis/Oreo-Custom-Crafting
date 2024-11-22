@@ -13,7 +13,7 @@ import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.getKeyFromValue
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class CustomCraftingInventory(val player: Player, private val recipeName : String, private val plugin : CustomCrafting) {
+class CustomCraftingInventory(val player: Player, private val recipeName: String, private val plugin: CustomCrafting) {
 
     private val craftingInvName = "Create a custom recipe"
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
@@ -86,32 +86,36 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
         openInventories.remove(craftingInv)
         try {
             craftingInv.close()
-        } catch (_: Exception){}
+        } catch (_: Exception) {
+        }
     }
 
     /**
      * Saves the recipe from the inventory into a file and registers it
      */
-    fun saveRecipe(){
+    fun saveRecipe() {
 
-        val resultSlotItem : ItemStack = craftingInv.getItem(RESULT_SLOT) ?: throw NullPointerException()
+        val resultSlotItem: ItemStack = craftingInv.getItem(RESULT_SLOT) ?: throw NullPointerException()
 
-        if (craftingInv.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem)||
-            !Utils.customItemExists(resultSlotItem)) {
+        if (craftingInv.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem) ||
+            !Utils.customItemExists(resultSlotItem)
+        ) {
 
             Utils.saveCustomItemAsFile(resultSlotItem, plugin)
         }
 
 
         val returnRecipe = try {
-            if (isShaped){
+            if (isShaped) {
 
                 val recipeMapping = handleStringConversion()
 
                 val recipe = ShapedRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
-                recipe.shape(recipeMapping.first[0],
+                recipe.shape(
+                    recipeMapping.first[0],
                     recipeMapping.first[1],
-                    recipeMapping.first[2])
+                    recipeMapping.first[2]
+                )
 
                 for ((char, ingredient) in recipeMapping.second) {
                     recipe.setIngredient(char, ingredient)
@@ -128,25 +132,25 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
 
                 recipe
             }
-        } catch (e:IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             player.sendMessage("${ChatColor.RED}${e.localizedMessage}")
             return
         }
-        
+
         CustomCrafting.allRecipesSaved.add(returnRecipe)
 
         if (returnRecipe is ShapedRecipe) {
-            plugin.registerAndSaveRecipe(returnRecipe,recipeName,customRecipeMaterials)
-        } else if (returnRecipe is ShapelessRecipe){
-            plugin.registerAndSaveRecipe(returnRecipe,recipeName,customRecipeMaterials)
-        } else{
+            plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
+        } else if (returnRecipe is ShapelessRecipe) {
+            plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
+        } else {
             plugin.logger.warning("Could not save recipe $craftingInvName")
         }
     }
 
     /**
      * Takes the items from the custom crafting inventory and converts them into a list of three strings
-     for the actual creation of the recipe along with the corresponding characters
+    for the actual creation of the recipe along with the corresponding characters
      */
     private fun handleStringConversion(): Pair<List<String>, Map<Char, Material>> {
         val items = ArrayList<ItemStack?>()
@@ -180,7 +184,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
                 if (item != null) {  //TODO put this somewhere else sob
                     charToMaterialMap[char] = item.type
 
-                    val stringToAdd = if (Utils.customItemExists(item)){
+                    val stringToAdd = if (Utils.customItemExists(item)) {
                         val customItemName: String = CustomCrafting.customItems.getKeyFromValue(item)!!
                         customItemName
                     } else {
@@ -214,40 +218,40 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
     /**
      * Handles the player toggling to "shaped" mode
      */
-    fun handleShapedToggle(){
+    fun handleShapedToggle() {
 
         isShaped = true
-        craftingInv.setItem(toggleSlot,shapedButton)
+        craftingInv.setItem(toggleSlot, shapedButton)
     }
 
     /**
      * Handles the player toggling to "shapeless" mode
      */
-    fun handleShapeLessToggle(){
+    fun handleShapeLessToggle() {
 
         isShaped = false
-        craftingInv.setItem(toggleSlot,shapedLessButton)
+        craftingInv.setItem(toggleSlot, shapedLessButton)
     }
 
 
     companion object {
         const val RESULT_SLOT = 24
 
-        val CRAFTING_SLOTS = listOf(11,12,13,20,21,22,29,30,31)
+        val CRAFTING_SLOTS = listOf(11, 12, 13, 20, 21, 22, 29, 30, 31)
 
         val openInventories = mutableMapOf<Inventory, CustomCraftingInventory>()
 
         /**
          * Checks if the inventory is a custom crafting instance
          */
-        fun isCustomInventory(inv : Inventory): Boolean {
+        fun isCustomInventory(inv: Inventory): Boolean {
             return openInventories.contains(inv)
         }
 
         /**
          * Get the entire CustomCraftingInventory instance from its inventory
          */
-        fun getCustomCraftingInventory(inv : Inventory): CustomCraftingInventory? {
+        fun getCustomCraftingInventory(inv: Inventory): CustomCraftingInventory? {
 
             return openInventories[inv]
         }
