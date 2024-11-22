@@ -138,7 +138,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName : Strin
         if (returnRecipe is ShapedRecipe) {
             plugin.registerAndSaveRecipe(returnRecipe,recipeName,customRecipeMaterials)
         } else if (returnRecipe is ShapelessRecipe){
-            plugin.registerAndSaveRecipe(returnRecipe,recipeName)
+            plugin.registerAndSaveRecipe(returnRecipe,recipeName,customRecipeMaterials)
         } else{
             plugin.logger.warning("Could not save recipe $craftingInvName")
         }

@@ -42,21 +42,13 @@ fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe { //TOD
 }
 
 
-fun shapeLessRecipeToData(recipe: ShapelessRecipe, plugin: CustomCrafting): ShapeLessRecipeData {
+fun shapeLessRecipeToData(recipe: ShapelessRecipe, plugin: CustomCrafting, ingredientsItems: List<String>): ShapeLessRecipeData {
     val ingredientsMaterials = mutableListOf<Material>()
-    val ingredientsItems = mutableListOf<String>()
 
     // Process each ingredient in the recipe
     recipe.ingredientList.forEach { ingredient ->
         if (ingredient.type != Material.AIR) { // Avoid adding empty slots
-            if (Utils.isCustomItem(ingredient)) {
-                val customItemName = CustomCrafting.customItems.getKeyFromValue(ingredient) ?: run {
-                    Utils.saveCustomItemAsFile(ingredient, plugin)?.name
-                }
-                if (customItemName != null) ingredientsItems.add(customItemName)
-            } else {
-                ingredientsMaterials.add(ingredient.type)
-            }
+            ingredientsMaterials.add(ingredient.type)
         }
     }
 
@@ -73,6 +65,7 @@ fun shapeLessRecipeToData(recipe: ShapelessRecipe, plugin: CustomCrafting): Shap
         name = recipe.key.key,
         ingredientsMaterials = ingredientsMaterials,
         ingredientsItems = ingredientsItems,
+
         fileResult = fileResult,
         materialResult = materialResult,
         amount = recipe.result.amount

@@ -59,5 +59,4 @@ class CustomIngredientListener : Listener {
         // Compare the lists of materials
         return materials1 == materials2
     }
-
 }

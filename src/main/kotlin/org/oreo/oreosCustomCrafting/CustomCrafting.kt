@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
-import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
@@ -12,13 +11,7 @@ import org.bukkit.inventory.ShapelessRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.CraftingCommand
 import org.oreo.oreosCustomCrafting.customIngredientListener.CustomIngredientListener
-import org.oreo.oreosCustomCrafting.data.CustomRecipeData
-import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
-import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
-import org.oreo.oreosCustomCrafting.data.dataToShapeLessRecipe
-import org.oreo.oreosCustomCrafting.data.dataToShapedRecipe
-import org.oreo.oreosCustomCrafting.data.shapeLessRecipeToData
-import org.oreo.oreosCustomCrafting.data.shapedRecipeToData
+import org.oreo.oreosCustomCrafting.data.*
 import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
 import org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu.RecipeGroupAssignmentMenuListener
 import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenuListener
@@ -30,7 +23,6 @@ import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 import java.io.File
 import java.io.FileReader
-import kotlin.collections.hashMapOf
 
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
@@ -60,7 +52,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
     override fun onEnable() {
 
-        if (config.getBoolean("clear-all-recipes")){
+        if (config.getBoolean("clear-all-recipes")) {
             Bukkit.clearRecipes()
         }
 
@@ -89,11 +81,15 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     /**
      * Register and save the recipe as a file
      */
-    fun registerAndSaveRecipe(recipe : ShapedRecipe, recipeName : String, customItemIngredients : List<String>) { //Shaped recipes
+    fun registerAndSaveRecipe(
+        recipe: ShapedRecipe,
+        recipeName: String,
+        customItemIngredients: List<String>
+    ) { //Shaped recipes
 
         val recipeData = shapedRecipeToData(recipe, this, customItemIngredients)
 
-        saveCustomIngredientRecipe(recipeData,recipe)
+        saveCustomIngredientRecipe(recipeData, recipe)
 
         allRecipesSaved.add(recipe)
 
@@ -106,16 +102,20 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         }
         val file = File(shapedRecipeDir, "$recipeName.json")
 
-        customRecipes.add(CustomRecipeData(
-            recipe = recipe,
-            recipeData = recipeData,
-        ))
+        customRecipes.add(
+            CustomRecipeData(
+                recipe = recipe,
+                recipeData = recipeData,
+            )
+        )
 
         file.writeText(gson.toJson(recipeData))
     }
 
     // Shapeless recipes
-    fun registerAndSaveRecipe(recipe : ShapelessRecipe, recipeName : String){
+    fun registerAndSaveRecipe(recipe: ShapelessRecipe, recipeName: String, customItemIngredients: List<String>) {
+
+        val recipeData = shapeLessRecipeToData(recipe, this, customItemIngredients)
 
         allRecipesSaved.add(recipe)
 
@@ -128,12 +128,14 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         }
         val file = File(shapelessRecipeDir, "$recipeName.json")
 
-        val recipeData = shapeLessRecipeToData(recipe, this)
+        saveCustomIngredientRecipe(recipeData, recipe)
 
-        customRecipes.add(CustomRecipeData(
-            recipe = recipe,
-            recipeData = recipeData,
-        ))
+        customRecipes.add(
+            CustomRecipeData(
+                recipe = recipe,
+                recipeData = recipeData,
+            )
+        )
 
         file.writeText(gson.toJson(recipeData))
     }
@@ -155,15 +157,17 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
                         val recipeFromData = dataToShapedRecipe(recipeData)
 
 
-                        saveCustomIngredientRecipe(recipeData,recipeFromData)
+                        saveCustomIngredientRecipe(recipeData, recipeFromData)
 
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
 
-                        customRecipes.add(CustomRecipeData(
-                            recipe = recipeFromData,
-                            recipeData = recipeData,
-                        ))
+                        customRecipes.add(
+                            CustomRecipeData(
+                                recipe = recipeFromData,
+                                recipeData = recipeData,
+                            )
+                        )
                         allRecipesSaved.add(recipeFromData)
 
                         logger.info("Registered custom shaped recipe ${recipeData.name} successfully")
@@ -186,13 +190,17 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
                         val recipeFromData = dataToShapeLessRecipe(recipeData)
 
+                        saveCustomIngredientRecipe(recipeData, recipeFromData)
+
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
 
-                        customRecipes.add(CustomRecipeData(
-                            recipe = recipeFromData,
-                            recipeData = recipeData,
-                        ))
+                        customRecipes.add(
+                            CustomRecipeData(
+                                recipe = recipeFromData,
+                                recipeData = recipeData,
+                            )
+                        )
                         allRecipesSaved.add(recipeFromData)
 
                         logger.info("Registered custom shapeless recipe ${recipeData.name} successfully")
@@ -205,16 +213,28 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     }
 
 
-    fun saveCustomIngredientRecipe(recipeData : ShapedRecipeData, recipe : Recipe){
+    fun saveCustomIngredientRecipe(recipeData: ShapedRecipeData, recipe: Recipe) {
         if (recipeData.customIngredients != null && recipeData.customIngredients.isNotEmpty()) {
-            val customItems : ArrayList<ItemStack> = arrayListOf()
+            val customItems: ArrayList<ItemStack> = arrayListOf()
 
-            for (itemName in  recipeData.customIngredients){
+            for (itemName in recipeData.customIngredients) {
                 customItems.add(Utils.getCustomItem(itemName))
             }
-            customIngredientRecipes.add(Pair(customItems.toList(),recipe.result))
+            customIngredientRecipes.add(Pair(customItems.toList(), recipe.result))
         }
     }
+
+    fun saveCustomIngredientRecipe(recipeData: ShapeLessRecipeData, recipe: Recipe) {
+        if (recipeData.ingredientsItems != null && recipeData.ingredientsItems.isNotEmpty()) {
+            val customItems: ArrayList<ItemStack> = arrayListOf()
+
+            for (itemName in recipeData.ingredientsItems) {
+                customItems.add(Utils.getCustomItem(itemName))
+            }
+            customIngredientRecipes.add(Pair(customItems.toList(), recipe.result))
+        }
+    }
+
 
     /**
      * Handles everything to do with custom directory creation and item loading from base64 files
@@ -291,11 +311,11 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
      * Tries to remove the recipe ith that nameSpaceKey
      * @return Weather it succeeded
      */
-    fun removeCraftingRecipe(name: String) : Boolean {
+    fun removeCraftingRecipe(name: String): Boolean {
 
         try {
 
-            val key : NamespacedKey = NamespacedKey.fromString(name)!!
+            val key: NamespacedKey = NamespacedKey.fromString(name)!!
 
             Bukkit.getServer().removeRecipe(key)
 
@@ -309,21 +329,21 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
                         break
                     }
 
-                } else if (recipeData is ShapeLessRecipeData){
+                } else if (recipeData is ShapeLessRecipeData) {
                     if (recipeData.name == name) {
                         break
                     }
                 }
             }
 
-            for (file in shapedRecipeDir?.listFiles()!!){
+            for (file in shapedRecipeDir?.listFiles()!!) {
                 if (file.name != "$name.json") continue
 
                 file.delete()
                 return true
             }
 
-            for (file in shapelessRecipeDir?.listFiles()!!){
+            for (file in shapelessRecipeDir?.listFiles()!!) {
                 if (file.name != "$name.json") continue
 
                 file.delete()
@@ -351,24 +371,24 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         const val GROUP_FILE = "groups.json"
 
-        val customIngredientRecipes : ArrayList<Pair<List<ItemStack>, ItemStack>> = arrayListOf()
+        val customIngredientRecipes: ArrayList<Pair<List<ItemStack>, ItemStack>> = arrayListOf()
 
         /**
          * A list of all custom items which is loaded from the save file
          */
         val customItems: HashMap<String, ItemStack> = hashMapOf()
 
-        val customRecipes : MutableList<CustomRecipeData> = mutableListOf()
+        val customRecipes: MutableList<CustomRecipeData> = mutableListOf()
 
-        val disabledRecipes : MutableList<Recipe> = mutableListOf()
+        val disabledRecipes: MutableList<Recipe> = mutableListOf()
 
-        var groups : HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>  = hashMapOf() //TODO save this somehow
+        var groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> = hashMapOf() //TODO save this somehow
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
-         a different memory address every time and there's no such thing as .equals() for recipes
+        a different memory address every time and there's no such thing as .equals() for recipes
          */
-        val allRecipesSaved : ArrayList<Recipe> = getAllRecipes()
+        val allRecipesSaved: ArrayList<Recipe> = getAllRecipes()
 
         private fun getAllRecipes(): ArrayList<Recipe> {
             val recipes = mutableListOf<Recipe>()
