@@ -26,7 +26,7 @@ import java.io.FileReader
 
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
-    //TODO make a button to add a recipe on the crafting menu eventually
+    //TODO make a button to add a recipe on the crafting group eventually
 
     private val gson = Gson()
 

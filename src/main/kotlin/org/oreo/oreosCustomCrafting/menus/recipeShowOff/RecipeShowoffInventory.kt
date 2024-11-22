@@ -11,7 +11,7 @@ import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecipeData) { //TODO close button
+class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecipeData) {
 
     private val name = recipe.recipeData.name
 
