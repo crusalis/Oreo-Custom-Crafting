@@ -20,8 +20,12 @@ data class ShapeLessRecipeData(
 fun dataToShapeLessRecipe(data : ShapeLessRecipeData,) : ShapelessRecipe { //TODO add the custom items
 
     val result: ItemStack = when {
-        data.fileResult != null -> Utils.getCustomItem(data.fileResult) // Get custom item by name
-        data.materialResult != null -> ItemStack(data.materialResult) // Use the material if it's a default item
+        data.fileResult != null -> {
+            val customItem = Utils.getCustomItem(data.fileResult)
+            customItem.amount = data.amount
+            customItem
+        } // Get custom item by name
+        data.materialResult != null -> ItemStack(data.materialResult,data.amount) // Use the material if it's a default item
         else -> throw IllegalArgumentException("Invalid recipe result")
     }
 
