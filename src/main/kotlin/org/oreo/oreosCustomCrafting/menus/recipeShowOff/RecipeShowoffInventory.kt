@@ -19,6 +19,7 @@ class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecip
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+    private val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null)
 
 
     init {
@@ -92,6 +93,8 @@ class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecip
         for (i in 44..53) {
             craftingInv.setItem(i, blank)
         }
+
+        craftingInv.setItem(49,closeItem)
     }
 
     /**
@@ -111,6 +114,16 @@ class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecip
         try {
             craftingInv.close()
         } catch (_: Exception) {
+        }
+    }
+
+
+    fun handleClickedItem(slot : Int){
+
+        val clieckedItem = craftingInv.getItem(slot) ?: return
+
+        if (clieckedItem == closeItem){
+            closeInventory()
         }
     }
 

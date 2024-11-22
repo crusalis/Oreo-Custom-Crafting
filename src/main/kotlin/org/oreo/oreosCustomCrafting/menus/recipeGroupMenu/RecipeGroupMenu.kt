@@ -20,7 +20,7 @@ class RecipeGroupMenu(val player: Player) {
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
     private val allRecipesButton = Utils.createGuiItem(Material.CRAFTING_TABLE, "§6§lAll Recipes", null)
-    private val closeItem = Utils.createGuiItem(Material.BARRIER, "Close", null)
+    private val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null)
 
     init {
         initialiseItems()

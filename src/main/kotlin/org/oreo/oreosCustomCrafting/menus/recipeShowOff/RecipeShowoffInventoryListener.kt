@@ -18,7 +18,7 @@ class RecipeShowoffInventoryListener : Listener {
 
         e.isCancelled = true
 
-        craftInvInstance.closeInventory()
+        craftInvInstance.handleClickedItem(e.slot)
     }
 
 

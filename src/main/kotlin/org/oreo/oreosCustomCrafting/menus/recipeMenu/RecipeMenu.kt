@@ -115,7 +115,7 @@ class RecipeMenu(val player: Player, group: String?) {
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot: Int) { //TODO add the recipe preview
+    fun handleClickedItem(slot: Int) {
 
         val item = recipeMenuInv.getItem(slot) ?: return
 
