@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 
-class CustomIngredientListener : Listener { //TODO make it take effect pre restart too and add an amount counter for fucks sake
+class CustomIngredientListener : Listener {
 
     @EventHandler
     fun allowCustomIngredients(e: PrepareItemCraftEvent) {
@@ -33,7 +33,6 @@ class CustomIngredientListener : Listener { //TODO make it take effect pre resta
                 }
             }
         }
-
         // If no custom recipes match, allow the recipe (do nothing)
     }
 
