@@ -1,9 +1,12 @@
 package org.oreo.oreosCustomCrafting
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
+import com.google.gson.reflect.TypeToken
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
@@ -22,7 +25,9 @@ import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuLis
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileReader
+import java.lang.NullPointerException
 
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
@@ -70,12 +75,66 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         server.pluginManager.registerEvents(CustomIngredientListener(), this)
 
         saveDefaultConfig()
+        loadDisabledRecipes()
         //loadGroupsFromFile()
     }
 
     override fun onDisable() {
         saveDefaultConfig()
+        saveDisabledRecipes()
+
         //saveGroupsToFile(groups)
+    }
+
+    fun loadDisabledRecipes() { //TODO make this work too
+        val pluginDirectory = Bukkit.getServer().pluginsFolder
+        val file = File(pluginDirectory, "disabled_recipes.json")
+
+        if (!file.exists()) {
+            Bukkit.getLogger().warning("disabled_recipes.json not found. Returning an empty list.")
+            return
+        }
+
+        val disabledKeyList : List<String> = try {
+            val json = file.readText()
+            val type = object : TypeToken<List<String>>() {}.type
+            val keyList = Gson().fromJson(json, type) ?: throw NullPointerException("Json file is null")
+            keyList
+        } catch (e: Exception) {
+            Bukkit.getLogger().severe("Failed to load disabled recipes: ${e.message}")
+            e.printStackTrace()
+            return
+        }
+
+        for (key in disabledKeyList) {
+            val recipe = Bukkit.getRecipe(NamespacedKey.minecraft(key))
+            if (recipe is CraftingRecipe){
+                disabledRecipes.add(recipe)
+            }
+        }
+    }
+
+    fun saveDisabledRecipes() {
+        val recipes: ArrayList<String> = arrayListOf()
+
+        for (recipe in disabledRecipes) {
+            recipes.add(recipe.key.toString())
+        }
+
+        val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+        val json = gson.toJson(recipes)
+
+        // Get the Bukkit plugin directory
+        val pluginDirectory = dataFolder
+        val file = File(pluginDirectory, "disabled_recipes.json")
+
+        try {
+            file.writeText(json)
+            Bukkit.getLogger().info("Disabled recipes saved successfully.")
+        } catch (e: Exception) {
+            Bukkit.getLogger().severe("Failed to save disabled recipes: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -380,7 +439,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         val customRecipes: MutableList<CustomRecipeData> = mutableListOf()
 
-        val disabledRecipes: MutableList<Recipe> = mutableListOf()
+        val disabledRecipes: MutableList<CraftingRecipe> = mutableListOf()
 
         var groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> = hashMapOf() //TODO save this somehow
 
@@ -388,17 +447,19 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
         a different memory address every time and there's no such thing as .equals() for recipes
          */
-        val allRecipesSaved: ArrayList<Recipe> = getAllRecipes()
+        val allRecipesSaved: ArrayList<CraftingRecipe> = getAllRecipes()
 
-        private fun getAllRecipes(): ArrayList<Recipe> {
-            val recipes = mutableListOf<Recipe>()
+        private fun getAllRecipes(): ArrayList<CraftingRecipe> {
+            val recipes = mutableListOf<CraftingRecipe>()
 
             // Iterate through all the registered recipes
             for (recipe in Bukkit.recipeIterator()) {
-                recipes.add(recipe)
+                if (recipe is CraftingRecipe) {
+                    recipes.add(recipe)
+                }
             }
 
-            return recipes as ArrayList<Recipe>
+            return recipes as ArrayList<CraftingRecipe>
         }
     }
 }

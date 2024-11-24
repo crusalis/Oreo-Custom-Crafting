@@ -1,9 +1,9 @@
 package org.oreo.oreosCustomCrafting.data
 
-import org.bukkit.inventory.Recipe
+import org.bukkit.inventory.CraftingRecipe
 
 data class CustomRecipeData(
-    val recipe: Recipe,
+    val recipe: CraftingRecipe,
     val recipeData: RecipeData
 )
 

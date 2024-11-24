@@ -1,6 +1,8 @@
 package org.oreo.oreosCustomCrafting.utils
 
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import java.io.File
@@ -92,7 +94,13 @@ object Utils {
         return item
     }
 
-    fun createGuiItem(item: ItemStack, name: String, prefix: String? = null, vararg lore: String?): ItemStack {
+    fun createGuiItem(
+        item: ItemStack,
+        name: String,
+        prefix: String? = null,
+        vararg lore: String?,
+        addEnchantGlint: Boolean = false
+    ): ItemStack {
         val meta = item.itemMeta ?: return item // Safely handle null meta by returning the original item
 
         val itemName = if (prefix != null) {
@@ -102,13 +110,22 @@ object Utils {
         }
 
         meta.setDisplayName(itemName)
-        if (lore.isNotEmpty()) {
-            meta.lore = lore.filterNotNull() // Ensure no null entries in the lore
+
+        // Only set lore if there are non-null, non-empty entries
+        val filteredLore = lore.filterNotNull().filter { it.isNotEmpty() }
+        if (filteredLore.isNotEmpty()) {
+            meta.lore = filteredLore
         }
 
-        item.setItemMeta(meta)
+        if (addEnchantGlint) {
+            meta.addEnchant(Enchantment.LUCK, 1, true)
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS) // Hide the enchantment from the item tooltip
+        }
+
+        item.itemMeta = meta
         return item
     }
+
 
 
 }

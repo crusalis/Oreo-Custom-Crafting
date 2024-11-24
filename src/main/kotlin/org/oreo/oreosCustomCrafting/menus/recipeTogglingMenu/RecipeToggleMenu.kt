@@ -2,13 +2,16 @@ package org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.Recipe
+import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom: Boolean) {
+class RecipeInventory(val player: Player, val viewType: ViewType, val showOnlyCustom: Boolean) {
 
     private val rows = 5
     private val columns = 9
@@ -19,7 +22,7 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
 
-    var slotToRecipe: MutableMap<Int, Recipe> = mutableMapOf()
+    var slotToRecipe: MutableMap<Int, CraftingRecipe> = mutableMapOf()
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
@@ -38,8 +41,8 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
         // Update recipes based on current ViewType to reflect any changes
-        val recipes: List<Recipe> = if (showOnlyCustom) {
-            when (type) {
+        val recipes: List<CraftingRecipe> = if (showOnlyCustom) {
+            when (viewType) {
                 // ViewType.ENABLED: Only get enabled recipes (those not in disabledRecipes)
                 ViewType.ENABLED -> CustomCrafting.customRecipes
                     .filterNot { it.recipe in CustomCrafting.disabledRecipes }
@@ -54,7 +57,7 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
                 ViewType.ALL -> CustomCrafting.customRecipes.map { it.recipe }
             }
         } else {
-            when (type) {
+            when (viewType) {
                 // ViewType.ENABLED: Get all enabled recipes (those not in disabledRecipes)
                 ViewType.ENABLED -> CustomCrafting.allRecipesSaved
                     .filterNot { it in CustomCrafting.disabledRecipes }
@@ -87,9 +90,9 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
         while (i < endIndex) {
             val slot = i - startIndex
 
-            val recipe: Recipe = try {
+            val recipe: CraftingRecipe = try {
                 recipes[recipeNumber]
-            } catch (e: IndexOutOfBoundsException) {
+            } catch (_: IndexOutOfBoundsException) {
                 break
             }
 
@@ -104,7 +107,7 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
             val isDisabled: Boolean = CustomCrafting.disabledRecipes.contains(recipe)
 
             val statusName = if (isDisabled) "Disabled" else "Enabled"
-            val statusPrefix = if (isDisabled) "§l§c" else "§l§a"
+            val statusPrefix = if (isDisabled) "§c§l" else "§a§l"
 
             val itemResult = Utils.createGuiItem(
                 item = recipe.result,
@@ -163,30 +166,53 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
             loadPage(currentPage - 1)
         } else {
 
-            val recipe = slotToRecipe[slot] ?: return
+            val recipe : CraftingRecipe = slotToRecipe[slot] ?: return
+
+            val enableMode : Boolean = viewType != ViewType.DISABLED
 
             if (name.contains("Enabled")) {
 
                 if (!CustomCrafting.disabledRecipes.contains(recipe)) {
                     CustomCrafting.disabledRecipes.add(recipe)
                 }
-                craftingInv.setItem(
-                    slot, Utils.createGuiItem(
-                        item = item, name = "Disabled",
-                        prefix = "§l§c", name
-                    )
+
+                val itemToAdd = Utils.createGuiItem(
+                    item = item, name = "Disabled",
+                    prefix = "§c§l", addEnchantGlint = enableMode
                 )
+
+                if (!enableMode) {
+                    val meta = itemToAdd.itemMeta
+                    meta?.apply {
+                        // Remove the LUCK enchantment
+                        removeEnchant(Enchantment.LUCK)
+                    }
+                    itemToAdd.itemMeta = meta
+                }
+
+                craftingInv.setItem(
+                    slot, itemToAdd
+                )
+
             } else if (name.contains("Disabled")) {
                 CustomCrafting.disabledRecipes.remove(recipe)
-                craftingInv.setItem(
-                    slot, Utils.createGuiItem(
-                        item = item, name = "Enabled",
-                        prefix = "§l§a", name
-                    )
+
+                val itemToAdd =  Utils.createGuiItem(
+                item = item, name = "Enabled",
+                prefix = "§a§l", addEnchantGlint = !enableMode,
                 )
+
+                if (enableMode) {
+                    val meta = itemToAdd.itemMeta
+                    meta?.apply {
+                        // Remove the LUCK enchantment
+                        removeEnchant(Enchantment.LUCK)
+                    }
+                    itemToAdd.itemMeta = meta
+                }
+
+                craftingInv.setItem(slot,itemToAdd)
             }
-
-
         }
     }
 
@@ -225,7 +251,6 @@ class RecipeInventory(val player: Player, val type: ViewType, val showOnlyCustom
             return openInventories[inv]
         }
     }
-
 }
 
 enum class ViewType {
