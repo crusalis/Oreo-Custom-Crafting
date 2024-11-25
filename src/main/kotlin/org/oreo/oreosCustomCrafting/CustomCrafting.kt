@@ -32,13 +32,13 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
     var itemDir: File? = null
 
-    var craftingDir: File? = null
+    private var craftingDir: File? = null
 
     var shapedRecipeDir: File? = null
     var shapelessRecipeDir: File? = null
 
     /**
-     * Handle all the directories and recipes on load
+     * Handle all the directories and recipes upon loading in
      */
     override fun onLoad() {
         handleCustomItemDirectories()
