@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.PlayerInventory
 
-class CustomCraftingInventoryListener : Listener {
+class   CustomCraftingInventoryListener : Listener {
 
     /**
      * Handles any clicking of items that shouldn't be moved.
@@ -26,8 +26,7 @@ class CustomCraftingInventoryListener : Listener {
         val craftInvInstance = CustomCraftingInventory.getCustomCraftingInventory(e.inventory)
 
 
-        when (e.currentItem) {
-
+        when (e.currentItem) { //TODO move this to the inventory
 
             craftInvInstance!!.acceptButton -> {
                 craftInvInstance.saveRecipe()

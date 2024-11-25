@@ -18,20 +18,21 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     private val craftingInvName = "Create a custom recipe"
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
 
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+    // All the custom items common to most menus
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move these to menuUtils
     val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
     val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
 
     val shapedButton = Utils.createGuiItem(Material.BLUE_CONCRETE, "Shaped", null)
     val shapedLessButton = Utils.createGuiItem(Material.YELLOW_CONCRETE, "Shapeless", null)
 
-    var isShaped = true
+    private var isShaped = true
 
-    val toggleSlot = 49
-    val acceptSlot = 47
-    val cancelSlot = 51
+    private val toggleSlot = 49
+    private val acceptSlot = 47
+    private val cancelSlot = 51
 
-    val customRecipeMaterials = arrayListOf<String>()
+    private val customRecipeMaterials = arrayListOf<String>()
 
     init {
         initializeMenuItems()

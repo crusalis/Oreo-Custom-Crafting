@@ -10,7 +10,8 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.RecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeGroupAssignmentMenu(val player: Player, val group: String, val removeRecipes: Boolean) {
+class RecipeGroupAssignmentMenu(private val player: Player, private val group: String,
+                                private val removeRecipes: Boolean) {
 
     private val rows = 5
     private val columns = 9
@@ -21,8 +22,8 @@ class RecipeGroupAssignmentMenu(val player: Player, val group: String, val remov
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
 
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
-
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move this to the menuUtils
+    //All recipes that will be changed
     private val recipesToChange = arrayListOf<CustomRecipeData>()
 
     private val recipes: List<CustomRecipeData> = if (removeRecipes) {
@@ -34,8 +35,8 @@ class RecipeGroupAssignmentMenu(val player: Player, val group: String, val remov
             it in (CustomCrafting.groups[group]?.second ?: throw IllegalArgumentException("Invalid group name"))
         }
     }
-
-    val groupIcon: ItemStack = Utils.createGuiItem(CustomCrafting.groups[group]?.first!!, "§l$group", null)
+    //The "Icon item" of the group
+    private val groupIcon: ItemStack = Utils.createGuiItem(CustomCrafting.groups[group]?.first!!, "§l$group", null)
 
     init {
         loadPage(0)
@@ -205,7 +206,7 @@ class RecipeGroupAssignmentMenu(val player: Player, val group: String, val remov
     /**
      * Checks if the inventory has a blank space
      */
-    private fun hasBlank(): Boolean {
+    private fun hasBlank(): Boolean { //TODO move this to menuUtils
 
         for (row in 0 until rows) {
             for (column in 0 until columns) {
@@ -220,6 +221,9 @@ class RecipeGroupAssignmentMenu(val player: Player, val group: String, val remov
 
     companion object {
 
+        /**
+         * All the open inventories of this type
+         */
         val openInventories = mutableMapOf<Inventory, RecipeGroupAssignmentMenu>()
 
         /**

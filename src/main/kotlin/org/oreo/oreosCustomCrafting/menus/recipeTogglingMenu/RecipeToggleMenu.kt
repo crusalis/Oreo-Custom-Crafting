@@ -11,7 +11,7 @@ import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(val player: Player, val viewType: ViewType, val showOnlyCustom: Boolean) {
+class RecipeInventory(private val player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean) {
 
     private val rows = 5
     private val columns = 9
@@ -22,7 +22,7 @@ class RecipeInventory(val player: Player, val viewType: ViewType, val showOnlyCu
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
 
-    var slotToRecipe: MutableMap<Int, CraftingRecipe> = mutableMapOf()
+    private var slotToRecipe: MutableMap<Int, CraftingRecipe> = mutableMapOf()
 
     private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
@@ -253,6 +253,9 @@ class RecipeInventory(val player: Player, val viewType: ViewType, val showOnlyCu
     }
 }
 
+/**
+ * The ways you can view this inventory
+ */
 enum class ViewType {
     ENABLED,
     DISABLED,

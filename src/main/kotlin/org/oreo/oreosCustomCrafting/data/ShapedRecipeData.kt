@@ -8,7 +8,10 @@ import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-
+/**
+ * All the necessary data for a shaped recipe to be created / saved as json
+ * I made this so that I don't have to do a custom JSON serializer
+ */
 data class ShapedRecipeData(
     val rows: List<String>,
     val ingredients: Map<Char, Material>,
@@ -23,7 +26,7 @@ data class ShapedRecipeData(
 /**
  * Converts data back into a ShapedRecipe.
  */
-fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe { //TODO add support for custom items as ingredients
+fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe {
     val value: ItemStack = when {
         data.fileResult != null -> Utils.getCustomItem(data.fileResult) // Get custom item by name
         data.materialResult != null -> ItemStack(data.materialResult) // Use the material if it's a default item
@@ -44,7 +47,7 @@ fun dataToShapedRecipe(data: ShapedRecipeData): ShapedRecipe { //TODO add suppor
 }
 
 /**
- * Converts a ShapedRecipe into ShapedRecipeData for Json serialization.
+ * Converts a ShapedRecipe into ShapedRecipeData for JSON serialization.
  */
 fun shapedRecipeToData(
     recipe: ShapedRecipe,
@@ -88,6 +91,7 @@ fun shapedRecipeToData(
 
 /**
  * Method for getting a key from a value because I cant reformat my code around that not being the case
+ * Terrible coding practice should stop using this
  */
 fun <K, V> HashMap<K, V>.getKeyFromValue(value: V): K? {
     return this.entries.firstOrNull { it.value == value }?.key

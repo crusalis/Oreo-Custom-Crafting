@@ -11,15 +11,15 @@ import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecipeData) {
+class RecipeShowoffInventory(private val player: Player, private val recipe: CustomRecipeData) {
 
     private val name = recipe.recipeData.name
 
     private val craftingInvName = name
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
 
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
-    private val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null)
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move this to menuUtils
+    private val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null) //TODO move this to menuUtils
 
 
     init {
@@ -120,17 +120,19 @@ class RecipeShowoffInventory(val player: Player, private val recipe: CustomRecip
 
     fun handleClickedItem(slot : Int){
 
-        val clieckedItem = craftingInv.getItem(slot) ?: return
+        val clickedItem = craftingInv.getItem(slot) ?: return
 
-        if (clieckedItem == closeItem){
+        if (clickedItem == closeItem){
             closeInventory()
         }
     }
 
 
     companion object {
+        //The slot for the resulting item
         const val RESULT_SLOT = 24
 
+        //All the items for the crafting inventory
         val CRAFTING_SLOTS = listOf(11, 12, 13, 20, 21, 22, 29, 30, 31)
 
         val openInventories = mutableMapOf<Inventory, RecipeShowoffInventory>()

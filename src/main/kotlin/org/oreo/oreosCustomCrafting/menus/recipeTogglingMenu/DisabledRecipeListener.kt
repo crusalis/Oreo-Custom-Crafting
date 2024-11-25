@@ -24,7 +24,7 @@ class DisabledRecipeListener : Listener {
     /**
      * Check if the recipe is disabled
      */
-    fun isRecipeDisabled(recipe: Recipe?): Boolean {
+    private fun isRecipeDisabled(recipe: Recipe?): Boolean {
         for (disabledRecipe in CustomCrafting.disabledRecipes) {
             if (recipe?.result == disabledRecipe.result) return true
         }

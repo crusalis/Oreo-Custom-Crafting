@@ -10,7 +10,7 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventory
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu(val player: Player, group: String?) {
+class RecipeMenu(private val player: Player, group: String?) {
 
     private val rows = 5
     private val columns = 9
@@ -21,10 +21,13 @@ class RecipeMenu(val player: Player, group: String?) {
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
 
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
+    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move this to menuUtils
 
     private val slotToRecipeData = hashMapOf<Int, CustomRecipeData>()
 
+    /**
+     * The recipes that will be used for this menu are pre determined here
+     */
     private val recipes: List<CustomRecipeData> = if (group == null) {
         CustomCrafting.customRecipes.filterNot { it.recipe in CustomCrafting.disabledRecipes }
     } else {
@@ -137,7 +140,7 @@ class RecipeMenu(val player: Player, group: String?) {
     /**
      * Checks if the inventory has a blank space
      */
-    private fun hasBlank(): Boolean {
+    private fun hasBlank(): Boolean { //TODO move this to menuUtils
 
         for (row in 0 until rows) {
             for (column in 0 until columns) {

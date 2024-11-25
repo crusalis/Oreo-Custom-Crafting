@@ -32,6 +32,7 @@ import java.lang.NullPointerException
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
     //TODO make a button to add a recipe on the crafting group eventually
+    //TODO make all menus inherit from one type to handle common functions
 
     private val gson = Gson()
 
@@ -86,39 +87,54 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         //saveGroupsToFile(groups)
     }
 
-    fun loadDisabledRecipes() { //TODO make this work too
-        val pluginDirectory = Bukkit.getServer().pluginsFolder
+    /**
+     * Loads all the disabled recipes and puts them back in the disabledRecipes list
+     * These recipes are saved as the recipe key under the minecraft nameSpace
+     */
+    private fun loadDisabledRecipes() {
+        val pluginDirectory = dataFolder
         val file = File(pluginDirectory, "disabled_recipes.json")
 
         if (!file.exists()) {
-            Bukkit.getLogger().warning("disabled_recipes.json not found. Returning an empty list.")
+            Bukkit.getLogger().warning("disabled_recipes.json not found. Creating a new empty file.")
+            file.createNewFile()
+            file.writeText("[]") // Initialize with an empty JSON array
             return
         }
 
-        val disabledKeyList : List<String> = try {
+        val disabledKeyList: List<String>
+        try {
             val json = file.readText()
             val type = object : TypeToken<List<String>>() {}.type
-            val keyList = Gson().fromJson(json, type) ?: throw NullPointerException("Json file is null")
-            keyList
+            disabledKeyList = Gson().fromJson(json, type) ?: throw NullPointerException("JSON file is empty or null")
         } catch (e: Exception) {
             Bukkit.getLogger().severe("Failed to load disabled recipes: ${e.message}")
             e.printStackTrace()
             return
         }
 
+        // Process the keys only if they were successfully loaded
         for (key in disabledKeyList) {
             val recipe = Bukkit.getRecipe(NamespacedKey.minecraft(key))
-            if (recipe is CraftingRecipe){
+            if (recipe == null) {
+                Bukkit.getLogger().warning("Recipe with key '$key' not found in the server's registry.")
+                continue
+            }
+            if (recipe is CraftingRecipe) {
                 disabledRecipes.add(recipe)
             }
         }
     }
 
-    fun saveDisabledRecipes() {
+    /**
+     * Saves all the disabled recipes into a json file that is a list of the recipe's keys
+     * The key is stored as the nameSpaceKey's key (Every recipe uses the default Minecraft namespace)
+     */
+    private fun saveDisabledRecipes() {
         val recipes: ArrayList<String> = arrayListOf()
 
         for (recipe in disabledRecipes) {
-            recipes.add(recipe.key.toString())
+            recipes.add(recipe.key.key)
         }
 
         val gson: Gson = GsonBuilder().setPrettyPrinting().create()
@@ -138,7 +154,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     }
 
     /**
-     * Register and save the recipe as a file
+     * Register and save the shaped recipe as a file
      */
     fun registerAndSaveRecipe(
         recipe: ShapedRecipe,
@@ -171,7 +187,9 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         file.writeText(gson.toJson(recipeData))
     }
 
-    // Shapeless recipes
+    /**
+     * Register and save the shapeless recipe as a file
+     */
     fun registerAndSaveRecipe(recipe: ShapelessRecipe, recipeName: String, customItemIngredients: List<String>) {
 
         val recipeData = shapeLessRecipeToData(recipe, this, customItemIngredients)
@@ -200,7 +218,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     }
 
     /**
-     * Registers all custom recipes saved
+     * Registers all custom recipes saved in the files shaped and shapeless
      */
     private fun registerSavedRecipes() {
 
@@ -271,7 +289,9 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         }
     }
 
-
+    /**
+     * Saves the custom ingredients of a shaped recipe so that they can be checked in the recipe listener
+     */
     fun saveCustomIngredientRecipe(recipeData: ShapedRecipeData, recipe: Recipe) {
         if (recipeData.customIngredients != null && recipeData.customIngredients.isNotEmpty()) {
             val customItems: ArrayList<ItemStack> = arrayListOf()
@@ -283,6 +303,9 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         }
     }
 
+    /**
+     * Saves the custom ingredients of a shapeless recipe so that they can be checked in the recipe listener
+     */
     fun saveCustomIngredientRecipe(recipeData: ShapeLessRecipeData, recipe: Recipe) {
         if (recipeData.ingredientsItems != null && recipeData.ingredientsItems.isNotEmpty()) {
             val customItems: ArrayList<ItemStack> = arrayListOf()
@@ -430,6 +453,9 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         const val GROUP_FILE = "groups.json"
 
+        /**
+         * A list that has all the custom items of recipes used to reference in the custom item listener
+         */
         val customIngredientRecipes: ArrayList<Pair<List<ItemStack>, ItemStack>> = arrayListOf()
 
         /**
@@ -437,14 +463,23 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
          */
         val customItems: HashMap<String, ItemStack> = hashMapOf()
 
+        /**
+         * All the custom recipes as their raw data form
+         */
         val customRecipes: MutableList<CustomRecipeData> = mutableListOf()
 
+        /**
+         * All the disabled recipes referenced in the disabled recipes listener
+         */
         val disabledRecipes: MutableList<CraftingRecipe> = mutableListOf()
 
+        /**
+         * All the recipe groups used for /recipes
+         */
         var groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> = hashMapOf() //TODO save this somehow
 
         /**
-         * We save all recipes to our own list because since the vanilla ones are accessed via Iterator they have
+         * We save all recipes to our own list because since the vanilla ones are accessed via Iterator, they have
         a different memory address every time and there's no such thing as .equals() for recipes
          */
         val allRecipesSaved: ArrayList<CraftingRecipe> = getAllRecipes()

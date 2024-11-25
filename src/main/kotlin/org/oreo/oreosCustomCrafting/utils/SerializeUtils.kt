@@ -48,7 +48,7 @@ object SerializeUtils {
 
 
     // Serialize an object to a byte array
-    fun serializeGroups(obj: Any): ByteArray {
+    fun serializeGroups(obj: Any): ByteArray { //TODO make this work
         val byteArrayOutputStream = ByteArrayOutputStream()
         val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
         objectOutputStream.writeObject(obj)

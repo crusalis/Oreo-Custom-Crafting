@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 class RecipeGroupAssignmentMenuListener : Listener {
 
     /**
-     * Handles any clicking of items that shouldn't be moved.
+     * Handles any clicking of items.
      */
     @EventHandler
     fun handleInvalidClick(e: InventoryClickEvent) {
@@ -20,6 +20,9 @@ class RecipeGroupAssignmentMenuListener : Listener {
         e.isCancelled = true
     }
 
+    /**
+     * Make sure when the inventory is closed, the instance gets deleted
+     */
     @EventHandler
     fun onInventoryClose(e: InventoryCloseEvent) {
         val menuInventory = RecipeGroupAssignmentMenu.getInstance(e.inventory) ?: return

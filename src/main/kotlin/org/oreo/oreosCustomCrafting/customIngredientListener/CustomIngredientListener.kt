@@ -36,7 +36,10 @@ class CustomIngredientListener : Listener {
         // If no custom recipes match, allow the recipe (do nothing)
     }
 
-    fun areItemStackListsEqual(list1: List<ItemStack>, list2: List<ItemStack>): Boolean {
+    /**
+     * Checks if the materials and the custom recipe list's materials match
+     */
+    private fun areItemStackListsEqual(list1: List<ItemStack>, list2: List<ItemStack>): Boolean {
         // Early exit if sizes differ
         if (list1.size != list2.size) return false
 
@@ -48,7 +51,10 @@ class CustomIngredientListener : Listener {
         return grouped1 == grouped2
     }
 
-    fun areMaterialListsEqual(list1: List<ItemStack>, list2: List<ItemStack>): Boolean {
+    /**
+     * Checks if the exact items and the custom recipe items
+     */
+    private fun areMaterialListsEqual(list1: List<ItemStack>, list2: List<ItemStack>): Boolean {
         // Early exit if sizes differ
         if (list1.size != list2.size) return false
 
