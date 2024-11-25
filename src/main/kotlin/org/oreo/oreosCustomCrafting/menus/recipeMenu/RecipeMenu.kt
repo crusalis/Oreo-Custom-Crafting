@@ -7,18 +7,17 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
-import org.oreo.oreosCustomCrafting.menus.InventoryMenu
-import org.oreo.oreosCustomCrafting.utils.MenuUtils
+import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventory
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(player) {
+class RecipeMenu(private val player: Player, group: String?) : AbstractInventoryMenu(player) {
 
     private val rows = 5
     private val columns = 9
     private val invSize = rows * columns
     private val recipeMenuInvName = "Recipe settings"
-    private val recipeMenuInv = Bukkit.createInventory(null, invSize, recipeMenuInvName)
+    override val inventory = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
@@ -50,11 +49,11 @@ class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(pla
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
         for (slot in (rows - 1) * columns..invSize - 1) {
-            recipeMenuInv.setItem(slot, blank)
+            inventory.setItem(slot, blank)
         }
 
         currentPage = page
-        recipeMenuInv.clear() // Clear the inventory before loading the new page
+        inventory.clear() // Clear the inventory before loading the new page
 
         val startIndex = page * itemsPerPage
         val endIndex = minOf(startIndex + itemsPerPage, recipes.size)
@@ -81,17 +80,17 @@ class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(pla
 
             val itemToAdd = Utils.createGuiItem(itemResult, itemName, null)
 
-            recipeMenuInv.setItem(slot, itemToAdd)
+            inventory.setItem(slot, itemToAdd)
             recipeNumber++
             i++
         }
 
         // Set navigation items in the last row
         if (currentPage > 0) {
-            recipeMenuInv.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
+            inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
         }
         if (!hasBlank()) {
-            recipeMenuInv.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
+            inventory.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
         }
     }
 
@@ -99,7 +98,7 @@ class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(pla
      * Opens the custom crafting inventory for a player, and write the object into the list
      */
     private fun openInventory() {
-        val newInventory = recipeMenuInv
+        val newInventory = inventory
         player.openInventory(newInventory)
         openInventories[newInventory] = this
     }
@@ -107,10 +106,10 @@ class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(pla
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    fun closeInventory() {
-        openInventories.remove(recipeMenuInv)
+    override fun closeInventory() {
+        openInventories.remove(inventory)
         try {
-            recipeMenuInv.close()
+            inventory.close()
         } catch (_: Exception) {
         }
     }
@@ -118,9 +117,9 @@ class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(pla
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot: Int) {
+    override fun handleClickedItem(slot: Int) {
 
-        val item = recipeMenuInv.getItem(slot) ?: return
+        val item = inventory.getItem(slot) ?: return
 
         val name = item.itemMeta?.displayName ?: return
 
@@ -136,33 +135,4 @@ class RecipeMenu(private val player: Player, group: String?) : InventoryMenu(pla
             loadPage(currentPage - 1)
         }
     }
-
-    /**
-     * Checks if the inventory has a blank space
-     */
-    private fun hasBlank(): Boolean { //TODO move this to menuUtils
-
-        for (row in 0 until rows) {
-            for (column in 0 until columns) {
-                val item = recipeMenuInv.getItem(row * column)
-                if (item == null || item.type == Material.AIR) return true
-            }
-        }
-
-        return false
-    }
-
-
-    companion object {
-
-        val openInventories = mutableMapOf<Inventory, RecipeMenu>()
-
-        /**
-         * Get the entire CustomCraftingInventory instance from its inventory
-         */
-        fun getInstance(inv: Inventory): RecipeMenu? {
-            return openInventories[inv]
-        }
-    }
-
 }

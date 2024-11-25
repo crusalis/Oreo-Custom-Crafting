@@ -8,18 +8,17 @@ import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.RecipeData
-import org.oreo.oreosCustomCrafting.menus.InventoryMenu
-import org.oreo.oreosCustomCrafting.utils.MenuUtils
+import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeGroupAssignmentMenu(private val player: Player, private val group: String,
-                                private val removeRecipes: Boolean): InventoryMenu(player) {
+                                private val removeRecipes: Boolean): AbstractInventoryMenu(player) {
 
     private val rows = 5
     private val columns = 9
     private val invSize = rows * columns
     private val recipeMenuInvName = "Recipe settings"
-    private val recipeMenuInv = Bukkit.createInventory(null, invSize, recipeMenuInvName)
+    override val inventory = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
@@ -56,11 +55,11 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
 
 
         for (slot in (rows - 1) * columns..invSize - 1) {
-            recipeMenuInv.setItem(slot, blank)
+            inventory.setItem(slot, blank)
         }
 
         currentPage = page
-        recipeMenuInv.clear() // Clear the inventory before loading the new page
+        inventory.clear() // Clear the inventory before loading the new page
 
         val startIndex = page * itemsPerPage
         val endIndex = minOf(startIndex + itemsPerPage, recipes.size)
@@ -84,19 +83,19 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
 
             val itemToAdd = Utils.createGuiItem(itemResult, itemName, null)
 
-            recipeMenuInv.setItem(slot, itemToAdd)
+            inventory.setItem(slot, itemToAdd)
             recipeNumber++
             i++
         }
 
-        recipeMenuInv.setItem(invSize - 5, groupIcon)
+        inventory.setItem(invSize - 5, groupIcon)
 
         // Set navigation items in the last row
         if (currentPage > 0) {
-            recipeMenuInv.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
+            inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
         }
         if (!hasBlank()) {
-            recipeMenuInv.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
+            inventory.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
         }
     }
 
@@ -104,7 +103,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
      * Opens the custom crafting inventory for a player, and write the object into the list
      */
     private fun openInventory() {
-        val newInventory = recipeMenuInv
+        val newInventory = inventory
         player.openInventory(newInventory)
         openInventories[newInventory] = this
     }
@@ -112,8 +111,8 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    fun closeInventory() {
-        openInventories.remove(recipeMenuInv)
+    override fun closeInventory() {
+        openInventories.remove(inventory)
         if (removeRecipes) {
             CustomCrafting.groups[group]!!.second.removeAll(recipesToChange)
         } else {
@@ -121,7 +120,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
         }
 
         try {
-            recipeMenuInv.close()
+            inventory.close()
         } catch (_: Exception) {
         }
     }
@@ -129,13 +128,12 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot: Int) {
-        // Ignore slots in the bottom row (reserved for navigation)
+    override fun handleClickedItem(slot: Int) {
 
         // Validate the slot is within the inventory size
-        if (slot !in 0 until recipeMenuInv.size) return
+        if (slot !in 0 until inventory.size) return
 
-        val item = recipeMenuInv.getItem(slot) ?: return
+        val item = inventory.getItem(slot) ?: return
 
 
         // Handle group icon click
@@ -189,7 +187,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
                     recipesToChange.add(recipes[recipeIndex])
                 }
             }
-            recipeMenuInv.setItem(slot, item) // Update the item in the inventory
+            inventory.setItem(slot, item) // Update the item in the inventory
             return
         }
 
@@ -201,38 +199,6 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
                 name.contains("Previous", true) -> loadPage(currentPage - 1)
             }
             return
-        }
-    }
-
-
-    /**
-     * Checks if the inventory has a blank space
-     */
-    private fun hasBlank(): Boolean { //TODO move this to menuUtils
-
-        for (row in 0 until rows) {
-            for (column in 0 until columns) {
-                val item = recipeMenuInv.getItem(row * column)
-                if (item == null || item.type == Material.AIR) return true
-            }
-        }
-
-        return false
-    }
-
-
-    companion object {
-
-        /**
-         * All the open inventories of this type
-         */
-        val openInventories = mutableMapOf<Inventory, RecipeGroupAssignmentMenu>()
-
-        /**
-         * Get the entire CustomCraftingInventory instance from its inventory
-         */
-        fun getInstance(inv: Inventory): RecipeGroupAssignmentMenu? {
-            return openInventories[inv]
         }
     }
 

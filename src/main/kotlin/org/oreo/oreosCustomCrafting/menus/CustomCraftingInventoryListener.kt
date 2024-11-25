@@ -1,11 +1,13 @@
-package org.oreo.oreosCustomCrafting.menus.recipeShowOff
+package org.oreo.oreosCustomCrafting.menus
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.inventory.PlayerInventory
+import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
 
-class RecipeShowoffInventoryListener : Listener {
+class   CustomCraftingInventoryListener : Listener {
 
     /**
      * Handles any clicking of items that shouldn't be moved.
@@ -13,12 +15,11 @@ class RecipeShowoffInventoryListener : Listener {
     @EventHandler
     fun handleInvalidClick(e: InventoryClickEvent) {
 
-        // Cancel the event for any other slot in the custom crafting inventory
-        val craftInvInstance = RecipeShowoffInventory.getCustomCraftingInventory(e.inventory) ?: return
+        val invInstance = AbstractInventoryMenu.getCustomInventory(e.inventory) ?: return
 
         e.isCancelled = true
 
-        craftInvInstance.handleClickedItem(e.slot)
+        invInstance.handleClickedItem(e.slot)
     }
 
 
@@ -28,8 +29,8 @@ class RecipeShowoffInventoryListener : Listener {
     @EventHandler
     fun playerCloseCraftingInv(e: InventoryCloseEvent) {
 
-        if (!RecipeShowoffInventory.isCustomInventory(e.inventory)) return
+        val invInstance = AbstractInventoryMenu.getCustomInventory(e.inventory) ?: return
 
-        RecipeShowoffInventory.getCustomCraftingInventory(e.inventory)?.closeInventory() ?: return
+        invInstance.closeInventory()
     }
 }

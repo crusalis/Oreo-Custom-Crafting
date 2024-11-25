@@ -15,17 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.CraftingCommand
 import org.oreo.oreosCustomCrafting.customIngredientListener.CustomIngredientListener
 import org.oreo.oreosCustomCrafting.data.*
-import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventoryListener
-import org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu.RecipeGroupAssignmentMenuListener
-import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenuListener
-import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenuListener
-import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventoryListener
+import org.oreo.oreosCustomCrafting.menus.CustomCraftingInventoryListener
 import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
-import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeToggleMenuListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileReader
 import java.lang.NullPointerException
 
@@ -68,11 +62,6 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
         server.pluginManager.registerEvents(DisabledRecipeListener(), this)
-        server.pluginManager.registerEvents(RecipeToggleMenuListener(), this)
-        server.pluginManager.registerEvents(RecipeMenuListener(), this)
-        server.pluginManager.registerEvents(RecipeGroupMenuListener(), this)
-        server.pluginManager.registerEvents(RecipeGroupAssignmentMenuListener(), this)
-        server.pluginManager.registerEvents(RecipeShowoffInventoryListener(), this)
         server.pluginManager.registerEvents(CustomIngredientListener(), this)
 
         saveDefaultConfig()

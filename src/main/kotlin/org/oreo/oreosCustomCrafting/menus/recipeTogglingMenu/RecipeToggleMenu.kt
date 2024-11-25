@@ -7,18 +7,17 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.Inventory
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.menus.InventoryMenu
-import org.oreo.oreosCustomCrafting.utils.MenuUtils
+import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeInventory(private val player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean)
-            : InventoryMenu(player){
+            : AbstractInventoryMenu(player){
 
     private val rows = 5
     private val columns = 9
     private val invSize = rows * columns
     private val craftingInvName = "Recipe settings"
-    private val craftingInv = Bukkit.createInventory(null, invSize, craftingInvName)
+    override val inventory = Bukkit.createInventory(null, invSize, craftingInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
@@ -27,7 +26,6 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
 
     init {
         loadPage(0)
-        openInventory()
     }
 
 
@@ -35,7 +33,7 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
      * Loads a specified page of recipes into the crafting inventory.
      * @param page The page number to load (0-based).
      */
-    fun loadPage(page: Int) {
+    private fun loadPage(page: Int) {
 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
@@ -74,12 +72,12 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
         }
 
         for (slot in (rows - 1) * columns..invSize - 1) {
-            craftingInv.setItem(slot, blank)
+            inventory.setItem(slot, blank)
         }
 
         slotToRecipe.clear()
         currentPage = page
-        craftingInv.clear() // Clear the inventory before loading the new page
+        inventory.clear() // Clear the inventory before loading the new page
 
         val startIndex = page * itemsPerPage
         val endIndex = minOf(startIndex + itemsPerPage, recipes.size)
@@ -116,36 +114,27 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
             )
 
             slotToRecipe[slot] = recipe
-            craftingInv.setItem(slot, itemResult)
+            inventory.setItem(slot, itemResult)
             recipeNumber++
             i++
         }
 
         // Set navigation items in the last row
         if (currentPage > 0) {
-            craftingInv.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
+            inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
         }
         if (!hasBlank()) {
-            craftingInv.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
+            inventory.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
         }
-    }
-
-    /**
-     * Opens the custom crafting inventory for a player, and write the object into the list
-     */
-    private fun openInventory() {
-        val newInventory = craftingInv
-        player.openInventory(newInventory)
-        openInventories[newInventory] = this
     }
 
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    fun closeInventory() {
-        openInventories.remove(craftingInv)
+    override fun closeInventory() {
+        openInventories.remove(inventory)
         try {
-            craftingInv.close()
+            inventory.close()
         } catch (_: Exception) {
         }
     }
@@ -153,9 +142,9 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot: Int) { //TODO add enchant glint and handle items staying disabled when switching pages
+    override fun handleClickedItem(slot: Int) { //TODO add enchant glint and handle items staying disabled when switching pages
 
-        val item = craftingInv.getItem(slot) ?: return
+        val item = inventory.getItem(slot) ?: return
 
         val name = item.itemMeta?.displayName ?: return
 
@@ -189,7 +178,7 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
                     itemToAdd.itemMeta = meta
                 }
 
-                craftingInv.setItem(
+                inventory.setItem(
                     slot, itemToAdd
                 )
 
@@ -210,46 +199,12 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
                     itemToAdd.itemMeta = meta
                 }
 
-                craftingInv.setItem(slot,itemToAdd)
+                inventory.setItem(slot,itemToAdd)
             }
         }
     }
 
-    /**
-     * Checks if the inventory has a blank space
-     */
-    private fun hasBlank(): Boolean {
 
-        for (row in 0 until rows) {
-            for (column in 0 until columns) {
-                val item = craftingInv.getItem(row * column)
-                if (item == null || item.type == Material.AIR) return true
-            }
-        }
-
-        return false
-    }
-
-
-    companion object {
-
-        val openInventories = mutableMapOf<Inventory, RecipeInventory>()
-
-        /**
-         * Checks if the inventory is a custom crafting instance
-         */
-        fun isCustomInventory(inv: Inventory): Boolean {
-
-            return openInventories.contains(inv)
-        }
-
-        /**
-         * Get the entire CustomCraftingInventory instance from its inventory
-         */
-        fun getCustomCraftingInventory(inv: Inventory): RecipeInventory? {
-            return openInventories[inv]
-        }
-    }
 }
 
 /**

@@ -6,19 +6,18 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.menus.InventoryMenu
-import org.oreo.oreosCustomCrafting.utils.MenuUtils
+import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
+class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player){
 
 
     private val rows = 3
     private val columns = 9
     private val invSize = rows * columns
     private val recipeGroupMenuInvName = "Custom recipes"
-    private val recipeGroupMenuInv = Bukkit.createInventory(null, invSize, recipeGroupMenuInvName)
+    override val inventory = Bukkit.createInventory(null, invSize, recipeGroupMenuInvName)
 
 
     private val allRecipesButton = Utils.createGuiItem(Material.CRAFTING_TABLE, "§6§lAll Recipes", null)
@@ -33,11 +32,11 @@ class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
      * Set up all the items for the menu
      */
     private fun initialiseItems() {
-        for (i in 0..recipeGroupMenuInv.size - 1) {
-            recipeGroupMenuInv.setItem(i, blank)
+        for (i in 0..inventory.size - 1) {
+            inventory.setItem(i, blank)
         }
 
-        recipeGroupMenuInv.setItem(0, allRecipesButton)
+        inventory.setItem(0, allRecipesButton)
 
         val keys = CustomCrafting.groups.keys.toList() // Convert keys to a list for indexed access
 
@@ -46,10 +45,10 @@ class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
 
             Utils.createGuiItem(item!!, "§l${keys[i]}", null)
 
-            recipeGroupMenuInv.setItem(i + 1, item) // Use a fallback if item is null
+            inventory.setItem(i + 1, item) // Use a fallback if item is null
         }
 
-        recipeGroupMenuInv.setItem(22, closeItem)
+        inventory.setItem(22, closeItem)
 
     }
 
@@ -58,7 +57,7 @@ class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
      * Opens the custom crafting inventory for a player, and write the object into the list
      */
     private fun openInventory() {
-        val newInventory = recipeGroupMenuInv
+        val newInventory = inventory
         player.openInventory(newInventory)
         openInventories[newInventory] = this
     }
@@ -66,10 +65,10 @@ class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    fun closeInventory() {
-        openInventories.remove(recipeGroupMenuInv)
+    override fun closeInventory() {
+        openInventories.remove(inventory)
         try {
-            recipeGroupMenuInv.close()
+            inventory.close()
         } catch (_: Exception) {
         }
     }
@@ -77,9 +76,9 @@ class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
     /**
      * Handle any item being clicked
      */
-    fun handleClickedItem(slot: Int) {
+    override fun handleClickedItem(slot: Int) {
 
-        val clickedItem: ItemStack = recipeGroupMenuInv.getItem(slot) ?: return
+        val clickedItem: ItemStack = inventory.getItem(slot) ?: return
 
         if (clickedItem == closeItem) {
             closeInventory()
@@ -99,19 +98,5 @@ class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
                 RecipeMenu(player, groupName)
             }
         }
-    }
-
-
-    companion object {
-
-        val openInventories = mutableMapOf<Inventory, RecipeGroupMenu>()
-
-        /**
-         * Get the entire CustomCraftingInventory instance from its inventory
-         */
-        fun getInstance(inv: Inventory): RecipeGroupMenu? {
-            return openInventories[inv]
-        }
-
     }
 }

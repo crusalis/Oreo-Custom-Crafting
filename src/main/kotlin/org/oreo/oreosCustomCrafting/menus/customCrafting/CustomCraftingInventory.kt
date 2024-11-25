@@ -11,22 +11,21 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.getKeyFromValue
-import org.oreo.oreosCustomCrafting.menus.InventoryMenu
-import org.oreo.oreosCustomCrafting.utils.MenuUtils
+import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class CustomCraftingInventory(val player: Player, private val recipeName: String, private val plugin: CustomCrafting)
-    : InventoryMenu(player){
+    : AbstractInventoryMenu(player){
 
     private val craftingInvName = "Create a custom recipe"
-    private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
+    override val inventory = Bukkit.createInventory(null, 9 * 6, craftingInvName)
 
     // All the custom items common to most menus
-    val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
-    val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
+    private val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
+    private val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
 
-    val shapedButton = Utils.createGuiItem(Material.BLUE_CONCRETE, "Shaped", null)
-    val shapedLessButton = Utils.createGuiItem(Material.YELLOW_CONCRETE, "Shapeless", null)
+    private val shapedButton = Utils.createGuiItem(Material.BLUE_CONCRETE, "Shaped", null)
+    private val shapedLessButton = Utils.createGuiItem(Material.YELLOW_CONCRETE, "Shapeless", null)
 
     private var isShaped = true
 
@@ -47,37 +46,37 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     private fun initializeMenuItems() {
         // Fill all slots with blank items first
         for (i in 0..53) {
-            craftingInv.setItem(i, blank)
+            inventory.setItem(i, blank)
         }
 
         // Create a 3x3 square in the middle (slots 20 to 28)
         for (row in -1..1) {
             for (col in 0..2) {
-                craftingInv.setItem(20 + (row * 9) + col, ItemStack(Material.AIR))
+                inventory.setItem(20 + (row * 9) + col, ItemStack(Material.AIR))
             }
         }
 
         // Leave one empty square (slot 24)
-        craftingInv.setItem(24, ItemStack(Material.AIR)) // Empty square
+        inventory.setItem(24, ItemStack(Material.AIR)) // Empty square
 
         // Fill the remaining bottom row slots (48 to 53) with blank items
         for (i in 44..53) {
-            craftingInv.setItem(i, blank)
+            inventory.setItem(i, blank)
         }
 
         // Set the buttons
-        craftingInv.setItem(acceptSlot, ItemStack(acceptButton)) // Save button
+        inventory.setItem(acceptSlot, ItemStack(acceptButton)) // Save button
 
-        craftingInv.setItem(toggleSlot, ItemStack(shapedButton)) // Shaped/shapeless toggle
+        inventory.setItem(toggleSlot, ItemStack(shapedButton)) // Shaped/shapeless toggle
 
-        craftingInv.setItem(cancelSlot, ItemStack(cancelButton)) // Cancel button
+        inventory.setItem(cancelSlot, ItemStack(cancelButton)) // Cancel button
     }
 
     /**
      * Opens the custom crafting inventory for a player, and write the object into the list
      */
     private fun openInventory(player: Player) {
-        val newInventory = craftingInv
+        val newInventory = inventory
         player.openInventory(newInventory)
         openInventories[newInventory] = this
     }
@@ -85,10 +84,10 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    fun closeInventory() {
-        openInventories.remove(craftingInv)
+    override fun closeInventory() {
+        openInventories.remove(inventory)
         try {
-            craftingInv.close()
+            inventory.close()
         } catch (_: Exception) {
         }
     }
@@ -98,9 +97,9 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
      */
     fun saveRecipe() {
 
-        val resultSlotItem: ItemStack = craftingInv.getItem(RESULT_SLOT) ?: throw NullPointerException()
+        val resultSlotItem: ItemStack = inventory.getItem(RESULT_SLOT) ?: throw NullPointerException()
 
-        if (craftingInv.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem) ||
+        if (inventory.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem) ||
             !Utils.customItemExists(resultSlotItem)
         ) {
 
@@ -129,7 +128,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
                 val recipe = ShapelessRecipe(NamespacedKey.minecraft(recipeName), resultSlotItem)
 
                 for (slot in CRAFTING_SLOTS) {
-                    val item = craftingInv.getItem(slot) ?: continue
+                    val item = inventory.getItem(slot) ?: continue
                     recipe.addIngredient(item)
                 }
 
@@ -142,12 +141,18 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
 
         CustomCrafting.allRecipesSaved.add(returnRecipe)
 
-        if (returnRecipe is ShapedRecipe) {
-            plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
-        } else if (returnRecipe is ShapelessRecipe) {
-            plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
-        } else {
-            plugin.logger.warning("Could not save recipe $craftingInvName")
+        when (returnRecipe) {
+            is ShapedRecipe -> {
+                plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
+            }
+
+            is ShapelessRecipe -> {
+                plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
+            }
+
+            else -> {
+                plugin.logger.warning("Could not save recipe $craftingInvName")
+            }
         }
     }
 
@@ -163,7 +168,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
 
         // Fill the list with items
         for (slot in CRAFTING_SLOTS) {
-            val item = craftingInv.getItem(slot)
+            val item = inventory.getItem(slot)
             items.add(item)
         }
 
@@ -184,7 +189,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
             // Store the character and material in the inverted map
             if (char != ' ') {
 
-                if (item != null) {  //TODO put this somewhere else sob
+                if (item != null) {
                     charToMaterialMap[char] = item.type
 
                     val stringToAdd = if (Utils.customItemExists(item)) {
@@ -218,22 +223,46 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
         return Pair(outputStrings, charToMaterialMap)
     }
 
+
+    override fun handleClickedItem(slot: Int) {
+        val clickedItem = inventory.getItem(slot) ?: return
+        when (clickedItem) {
+
+            acceptButton -> {
+                saveRecipe()
+                closeInventory()
+            }
+
+            cancelButton -> {
+                closeInventory()
+            }
+
+            shapedButton -> {
+                handleShapeLessToggle()
+            }
+
+            shapedLessButton -> {
+                handleShapedToggle()
+            }
+        }
+    }
+
     /**
      * Handles the player toggling to "shaped" mode
      */
-    fun handleShapedToggle() {
+    private fun handleShapedToggle() {
 
         isShaped = true
-        craftingInv.setItem(toggleSlot, shapedButton)
+        inventory.setItem(toggleSlot, shapedButton)
     }
 
     /**
      * Handles the player toggling to "shapeless" mode
      */
-    fun handleShapeLessToggle() {
+    private fun handleShapeLessToggle() {
 
         isShaped = false
-        craftingInv.setItem(toggleSlot, shapedLessButton)
+        inventory.setItem(toggleSlot, shapedLessButton)
     }
 
 
@@ -243,20 +272,5 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
         val CRAFTING_SLOTS = listOf(11, 12, 13, 20, 21, 22, 29, 30, 31)
 
         val openInventories = mutableMapOf<Inventory, CustomCraftingInventory>()
-
-        /**
-         * Checks if the inventory is a custom crafting instance
-         */
-        fun isCustomInventory(inv: Inventory): Boolean {
-            return openInventories.contains(inv)
-        }
-
-        /**
-         * Get the entire CustomCraftingInventory instance from its inventory
-         */
-        fun getCustomCraftingInventory(inv: Inventory): CustomCraftingInventory? {
-
-            return openInventories[inv]
-        }
     }
 }

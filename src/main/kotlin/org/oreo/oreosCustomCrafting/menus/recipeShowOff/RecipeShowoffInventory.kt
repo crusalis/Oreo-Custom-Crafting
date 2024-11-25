@@ -9,15 +9,14 @@ import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
-import org.oreo.oreosCustomCrafting.menus.InventoryMenu
-import org.oreo.oreosCustomCrafting.utils.MenuUtils
+import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 
-class RecipeShowoffInventory(private val player: Player, private val recipe: CustomRecipeData): InventoryMenu(player) {
+class RecipeShowoffInventory(private val player: Player, private val recipe: CustomRecipeData): AbstractInventoryMenu(player) {
 
     private val name = recipe.recipeData.name
 
     private val craftingInvName = name
-    private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
+    override val inventory = Bukkit.createInventory(null, 9 * 6, craftingInvName)
 
 
     init {
@@ -34,7 +33,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
 
         // Fill all slots with blank items first
         for (i in 0..53) {
-            craftingInv.setItem(i, blank)
+            inventory.setItem(i, blank)
         }
 
         // Fill the result slots
@@ -47,15 +46,15 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
                 for (char in row) {
                     if (char == ' ') {
                         // Empty slot in the crafting grid
-                        craftingInv.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
+                        inventory.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
                     } else {
                         // Get the material corresponding to the character from ingredients map
                         val material = recipeData.ingredients[char]
                         if (material != null) {
-                            craftingInv.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(material))
+                            inventory.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(material))
                         } else {
                             // If no material is found, set the slot to AIR
-                            craftingInv.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
+                            inventory.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
                         }
                     }
                     slotIndex++
@@ -64,14 +63,14 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
         } else if (recipeData is ShapeLessRecipeData) {
 
             for (slot in CRAFTING_SLOTS) {
-                craftingInv.setItem(slot, ItemStack(Material.AIR))
+                inventory.setItem(slot, ItemStack(Material.AIR))
             }
 
             for (slot in CRAFTING_SLOTS) {
 
                 try {
                     val item = ItemStack(recipeData.ingredientsMaterials[CRAFTING_SLOTS.indexOf(slot)])
-                    craftingInv.setItem(slot, item)
+                    inventory.setItem(slot, item)
 
                 } catch (_: IndexOutOfBoundsException) {
                     break
@@ -85,21 +84,21 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
         }
 
         // Result slot
-        craftingInv.setItem(RESULT_SLOT, recipe.recipe.result)
+        inventory.setItem(RESULT_SLOT, recipe.recipe.result)
 
         // Fill the remaining bottom row slots (48 to 53) with blank items
         for (i in 44..53) {
-            craftingInv.setItem(i, blank)
+            inventory.setItem(i, blank)
         }
 
-        craftingInv.setItem(49, closeItem)
+        inventory.setItem(49, closeItem)
     }
 
     /**
      * Opens the custom crafting inventory for a player, and write the object into the list
      */
     private fun openInventory(player: Player) {
-        val newInventory = craftingInv
+        val newInventory = inventory
         player.openInventory(newInventory)
         openInventories[newInventory] = this
     }
@@ -107,18 +106,17 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    fun closeInventory() {
-        openInventories.remove(craftingInv)
+    override fun closeInventory() {
+        openInventories.remove(inventory)
         try {
-            craftingInv.close()
-        } catch (_: Exception) {
-        }
+            inventory.close()
+        } catch (_: Exception) {}
     }
 
 
-    fun handleClickedItem(slot : Int){
+    override fun handleClickedItem(slot : Int){
 
-        val clickedItem = craftingInv.getItem(slot) ?: return
+        val clickedItem = inventory.getItem(slot) ?: return
 
         if (clickedItem == closeItem){
             closeInventory()
@@ -132,22 +130,5 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
 
         //All the items for the crafting inventory
         val CRAFTING_SLOTS = listOf(11, 12, 13, 20, 21, 22, 29, 30, 31)
-
-        val openInventories = mutableMapOf<Inventory, RecipeShowoffInventory>()
-
-        /**
-         * Checks if the inventory is a custom crafting instance
-         */
-        fun isCustomInventory(inv: Inventory): Boolean {
-            return openInventories.contains(inv)
-        }
-
-        /**
-         * Get the entire CustomCraftingInventory instance from its inventory
-         */
-        fun getCustomCraftingInventory(inv: Inventory): RecipeShowoffInventory? {
-
-            return openInventories[inv]
-        }
     }
 }
