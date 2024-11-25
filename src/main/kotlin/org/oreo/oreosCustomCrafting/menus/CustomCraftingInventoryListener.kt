@@ -4,8 +4,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.inventory.PlayerInventory
-import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
 
 class   CustomCraftingInventoryListener : Listener {
 

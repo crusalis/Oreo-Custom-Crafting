@@ -16,7 +16,7 @@ import org.oreo.oreosCustomCrafting.commands.CraftingCommand
 import org.oreo.oreosCustomCrafting.customIngredientListener.CustomIngredientListener
 import org.oreo.oreosCustomCrafting.data.*
 import org.oreo.oreosCustomCrafting.menus.CustomCraftingInventoryListener
-import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.DisabledRecipeListener
+import org.oreo.oreosCustomCrafting.menus.DisabledRecipeListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 import java.io.File

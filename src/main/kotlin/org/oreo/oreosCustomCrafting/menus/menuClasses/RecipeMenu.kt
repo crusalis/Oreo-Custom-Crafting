@@ -1,14 +1,12 @@
-package org.oreo.oreosCustomCrafting.menus.recipeMenu
+package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
-import org.oreo.oreosCustomCrafting.menus.recipeShowOff.RecipeShowoffInventory
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeMenu(private val player: Player, group: String?) : AbstractInventoryMenu(player) {

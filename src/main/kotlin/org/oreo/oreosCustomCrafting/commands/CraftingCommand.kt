@@ -10,11 +10,11 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
-import org.oreo.oreosCustomCrafting.menus.customCrafting.CustomCraftingInventory
-import org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu.RecipeGroupAssignmentMenu
-import org.oreo.oreosCustomCrafting.menus.recipeGroupMenu.RecipeGroupMenu
-import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.RecipeInventory
-import org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu.ViewType
+import org.oreo.oreosCustomCrafting.menus.menuClasses.CustomCraftingInventory
+import org.oreo.oreosCustomCrafting.menus.menuClasses.RecipeGroupAssignmentMenu
+import org.oreo.oreosCustomCrafting.menus.menuClasses.RecipeGroupMenu
+import org.oreo.oreosCustomCrafting.menus.menuClasses.RecipeInventory
+import org.oreo.oreosCustomCrafting.menus.menuClasses.ViewType
 
 
 class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, TabCompleter {

@@ -1,4 +1,4 @@
-package org.oreo.oreosCustomCrafting.menus.customCrafting
+package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor

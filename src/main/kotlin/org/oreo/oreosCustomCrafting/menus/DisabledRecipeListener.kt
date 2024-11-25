@@ -1,4 +1,4 @@
-package org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu
+package org.oreo.oreosCustomCrafting.menus
 
 import org.bukkit.Material
 import org.bukkit.event.EventHandler

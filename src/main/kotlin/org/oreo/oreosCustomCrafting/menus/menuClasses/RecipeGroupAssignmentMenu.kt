@@ -1,9 +1,8 @@
-package org.oreo.oreosCustomCrafting.menus.recipeGroupAssignmentMenu
+package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData

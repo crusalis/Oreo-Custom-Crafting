@@ -1,11 +1,10 @@
-package org.oreo.oreosCustomCrafting.menus.recipeTogglingMenu
+package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.CraftingRecipe
-import org.bukkit.inventory.Inventory
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
