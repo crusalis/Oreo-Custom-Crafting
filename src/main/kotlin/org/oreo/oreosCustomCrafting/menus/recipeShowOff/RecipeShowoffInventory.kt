@@ -9,17 +9,15 @@ import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
-import org.oreo.oreosCustomCrafting.utils.Utils
+import org.oreo.oreosCustomCrafting.menus.InventoryMenu
+import org.oreo.oreosCustomCrafting.utils.MenuUtils
 
-class RecipeShowoffInventory(private val player: Player, private val recipe: CustomRecipeData) {
+class RecipeShowoffInventory(private val player: Player, private val recipe: CustomRecipeData): InventoryMenu(player) {
 
     private val name = recipe.recipeData.name
 
     private val craftingInvName = name
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
-
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move this to menuUtils
-    private val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null) //TODO move this to menuUtils
 
 
     init {
@@ -94,7 +92,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
             craftingInv.setItem(i, blank)
         }
 
-        craftingInv.setItem(49,closeItem)
+        craftingInv.setItem(49, closeItem)
     }
 
     /**

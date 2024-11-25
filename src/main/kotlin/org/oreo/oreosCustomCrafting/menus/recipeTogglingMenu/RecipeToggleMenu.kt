@@ -6,12 +6,13 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.Recipe
-import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
+import org.oreo.oreosCustomCrafting.menus.InventoryMenu
+import org.oreo.oreosCustomCrafting.utils.MenuUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(private val player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean) {
+class RecipeInventory(private val player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean)
+            : InventoryMenu(player){
 
     private val rows = 5
     private val columns = 9
@@ -23,8 +24,6 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
     private var currentPage: Int = 0
 
     private var slotToRecipe: MutableMap<Int, CraftingRecipe> = mutableMapOf()
-
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
 
     init {
         loadPage(0)

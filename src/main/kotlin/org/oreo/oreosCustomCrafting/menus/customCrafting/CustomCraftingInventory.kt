@@ -11,15 +11,17 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.getKeyFromValue
+import org.oreo.oreosCustomCrafting.menus.InventoryMenu
+import org.oreo.oreosCustomCrafting.utils.MenuUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class CustomCraftingInventory(val player: Player, private val recipeName: String, private val plugin: CustomCrafting) {
+class CustomCraftingInventory(val player: Player, private val recipeName: String, private val plugin: CustomCrafting)
+    : InventoryMenu(player){
 
     private val craftingInvName = "Create a custom recipe"
     private val craftingInv = Bukkit.createInventory(null, 9 * 6, craftingInvName)
 
     // All the custom items common to most menus
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move these to menuUtils
     val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
     val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
 

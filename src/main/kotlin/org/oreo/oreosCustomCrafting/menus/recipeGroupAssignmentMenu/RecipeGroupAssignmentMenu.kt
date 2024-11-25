@@ -8,10 +8,12 @@ import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.RecipeData
+import org.oreo.oreosCustomCrafting.menus.InventoryMenu
+import org.oreo.oreosCustomCrafting.utils.MenuUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeGroupAssignmentMenu(private val player: Player, private val group: String,
-                                private val removeRecipes: Boolean) {
+                                private val removeRecipes: Boolean): InventoryMenu(player) {
 
     private val rows = 5
     private val columns = 9
@@ -22,7 +24,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
     private var currentPage: Int = 0
 
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move this to the menuUtils
+
     //All recipes that will be changed
     private val recipesToChange = arrayListOf<CustomRecipeData>()
 

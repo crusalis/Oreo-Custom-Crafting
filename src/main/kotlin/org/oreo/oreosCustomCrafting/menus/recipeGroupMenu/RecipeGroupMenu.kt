@@ -6,10 +6,12 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
+import org.oreo.oreosCustomCrafting.menus.InventoryMenu
+import org.oreo.oreosCustomCrafting.utils.MenuUtils
 import org.oreo.oreosCustomCrafting.menus.recipeMenu.RecipeMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeGroupMenu(private val player: Player) {
+class RecipeGroupMenu(private val player: Player) : InventoryMenu(player){
 
 
     private val rows = 3
@@ -18,9 +20,9 @@ class RecipeGroupMenu(private val player: Player) {
     private val recipeGroupMenuInvName = "Custom recipes"
     private val recipeGroupMenuInv = Bukkit.createInventory(null, invSize, recipeGroupMenuInvName)
 
-    private val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null) //TODO move this to menuUtils
+
     private val allRecipesButton = Utils.createGuiItem(Material.CRAFTING_TABLE, "§6§lAll Recipes", null)
-    private val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null)
+
 
     init {
         initialiseItems()
