@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.oreo.oreosCustomCrafting.commands.CraftingCommand
 import org.oreo.oreosCustomCrafting.customIngredientListener.CustomIngredientListener
 import org.oreo.oreosCustomCrafting.data.*
-import org.oreo.oreosCustomCrafting.menus.CustomCraftingInventoryListener
+import org.oreo.oreosCustomCrafting.menus.CustomInventoryListener
 import org.oreo.oreosCustomCrafting.menus.DisabledRecipeListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
@@ -26,7 +26,6 @@ import java.lang.NullPointerException
 
 class CustomCrafting : JavaPlugin() {  //TODO organise the code
     //TODO make a button to add a recipe on the crafting group eventually
-    //TODO make all menus inherit from one type to handle common functions
 
     private val gson = Gson()
 
@@ -60,7 +59,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         registerSavedRecipes()
 
-        server.pluginManager.registerEvents(CustomCraftingInventoryListener(), this)
+        server.pluginManager.registerEvents(CustomInventoryListener(), this)
         server.pluginManager.registerEvents(DisabledRecipeListener(), this)
         server.pluginManager.registerEvents(CustomIngredientListener(), this)
 
@@ -281,8 +280,8 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     /**
      * Saves the custom ingredients of a shaped recipe so that they can be checked in the recipe listener
      */
-    fun saveCustomIngredientRecipe(recipeData: ShapedRecipeData, recipe: Recipe) {
-        if (recipeData.customIngredients != null && recipeData.customIngredients.isNotEmpty()) {
+    private fun saveCustomIngredientRecipe(recipeData: ShapedRecipeData, recipe: Recipe) {
+        if (recipeData.customIngredients.isNotEmpty()) {
             val customItems: ArrayList<ItemStack> = arrayListOf()
 
             for (itemName in recipeData.customIngredients) {
@@ -295,8 +294,8 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
     /**
      * Saves the custom ingredients of a shapeless recipe so that they can be checked in the recipe listener
      */
-    fun saveCustomIngredientRecipe(recipeData: ShapeLessRecipeData, recipe: Recipe) {
-        if (recipeData.ingredientsItems != null && recipeData.ingredientsItems.isNotEmpty()) {
+    private fun saveCustomIngredientRecipe(recipeData: ShapeLessRecipeData, recipe: Recipe) {
+        if (recipeData.ingredientsItems.isNotEmpty()) {
             val customItems: ArrayList<ItemStack> = arrayListOf()
 
             for (itemName in recipeData.ingredientsItems) {

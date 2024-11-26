@@ -9,12 +9,12 @@ import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeInventory(private val player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean)
+class RecipeInventory(player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean)
             : AbstractInventoryMenu(player){
 
     private val rows = 5
     private val columns = 9
-    private val invSize = rows * columns
+    override val invSize = rows * columns
     private val craftingInvName = "Recipe settings"
     override val inventory = Bukkit.createInventory(null, invSize, craftingInvName)
 
@@ -24,6 +24,8 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
     private var slotToRecipe: MutableMap<Int, CraftingRecipe> = mutableMapOf()
 
     init {
+        addToList()
+        player.openInventory(inventory)
         loadPage(0)
     }
 
@@ -119,23 +121,7 @@ class RecipeInventory(private val player: Player, private val viewType: ViewType
         }
 
         // Set navigation items in the last row
-        if (currentPage > 0) {
-            inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
-        }
-        if (!hasBlank()) {
-            inventory.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
-        }
-    }
-
-    /**
-     * Closes the custom crafting inventory for a player and remove its references
-     */
-    override fun closeInventory() {
-        openInventories.remove(inventory)
-        try {
-            inventory.close()
-        } catch (_: Exception) {
-        }
+        setNextAndPrevItem(currentPage)
     }
 
     /**

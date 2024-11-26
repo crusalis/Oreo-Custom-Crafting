@@ -16,9 +16,10 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
 
     private val craftingInvName = name
     override val inventory = Bukkit.createInventory(null, 9 * 6, craftingInvName)
-
+    override val invSize = inventory.size
 
     init {
+        addToList()
         initializeMenuItems()
         openInventory(player)
     }
@@ -105,7 +106,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    override fun closeInventory() {
+    private fun closeInventory() {
         openInventories.remove(inventory)
         try {
             inventory.close()

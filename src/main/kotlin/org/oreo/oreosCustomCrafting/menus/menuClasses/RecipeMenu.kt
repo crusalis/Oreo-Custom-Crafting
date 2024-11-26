@@ -9,11 +9,11 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu(private val player: Player, group: String?) : AbstractInventoryMenu(player) {
+class RecipeMenu(private val player: Player, group: String?) : AbstractInventoryMenu(player) {//TODO fix recipe menu not loading
 
     private val rows = 5
     private val columns = 9
-    private val invSize = rows * columns
+    override val invSize = rows * columns
     private val recipeMenuInvName = "Recipe settings"
     override val inventory = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
@@ -23,7 +23,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
     private val slotToRecipeData = hashMapOf<Int, CustomRecipeData>()
 
     /**
-     * The recipes that will be used for this menu are pre determined here
+     * The recipes that will be used for this menu are pre-determined here
      */
     private val recipes: List<CustomRecipeData> = if (group == null) {
         CustomCrafting.customRecipes.filterNot { it.recipe in CustomCrafting.disabledRecipes }
@@ -33,6 +33,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
 
 
     init {
+        addToList()
         loadPage(0)
         openInventory()
     }
@@ -84,12 +85,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
         }
 
         // Set navigation items in the last row
-        if (currentPage > 0) {
-            inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
-        }
-        if (!hasBlank()) {
-            inventory.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
-        }
+        setNextAndPrevItem(currentPage)
     }
 
     /**
@@ -104,7 +100,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    override fun closeInventory() {
+    private fun closeInventory() {
         openInventories.remove(inventory)
         try {
             inventory.close()

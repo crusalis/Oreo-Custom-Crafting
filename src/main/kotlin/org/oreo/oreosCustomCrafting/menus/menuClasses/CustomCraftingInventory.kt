@@ -14,12 +14,12 @@ import org.oreo.oreosCustomCrafting.data.getKeyFromValue
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class CustomCraftingInventory(val player: Player, private val recipeName: String, private val plugin: CustomCrafting)
+class CustomCraftingInventory(private val player: Player, private val recipeName: String, private val plugin: CustomCrafting)
     : AbstractInventoryMenu(player){
 
     private val craftingInvName = "Create a custom recipe"
     override val inventory = Bukkit.createInventory(null, 9 * 6, craftingInvName)
-
+    override val invSize = inventory.size
     // All the custom items common to most menus
     private val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
     private val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
@@ -36,6 +36,7 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     private val customRecipeMaterials = arrayListOf<String>()
 
     init {
+        addToList()
         initializeMenuItems()
         openInventory(player)
     }
@@ -84,10 +85,12 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    override fun closeInventory() {
-        openInventories.remove(inventory)
+    private fun closeInventory() {
+
         try {
-            inventory.close()
+            if (inventory.viewers.isNotEmpty()){
+                inventory.close()
+            }
         } catch (_: Exception) {
         }
     }
@@ -95,9 +98,15 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     /**
      * Saves the recipe from the inventory into a file and registers it
      */
-    fun saveRecipe() {
+    private fun saveRecipe() {
 
-        val resultSlotItem: ItemStack = inventory.getItem(RESULT_SLOT) ?: throw NullPointerException()
+
+        val resultSlotItem: ItemStack = try {
+            inventory.getItem(RESULT_SLOT) ?: throw NullPointerException("No result item set")
+        } catch (e : NullPointerException) {
+            player.sendMessage("${ChatColor.RED}${e.message}")
+            return
+        }
 
         if (inventory.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem) ||
             !Utils.customItemExists(resultSlotItem)
@@ -224,27 +233,40 @@ class CustomCraftingInventory(val player: Player, private val recipeName: String
     }
 
 
-    override fun handleClickedItem(slot: Int) {
-        val clickedItem = inventory.getItem(slot) ?: return
+    override fun handleClickedItem(slot: Int) {}
+
+    fun handleCraftingItemClicked(slot: Int): Boolean {
+
+        val clickedItem = inventory.getItem(slot) ?: return false
         when (clickedItem) {
 
             acceptButton -> {
                 saveRecipe()
                 closeInventory()
+                return true
             }
 
             cancelButton -> {
                 closeInventory()
+                return true
             }
 
             shapedButton -> {
                 handleShapeLessToggle()
+                return true
             }
 
             shapedLessButton -> {
                 handleShapedToggle()
+                return true
+            }
+
+            blank ->{
+                return true
             }
         }
+
+        return false
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -13,7 +14,7 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
 
     private val rows = 3
     private val columns = 9
-    private val invSize = rows * columns
+    override val invSize = rows * columns
     private val recipeGroupMenuInvName = "Custom recipes"
     override val inventory = Bukkit.createInventory(null, invSize, recipeGroupMenuInvName)
 
@@ -22,6 +23,7 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
 
 
     init {
+        addToList()
         initialiseItems()
         openInventory()
     }
@@ -63,7 +65,7 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    override fun closeInventory() {
+    private fun closeInventory() {
         openInventories.remove(inventory)
         try {
             inventory.close()
@@ -81,6 +83,8 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
         if (clickedItem == closeItem) {
             closeInventory()
             return
+        } else if (clickedItem == blank) {
+            return
         }
 
         when (slot) {
@@ -89,6 +93,11 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
 
             else -> {
 
+                if (CustomCrafting.groups.keys.toList().isEmpty()){
+                    player.sendMessage("${ChatColor.RED}There are no groups")
+                    closeInventory()
+                    return
+                }
                 val keys = CustomCrafting.groups.keys.toList()
 
                 val groupName = keys[slot - 1]

@@ -15,7 +15,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
 
     private val rows = 5
     private val columns = 9
-    private val invSize = rows * columns
+    override val invSize = rows * columns
     private val recipeMenuInvName = "Recipe settings"
     override val inventory = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
@@ -39,6 +39,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
     private val groupIcon: ItemStack = Utils.createGuiItem(CustomCrafting.groups[group]?.first!!, "§l$group", null)
 
     init {
+        addToList()
         loadPage(0)
         openInventory()
     }
@@ -48,7 +49,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
      * Loads a specified page of recipes into the crafting inventory.
      * @param page The page number to load (0-based).
      */
-    fun loadPage(page: Int) {
+    private fun loadPage(page: Int) {
 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 
@@ -90,12 +91,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
         inventory.setItem(invSize - 5, groupIcon)
 
         // Set navigation items in the last row
-        if (currentPage > 0) {
-            inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))
-        }
-        if (!hasBlank()) {
-            inventory.setItem(invSize - 3, Utils.createGuiItem(Material.WARPED_SIGN, "Next", null))
-        }
+        setNextAndPrevItem(currentPage)
     }
 
     /**
@@ -105,23 +101,6 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
         val newInventory = inventory
         player.openInventory(newInventory)
         openInventories[newInventory] = this
-    }
-
-    /**
-     * Closes the custom crafting inventory for a player and remove its references
-     */
-    override fun closeInventory() {
-        openInventories.remove(inventory)
-        if (removeRecipes) {
-            CustomCrafting.groups[group]!!.second.removeAll(recipesToChange)
-        } else {
-            CustomCrafting.groups[group]!!.second.addAll(recipesToChange)
-        }
-
-        try {
-            inventory.close()
-        } catch (_: Exception) {
-        }
     }
 
     /**
