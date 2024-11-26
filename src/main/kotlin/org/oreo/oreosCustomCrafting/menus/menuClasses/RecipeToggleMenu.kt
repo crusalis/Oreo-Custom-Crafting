@@ -10,7 +10,7 @@ import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeInventory(player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean)
-            : AbstractInventoryMenu(player){
+            : AbstractInventoryMenu(player){ //TODO add a way to add the changes
 
     private val rows = 5
     private val columns = 9
@@ -104,6 +104,12 @@ class RecipeInventory(player: Player, private val viewType: ViewType, private va
             // Update item status based on whether it’s enabled or disabled
             val isDisabled: Boolean = CustomCrafting.disabledRecipes.contains(recipe)
 
+            val hasGlint : Boolean = if (isDisabled) {
+                viewType != ViewType.DISABLED
+            } else {
+                viewType == ViewType.DISABLED
+            }
+
             val statusName = if (isDisabled) "Disabled" else "Enabled"
             val statusPrefix = if (isDisabled) "§c§l" else "§a§l"
 
@@ -111,7 +117,8 @@ class RecipeInventory(player: Player, private val viewType: ViewType, private va
                 item = recipe.result,
                 name = statusName,
                 prefix = statusPrefix,
-                recipe.result.itemMeta?.displayName
+                recipe.result.itemMeta?.displayName,
+                addEnchantGlint = hasGlint
             )
 
             slotToRecipe[slot] = recipe
@@ -127,7 +134,7 @@ class RecipeInventory(player: Player, private val viewType: ViewType, private va
     /**
      * Handle any item being clicked
      */
-    override fun handleClickedItem(slot: Int) { //TODO add enchant glint and handle items staying disabled when switching pages
+    override fun handleClickedItem(slot: Int) {
 
         val item = inventory.getItem(slot) ?: return
 

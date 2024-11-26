@@ -22,7 +22,7 @@ abstract class AbstractInventoryMenu(private val player : Player) {
     /**
      * Opens the custom crafting inventory for a player, and write the object into the list
      */
-    fun addToList() { //TODO make this work better :sob:
+    fun addToList() { //Please change this
         openInventories[inventory] = this
     }
 
@@ -59,5 +59,4 @@ abstract class AbstractInventoryMenu(private val player : Player) {
             return openInventories[inv]
         }
     }
-
 }

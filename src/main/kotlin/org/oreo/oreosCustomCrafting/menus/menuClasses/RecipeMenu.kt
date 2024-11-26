@@ -9,7 +9,7 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
-class RecipeMenu(private val player: Player, group: String?) : AbstractInventoryMenu(player) {//TODO fix recipe menu not loading
+class RecipeMenu(private val player: Player, group: String?) : AbstractInventoryMenu(player) {
 
     private val rows = 5
     private val columns = 9
