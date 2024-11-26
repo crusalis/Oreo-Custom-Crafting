@@ -113,22 +113,32 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
 
         val item = inventory.getItem(slot) ?: return
 
+        when (item) {
 
-        // Handle group icon click
-        if (item == groupIcon) {
-            try {
-                val groupNames = CustomCrafting.groups.keys.toList() // Ensure it's a list
-                val groupIndex = group.let { groupNames.indexOf(it) }
-                val nextGroupName = groupNames[groupIndex + 1]
-
-                RecipeGroupAssignmentMenu(player, nextGroupName, removeRecipes)
-            } catch (_: IndexOutOfBoundsException) {
-                RecipeGroupAssignmentMenu(player, CustomCrafting.groups.keys.toList()[0], removeRecipes)
+            nextItem ->{
+                loadPage(currentPage + 1)
+                return
             }
 
-            return
-        }
+            previousItem -> {
+                loadPage(currentPage - 1)
+                return
+            }
 
+            groupIcon -> {
+                try {
+                    val groupNames = CustomCrafting.groups.keys.toList() // Ensure it's a list
+                    val groupIndex = group.let { groupNames.indexOf(it) }
+                    val nextGroupName = groupNames[groupIndex + 1]
+
+                    RecipeGroupAssignmentMenu(player, nextGroupName, removeRecipes)
+                } catch (_: IndexOutOfBoundsException) {
+                    RecipeGroupAssignmentMenu(player, CustomCrafting.groups.keys.toList()[0], removeRecipes)
+                }
+
+                return
+            }
+        }
 
         // Calculate the recipe index, ensuring it ignores the bottom row
         val recipeIndex = currentPage * itemsPerPage + slot
@@ -169,15 +179,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
             return
         }
 
-        // Handle navigation if it's in the bottom row
-        if (slot in (invSize - columns until invSize)) {
-            val name = item.itemMeta?.displayName ?: return
-            when {
-                name.contains("Next", true) -> loadPage(currentPage + 1)
-                name.contains("Previous", true) -> loadPage(currentPage - 1)
-            }
-            return
-        }
+
     }
 
 }
