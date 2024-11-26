@@ -19,16 +19,22 @@ class   CustomInventoryListener : Listener {
 
         val invInstance = AbstractInventoryMenu.getCustomInventory(inv) ?: return
 
-        if (invInstance is CustomCraftingInventory) {
+        try {
 
-            e.isCancelled = invInstance.handleCraftingItemClicked(e.slot)
+            if (invInstance is CustomCraftingInventory) {
 
-            return
+                e.isCancelled = invInstance.handleCraftingItemClicked(e.slot)
+                return
+            }
+
+            e.isCancelled = true
+
+            invInstance.handleClickedItem(e.slot)
+
+        } catch (_: Exception) {
+            e.isCancelled = true
+            e.inventory.close()
         }
-
-        e.isCancelled = true
-
-        invInstance.handleClickedItem(e.slot)
     }
 
 
