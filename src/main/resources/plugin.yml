@@ -9,3 +9,5 @@ commands:
   crusalisCrafting: #test
     description: test
     usage: /<command>
+    aliases:
+      - crc

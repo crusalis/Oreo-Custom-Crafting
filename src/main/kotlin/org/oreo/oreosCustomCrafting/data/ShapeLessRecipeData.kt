@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapelessRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
+import java.io.Serializable
 
 /**
  * All the necessary data for a shapeless recipe to be created / saved as json
@@ -19,7 +20,7 @@ data class ShapeLessRecipeData(
     override val fileResult: String?,
     override val materialResult: Material?,
     override val amount: Int
-) : RecipeData()
+) : RecipeData(), Serializable
 
 /**
  * Converts data into a shapelessRecipe bukkit object

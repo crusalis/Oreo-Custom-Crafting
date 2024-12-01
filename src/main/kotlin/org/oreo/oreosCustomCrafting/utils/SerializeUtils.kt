@@ -45,24 +45,4 @@ object SerializeUtils {
             throw RuntimeException("Failed to deserialize item", e)
         }
     }
-
-
-    // Serialize an object to a byte array
-    fun serializeGroups(obj: Any): ByteArray { //TODO make this work
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
-        objectOutputStream.writeObject(obj)
-        objectOutputStream.flush()
-        return byteArrayOutputStream.toByteArray()
-    }
-
-    // Deserialize a byte array back to an object
-    fun deserializeGroups(byteArray: ByteArray): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
-        val byteArrayInputStream = ByteArrayInputStream(byteArray)
-        val objectInputStream = ObjectInputStream(byteArrayInputStream)
-        @Suppress("UNCHECKED_CAST")
-        return objectInputStream.readObject() as HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>
-    }
-
-
 }

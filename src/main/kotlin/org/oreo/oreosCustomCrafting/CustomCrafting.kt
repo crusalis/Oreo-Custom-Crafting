@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.ItemStack
@@ -19,12 +20,11 @@ import org.oreo.oreosCustomCrafting.menus.CustomInventoryListener
 import org.oreo.oreosCustomCrafting.menus.DisabledRecipeListener
 import org.oreo.oreosCustomCrafting.utils.SerializeUtils
 import org.oreo.oreosCustomCrafting.utils.Utils
-import java.io.File
-import java.io.FileReader
+import java.io.*
 import java.lang.NullPointerException
 
 
-class CustomCrafting : JavaPlugin() {  //TODO organise the code
+class CustomCrafting : JavaPlugin() {
     //TODO make a button to add a recipe on the crafting group eventually
 
     private val gson = Gson()
@@ -65,14 +65,15 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
 
         saveDefaultConfig()
         loadDisabledRecipes()
-        //loadGroupsFromFile()
+
+        loadGroupsFromFile()
     }
 
     override fun onDisable() {
         saveDefaultConfig()
         saveDisabledRecipes()
 
-        //saveGroupsToFile(groups)
+        saveGroupsToFile()
     }
 
     /**
@@ -426,20 +427,32 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         }
     }
 
-    // Function to save the hashmap to a file
-//    fun saveGroupsToFile(groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>>) {
-//        TODO("Will do once I have the more important stuff done")
-//    }
-//
-//
-//    fun loadGroupsFromFile(): HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> {
-//        TODO("Will do once I have the more important stuff done")
-//    }
+    private fun saveGroupsToFile() {
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs() // Create the directory if it doesn't exist
+        }
+        val file = File(dataFolder, "groups")
+        ObjectOutputStream(FileOutputStream(file)).use { it.writeObject(groups) }
+        println("Groups saved to ${file.absolutePath}")
+    }
+
+    private fun loadGroupsFromFile() {
+        val file = File(dataFolder, "groups")
+        if (!file.exists()) {
+            println("File not found: ${file.absolutePath}")
+            return
+        }
+        val loadedMap = ObjectInputStream(FileInputStream(file)).use {
+            it.readObject() as HashMap<String, Pair<Material, ArrayList<CustomRecipeData>>>
+        }
+        // Update the existing map
+        groups.clear() // Clear current entries
+        groups.putAll(loadedMap) // Add all entries from the loaded map
+        println("Groups successfully updated from file: ${file.absolutePath}")
+    }
 
 
     companion object {
-
-        const val GROUP_FILE = "groups.json"
 
         /**
          * A list that has all the custom items of recipes used to reference in the custom item listener
@@ -464,7 +477,7 @@ class CustomCrafting : JavaPlugin() {  //TODO organise the code
         /**
          * All the recipe groups used for /recipes
          */
-        var groups: HashMap<String, Pair<ItemStack, ArrayList<CustomRecipeData>>> = hashMapOf() //TODO save this somehow
+        var groups: HashMap<String, Pair<Material, ArrayList<CustomRecipeData>>> = hashMapOf() //TODO save this somehow
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator, they have

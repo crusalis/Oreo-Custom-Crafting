@@ -41,7 +41,8 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
         val keys = CustomCrafting.groups.keys.toList() // Convert keys to a list for indexed access
 
         for (i in keys.indices) { // Iterate over valid indices
-            val item: ItemStack? = CustomCrafting.groups[keys[i]]?.first // Get the first element of the Pair
+            val item: ItemStack? =
+                CustomCrafting.groups[keys[i]]?.first?.let { ItemStack(it) } // Get the first element of the Pair
 
             Utils.createGuiItem(item!!, "§l${keys[i]}", null)
 
@@ -65,7 +66,7 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    private fun closeInventory() {
+    override fun closeInventory() {
         openInventories.remove(inventory)
         try {
             inventory.close()

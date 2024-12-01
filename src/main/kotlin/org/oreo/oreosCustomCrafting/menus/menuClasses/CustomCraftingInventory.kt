@@ -85,7 +85,7 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    private fun closeInventory() {
+    override fun closeInventory() {
 
         try {
             if (inventory.viewers.isNotEmpty()){

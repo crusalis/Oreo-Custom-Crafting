@@ -100,7 +100,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    private fun closeInventory() {
+    override fun closeInventory() {
         openInventories.remove(inventory)
         try {
             inventory.close()

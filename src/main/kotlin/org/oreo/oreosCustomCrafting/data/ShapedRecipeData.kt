@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 import org.oreo.oreosCustomCrafting.CustomCrafting
 import org.oreo.oreosCustomCrafting.utils.Utils
+import java.io.Serializable
 
 /**
  * All the necessary data for a shaped recipe to be created / saved as json
@@ -20,7 +21,7 @@ data class ShapedRecipeData(
     override val fileResult: String?,
     override val materialResult: Material?,
     override val amount: Int
-) : RecipeData()
+) : RecipeData(), Serializable
 
 
 /**

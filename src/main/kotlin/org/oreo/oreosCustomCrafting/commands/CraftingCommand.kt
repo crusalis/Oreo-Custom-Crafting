@@ -132,7 +132,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                             sender.sendMessage("${ChatColor.RED}You need to hold an item to set as the groups icon.")
                             return true
                         }
-                        CustomCrafting.groups[args[2]] = Pair(sender.inventory.itemInMainHand, arrayListOf())
+                        CustomCrafting.groups[args[2]] = Pair(sender.inventory.itemInMainHand.type, arrayListOf())
                         sender.sendMessage("${ChatColor.GREEN}Group '${args[2]}' created successfully.")
                         return true
                     }

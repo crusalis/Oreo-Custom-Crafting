@@ -1,7 +1,6 @@
 package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
@@ -127,6 +126,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
 
             groupIcon -> {
                 try {
+                    applyChanges()
                     val groupNames = CustomCrafting.groups.keys.toList() // Ensure it's a list
                     val groupIndex = group.let { groupNames.indexOf(it) }
                     val nextGroupName = groupNames[groupIndex + 1]
@@ -156,6 +156,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
                 }
                 recipesToChange.remove(recipes[recipeIndex])
             } else {
+
                 // Item is not marked; mark as added
                 item.itemMeta = item.itemMeta?.apply {
                     if (removeRecipes) {
@@ -178,8 +179,36 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
             inventory.setItem(slot, item) // Update the item in the inventory
             return
         }
-
-
     }
 
+    private fun applyChanges() {
+        // Access the current group from the groups hashmap
+        val groupData = CustomCrafting.groups[group] ?: throw IllegalArgumentException("Invalid group name")
+
+        // Extract the list of recipes from the group and ensure it's an ArrayList
+        val currentGroupRecipes = ArrayList(groupData.second)
+
+        if (removeRecipes) {
+            // Remove recipes from the group
+            for (recipe in recipesToChange) {
+                currentGroupRecipes.remove(recipe)
+            }
+        } else {
+            // Add recipes to the group
+            for (recipe in recipesToChange) {
+                if (recipe !in currentGroupRecipes) {
+                    currentGroupRecipes.add(recipe)
+                }
+            }
+        }
+
+        // Update the group in the hashmap with an ArrayList
+        CustomCrafting.groups[group] = groupData.first to currentGroupRecipes
+    }
+
+
+
+    override fun closeInventory(){
+        applyChanges()
+    }
 }

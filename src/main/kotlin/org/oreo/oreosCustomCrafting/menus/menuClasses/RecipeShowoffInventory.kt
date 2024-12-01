@@ -106,7 +106,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
     /**
      * Closes the custom crafting inventory for a player and remove its references
      */
-    private fun closeInventory() {
+    override fun closeInventory() {
         openInventories.remove(inventory)
         try {
             inventory.close()

@@ -46,6 +46,8 @@ class   CustomInventoryListener : Listener {
 
         val invInstance = AbstractInventoryMenu.getCustomInventory(e.inventory) ?: return
 
+        invInstance.closeInventory()
+
         openInventories.remove(invInstance.inventory)
     }
 }

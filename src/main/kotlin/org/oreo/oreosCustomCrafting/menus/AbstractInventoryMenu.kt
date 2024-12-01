@@ -49,6 +49,8 @@ abstract class AbstractInventoryMenu(private val player : Player) {
 
     }
 
+    open fun  closeInventory() {}
+
     companion object {
         val openInventories = mutableMapOf<Inventory, AbstractInventoryMenu>()
 

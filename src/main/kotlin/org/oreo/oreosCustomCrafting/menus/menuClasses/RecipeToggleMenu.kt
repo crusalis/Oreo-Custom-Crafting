@@ -10,7 +10,7 @@ import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
 import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeInventory(player: Player, private val viewType: ViewType, private val showOnlyCustom: Boolean)
-            : AbstractInventoryMenu(player){ //TODO add a way to add the changes
+            : AbstractInventoryMenu(player){
 
     private val rows = 5
     private val columns = 9
