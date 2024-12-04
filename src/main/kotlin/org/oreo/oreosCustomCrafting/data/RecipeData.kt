@@ -11,4 +11,5 @@ abstract class RecipeData(
     abstract val fileResult: String?
     abstract val materialResult: Material?
     abstract val amount: Int
+    abstract var group : String?
 }

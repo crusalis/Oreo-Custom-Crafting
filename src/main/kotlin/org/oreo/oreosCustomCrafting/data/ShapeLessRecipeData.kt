@@ -19,8 +19,9 @@ data class ShapeLessRecipeData(
     @SerializedName("name") override val name: String,
     override val fileResult: String?,
     override val materialResult: Material?,
-    override val amount: Int
-) : RecipeData(), Serializable
+    override val amount: Int,
+    override var group: String?
+) : RecipeData()
 
 /**
  * Converts data into a shapelessRecipe bukkit object
@@ -89,7 +90,8 @@ fun shapeLessRecipeToData(
 
         fileResult = fileResult,
         materialResult = materialResult,
-        amount = recipe.result.amount
+        amount = recipe.result.amount,
+        group = null
     )
 }
 

@@ -83,19 +83,6 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
     }
 
     /**
-     * Closes the custom crafting inventory for a player and remove its references
-     */
-    override fun closeInventory() {
-
-        try {
-            if (inventory.viewers.isNotEmpty()){
-                inventory.close()
-            }
-        } catch (_: Exception) {
-        }
-    }
-
-    /**
      * Saves the recipe from the inventory into a file and registers it
      */
     private fun saveRecipe() {
@@ -242,12 +229,12 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
 
             acceptButton -> {
                 saveRecipe()
-                closeInventory()
+                inventory.close()
                 return true
             }
 
             cancelButton -> {
-                closeInventory()
+                inventory.close()
                 return true
             }
 

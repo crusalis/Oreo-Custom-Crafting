@@ -51,12 +51,18 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 val recipeName = args[1]
 
                 for (recipe in CustomCrafting.customRecipes) {
-                    val customRecipeName = if (recipe.recipe is ShapedRecipe) {
-                        recipe.recipe.key.key
-                    } else if (recipe.recipe is ShapelessRecipe) {
-                        recipe.recipe.key.key
-                    } else {
-                        throw IllegalArgumentException("recipe is of unexpected type")
+                    val customRecipeName = when (recipe.recipe) {
+                        is ShapedRecipe -> {
+                            recipe.recipe.key.key
+                        }
+
+                        is ShapelessRecipe -> {
+                            recipe.recipe.key.key
+                        }
+
+                        else -> {
+                            throw IllegalArgumentException("recipe is of unexpected type")
+                        }
                     }
 
                     if (recipeName == customRecipeName) {
@@ -195,66 +201,33 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
         args: Array<out String>
     ): List<String> {
         return when (args.size) {
-
             1 -> {
-                return if (sender.isOp) {
-                    listOf("add", "remove", "toggle", "recipes", "groups").filter {
-                        it.startsWith(
-                            args[0],
-                            ignoreCase = true
-                        )
-                    }
+                if (sender.isOp) {
+                    listOf("add", "remove", "toggle", "recipes", "groups")
                 } else {
                     listOf("recipes")
                 }
             }
-
             2 -> {
-
-                var recipes = arrayListOf<String>()
-
-                if (args[0] == "remove") {
-
-                    for (file in plugin.shapedRecipeDir?.listFiles()!!) {
-
-                        if (file.isDirectory) continue
-                        //drop the ".json" part to match the recipes identifier
-                        recipes.add(file.name.dropLast(5))
-                    }
-                    for (file in plugin.shapelessRecipeDir?.listFiles()!!) {
-
-                        if (file.isDirectory) continue
-                        //drop the ".json" part to match the recipes identifier
-                        recipes.add(file.name.dropLast(5))
-                    }
-                } else if (args[0] == "toggle") {
-
-                    recipes.add("all")
-                    recipes.add("enabled")
-                    recipes.add("disabled")
-
-                } else if (args[0] == "groups") {
-                    recipes.add("add")
-                    recipes.add("remove")
-                    recipes.add("additems")
-                    recipes.add("removeitems")
+                val recipes = when (args[0]) {
+                    "remove" -> CustomCrafting.customRecipes.map { it.recipeData.name }
+                    "toggle" -> listOf("all", "enabled", "disabled")
+                    "groups" -> listOf("add", "remove", "additems", "removeitems")
+                    else -> emptyList()
                 }
-
                 recipes
             }
-
             3 -> {
                 if (args[0] == "toggle") {
-
-                    return listOf("custom")
-                } else if (args[1] == "remove") {
-                    return CustomCrafting.groups.keys.toList()
+                    listOf("custom")
+                } else if (args[0] == "groups" && args[1] == "remove") {
+                    CustomCrafting.groups.keys.toList()
+                } else {
+                    emptyList()
                 }
-
-                return emptyList()
             }
-
             else -> emptyList()
         }
     }
+
 }

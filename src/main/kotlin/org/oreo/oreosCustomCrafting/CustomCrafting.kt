@@ -24,7 +24,7 @@ import java.io.*
 import java.lang.NullPointerException
 
 
-class CustomCrafting : JavaPlugin() {
+class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back instead of closing the entire thing
     //TODO make a button to add a recipe on the crafting group eventually
 
     private val gson = Gson()
@@ -33,8 +33,8 @@ class CustomCrafting : JavaPlugin() {
 
     private var craftingDir: File? = null
 
-    var shapedRecipeDir: File? = null
-    var shapelessRecipeDir: File? = null
+    private var shapedRecipeDir: File? = null
+    private var shapelessRecipeDir: File? = null
 
     /**
      * Handle all the directories and recipes upon loading in
@@ -73,7 +73,32 @@ class CustomCrafting : JavaPlugin() {
         saveDefaultConfig()
         saveDisabledRecipes()
 
+        saveRecipeChanges()
         saveGroupsToFile()
+    }
+
+
+    private fun saveRecipeChanges(){
+        for (recipeData in customRecipes.map { it.recipeData }){
+
+            val dirToSave : File = if (recipeData is ShapedRecipeData){
+                shapedRecipeDir!!
+            } else if (recipeData is ShapeLessRecipeData){
+                shapelessRecipeDir!!
+            } else{
+                throw IllegalArgumentException("RecipeData of unexpected type")
+            }
+
+
+            val file = File(dirToSave, "${recipeData.name}.json")
+
+            if (!file.exists()){
+                logger.warning("Recipe data file not found for ${recipeData.name}, creating a new one")
+                file.createNewFile()
+            }
+
+            file.writeText(gson.toJson(recipeData))
+        }
     }
 
     /**
@@ -145,7 +170,7 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Register and save the shaped recipe as a file
      */
-    fun registerAndSaveRecipe(
+    fun registerAndSaveRecipe(// TODO add the group stuff
         recipe: ShapedRecipe,
         recipeName: String,
         customItemIngredients: List<String>
@@ -153,7 +178,7 @@ class CustomCrafting : JavaPlugin() {
 
         val recipeData = shapedRecipeToData(recipe, this, customItemIngredients)
 
-        saveCustomIngredientRecipe(recipeData, recipe)
+        loadCustomIngredientRecipe(recipeData, recipe)
 
         allRecipesSaved.add(recipe)
 
@@ -194,7 +219,7 @@ class CustomCrafting : JavaPlugin() {
         }
         val file = File(shapelessRecipeDir, "$recipeName.json")
 
-        saveCustomIngredientRecipe(recipeData, recipe)
+        loadCustomIngredientRecipe(recipeData, recipe)
 
         customRecipes.add(
             CustomRecipeData(
@@ -223,7 +248,7 @@ class CustomCrafting : JavaPlugin() {
                         val recipeFromData = dataToShapedRecipe(recipeData)
 
 
-                        saveCustomIngredientRecipe(recipeData, recipeFromData)
+                        loadCustomIngredientRecipe(recipeData, recipeFromData)
 
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
@@ -256,7 +281,7 @@ class CustomCrafting : JavaPlugin() {
 
                         val recipeFromData = dataToShapeLessRecipe(recipeData)
 
-                        saveCustomIngredientRecipe(recipeData, recipeFromData)
+                        loadCustomIngredientRecipe(recipeData, recipeFromData)
 
                         Bukkit.getServer().removeRecipe(NamespacedKey.minecraft(recipeData.name))
                         Bukkit.getServer().addRecipe(recipeFromData)
@@ -281,7 +306,7 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Saves the custom ingredients of a shaped recipe so that they can be checked in the recipe listener
      */
-    private fun saveCustomIngredientRecipe(recipeData: ShapedRecipeData, recipe: Recipe) {
+    private fun loadCustomIngredientRecipe(recipeData: ShapedRecipeData, recipe: Recipe) {
         if (recipeData.customIngredients.isNotEmpty()) {
             val customItems: ArrayList<ItemStack> = arrayListOf()
 
@@ -295,7 +320,7 @@ class CustomCrafting : JavaPlugin() {
     /**
      * Saves the custom ingredients of a shapeless recipe so that they can be checked in the recipe listener
      */
-    private fun saveCustomIngredientRecipe(recipeData: ShapeLessRecipeData, recipe: Recipe) {
+    private fun loadCustomIngredientRecipe(recipeData: ShapeLessRecipeData, recipe: Recipe) {
         if (recipeData.ingredientsItems.isNotEmpty()) {
             val customItems: ArrayList<ItemStack> = arrayListOf()
 
@@ -428,28 +453,70 @@ class CustomCrafting : JavaPlugin() {
     }
 
     private fun saveGroupsToFile() {
+
+        if (groups.isEmpty()) return
+
         if (!dataFolder.exists()) {
             dataFolder.mkdirs() // Create the directory if it doesn't exist
         }
-        val file = File(dataFolder, "groups")
-        ObjectOutputStream(FileOutputStream(file)).use { it.writeObject(groups) }
+        val file = File(dataFolder, "groups.json")
+
+        // Convert the group map to a list of pairs for serialization
+        val groupList = groups.map { (key, value) -> key to value.first }
+
+        // Serialize the group list to JSON and write to the file
+        file.writer().use { writer ->
+            gson.toJson(groupList, writer)
+        }
+
         println("Groups saved to ${file.absolutePath}")
     }
 
     private fun loadGroupsFromFile() {
-        val file = File(dataFolder, "groups")
+        val file = File(dataFolder, "groups.json")
         if (!file.exists()) {
             println("File not found: ${file.absolutePath}")
             return
         }
-        val loadedMap = ObjectInputStream(FileInputStream(file)).use {
-            it.readObject() as HashMap<String, Pair<Material, ArrayList<CustomRecipeData>>>
+
+        try {
+            // Deserialize JSON as List<Pair<String, String>> to handle Material as String
+            val groupList: List<Pair<String, String>> = file.reader().use { reader ->
+                gson.fromJson(reader, object : TypeToken<List<Pair<String, String>>>() {}.type)
+            }
+
+            // Map to Material and handle invalid entries
+            val parsedGroupList = groupList.mapNotNull { (key, materialName) ->
+                try {
+                    val material = Material.valueOf(materialName)
+                    key to material
+                } catch (e: IllegalArgumentException) {
+                    println("Warning: Invalid material name '$materialName' in groups.json")
+                    null
+                }
+            }
+
+            // Populate the groups map
+            groups.clear()
+            for ((key, material) in parsedGroupList) {
+                groups[key] = Pair(material, arrayListOf())
+            }
+
+            // Update groups with associated custom recipes
+            for (recipe in customRecipes) {
+                val recipeData = recipe.recipeData
+                recipeData.group?.let { groupName ->
+                    groups[groupName]?.second?.add(recipe)
+                }
+            }
+
+            println("Groups successfully updated from file: ${file.absolutePath}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("Failed to load groups from file: ${file.absolutePath}")
         }
-        // Update the existing map
-        groups.clear() // Clear current entries
-        groups.putAll(loadedMap) // Add all entries from the loaded map
-        println("Groups successfully updated from file: ${file.absolutePath}")
     }
+
 
 
     companion object {
@@ -477,7 +544,7 @@ class CustomCrafting : JavaPlugin() {
         /**
          * All the recipe groups used for /recipes
          */
-        var groups: HashMap<String, Pair<Material, ArrayList<CustomRecipeData>>> = hashMapOf() //TODO save this somehow
+        var groups: HashMap<String, Pair<Material, ArrayList<CustomRecipeData>>> = hashMapOf()
 
         /**
          * We save all recipes to our own list because since the vanilla ones are accessed via Iterator, they have

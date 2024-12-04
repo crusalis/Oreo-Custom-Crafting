@@ -20,7 +20,8 @@ data class ShapedRecipeData(
     @SerializedName("name") override val name: String,
     override val fileResult: String?,
     override val materialResult: Material?,
-    override val amount: Int
+    override val amount: Int,
+    override var group: String?
 ) : RecipeData(), Serializable
 
 
@@ -86,12 +87,13 @@ fun shapedRecipeToData(
         name = recipe.key.key,
         fileResult = fileResult,
         materialResult = materialResult,
-        amount = recipe.result.amount
+        amount = recipe.result.amount,
+        group = null
     )
 }
 
 /**
- * Method for getting a key from a value because I cant reformat my code around that not being the case
+ * Method for getting a key from a value because I cant reformat my code around that not being the case.
  * Terrible coding practice should stop using this
  */
 fun <K, V> HashMap<K, V>.getKeyFromValue(value: V): K? {

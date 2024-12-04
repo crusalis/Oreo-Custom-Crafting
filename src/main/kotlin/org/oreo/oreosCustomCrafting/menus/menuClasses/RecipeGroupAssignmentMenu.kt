@@ -192,12 +192,14 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
             // Remove recipes from the group
             for (recipe in recipesToChange) {
                 currentGroupRecipes.remove(recipe)
+                recipe.recipeData.group = null
             }
         } else {
             // Add recipes to the group
             for (recipe in recipesToChange) {
                 if (recipe !in currentGroupRecipes) {
                     currentGroupRecipes.add(recipe)
+                    recipe.recipeData.group = group
                 }
             }
         }
