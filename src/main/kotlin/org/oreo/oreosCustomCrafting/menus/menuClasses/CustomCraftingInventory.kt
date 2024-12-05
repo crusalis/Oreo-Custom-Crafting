@@ -1,5 +1,6 @@
 package org.oreo.oreosCustomCrafting.menus.menuClasses
 
+import jdk.jshell.execution.Util
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
@@ -24,16 +25,21 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
     private val acceptButton = Utils.createGuiItem(Material.GREEN_CONCRETE, "Save", null)
     private val cancelButton = Utils.createGuiItem(Material.RED_CONCRETE, "Cancel", null)
 
+    private val noGroupButton = Utils.createGuiItem(Material.GRAY_CONCRETE, "No group", null)
+
     private val shapedButton = Utils.createGuiItem(Material.BLUE_CONCRETE, "Shaped", null)
     private val shapedLessButton = Utils.createGuiItem(Material.YELLOW_CONCRETE, "Shapeless", null)
 
     private var isShaped = true
 
-    private val toggleSlot = 49
+    private val toggleRecipeTypeSlot = 49
+    private val toggleGroupSlot = 26
     private val acceptSlot = 47
     private val cancelSlot = 51
 
     private val customRecipeMaterials = arrayListOf<String>()
+
+    var currentGroup : String? = null
 
     init {
         addToList()
@@ -66,11 +72,13 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
         }
 
         // Set the buttons
-        inventory.setItem(acceptSlot, ItemStack(acceptButton)) // Save button
+        inventory.setItem(acceptSlot, acceptButton) // Save button
 
-        inventory.setItem(toggleSlot, ItemStack(shapedButton)) // Shaped/shapeless toggle
+        inventory.setItem(toggleRecipeTypeSlot, shapedButton) // Shaped/shapeless toggle
 
-        inventory.setItem(cancelSlot, ItemStack(cancelButton)) // Cancel button
+        inventory.setItem(cancelSlot, cancelButton) // Cancel button
+
+        inventory.setItem(toggleGroupSlot, noGroupButton) // Toggle group button
     }
 
     /**
@@ -139,11 +147,11 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
 
         when (returnRecipe) {
             is ShapedRecipe -> {
-                plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
+                plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials,currentGroup)
             }
 
             is ShapelessRecipe -> {
-                plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials)
+                plugin.registerAndSaveRecipe(returnRecipe, recipeName, customRecipeMaterials,currentGroup)
             }
 
             else -> {
@@ -219,12 +227,46 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
         return Pair(outputStrings, charToMaterialMap)
     }
 
+    private fun changeToggledGroup(){
+
+        if (inventory.getItem(toggleGroupSlot) == noGroupButton) {
+            currentGroup = CustomCrafting.groups.keys.first()
+
+        } else {
+
+            val keys = CustomCrafting.groups.keys.toList()
+            val currentIndex = keys.indexOf(currentGroup)
+
+            currentGroup = if (currentIndex != -1 && currentIndex + 1 < keys.size) {
+                keys[currentIndex + 1] // Get the next key
+            } else {
+                null
+            }
+        }
+
+        if (currentGroup == null) {
+            inventory.setItem(toggleGroupSlot,noGroupButton)
+            return
+        }
+
+        inventory.setItem(toggleGroupSlot, CustomCrafting.groups[currentGroup]?.first?.let {
+            Utils.createGuiItem(material = it,
+                currentGroup!!,null)
+        })
+    }
+
 
     override fun handleClickedItem(slot: Int) {}
 
     fun handleCraftingItemClicked(slot: Int): Boolean {
 
         val clickedItem = inventory.getItem(slot) ?: return false
+
+        if (slot == toggleGroupSlot){
+            changeToggledGroup()
+            return true
+        }
+
         when (clickedItem) {
 
             acceptButton -> {
@@ -262,7 +304,7 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
     private fun handleShapedToggle() {
 
         isShaped = true
-        inventory.setItem(toggleSlot, shapedButton)
+        inventory.setItem(toggleRecipeTypeSlot, shapedButton)
     }
 
     /**
@@ -271,7 +313,7 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
     private fun handleShapeLessToggle() {
 
         isShaped = false
-        inventory.setItem(toggleSlot, shapedLessButton)
+        inventory.setItem(toggleRecipeTypeSlot, shapedLessButton)
     }
 
 

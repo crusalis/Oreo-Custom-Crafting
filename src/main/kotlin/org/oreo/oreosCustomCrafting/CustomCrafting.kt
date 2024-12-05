@@ -141,7 +141,7 @@ class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back inste
     }
 
     /**
-     * Saves all the disabled recipes into a json file that is a list of the recipe's keys
+     * Saves all the disabled recipes into a JSON file that is a list of the recipe's keys
      * The key is stored as the nameSpaceKey's key (Every recipe uses the default Minecraft namespace)
      */
     private fun saveDisabledRecipes() {
@@ -170,10 +170,11 @@ class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back inste
     /**
      * Register and save the shaped recipe as a file
      */
-    fun registerAndSaveRecipe(// TODO add the group stuff
+    fun registerAndSaveRecipe(
         recipe: ShapedRecipe,
         recipeName: String,
-        customItemIngredients: List<String>
+        customItemIngredients: List<String>,
+        group : String?
     ) { //Shaped recipes
 
         val recipeData = shapedRecipeToData(recipe, this, customItemIngredients)
@@ -191,12 +192,17 @@ class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back inste
         }
         val file = File(shapedRecipeDir, "$recipeName.json")
 
-        customRecipes.add(
-            CustomRecipeData(
-                recipe = recipe,
-                recipeData = recipeData,
-            )
+        val customRecipeData =  CustomRecipeData(
+            recipe = recipe,
+            recipeData = recipeData,
         )
+
+        customRecipes.add(customRecipeData)
+
+        if (group != null && groups.keys.contains(group)) {
+            recipeData.group = group
+            groups[group]?.second?.add(customRecipeData)
+        }
 
         file.writeText(gson.toJson(recipeData))
     }
@@ -204,7 +210,12 @@ class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back inste
     /**
      * Register and save the shapeless recipe as a file
      */
-    fun registerAndSaveRecipe(recipe: ShapelessRecipe, recipeName: String, customItemIngredients: List<String>) {
+    fun registerAndSaveRecipe(
+        recipe: ShapelessRecipe,
+        recipeName: String,
+        customItemIngredients: List<String>,
+        group : String?
+    ) { //Shapeless recipes
 
         val recipeData = shapeLessRecipeToData(recipe, this, customItemIngredients)
 
@@ -221,12 +232,17 @@ class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back inste
 
         loadCustomIngredientRecipe(recipeData, recipe)
 
-        customRecipes.add(
-            CustomRecipeData(
-                recipe = recipe,
-                recipeData = recipeData,
-            )
+        val customRecipeData =  CustomRecipeData(
+            recipe = recipe,
+            recipeData = recipeData,
         )
+
+        customRecipes.add(customRecipeData)
+
+        if (group != null && groups.keys.contains(group)) {
+            recipeData.group = group
+            groups[group]?.second?.add(customRecipeData)
+        }
 
         file.writeText(gson.toJson(recipeData))
     }
