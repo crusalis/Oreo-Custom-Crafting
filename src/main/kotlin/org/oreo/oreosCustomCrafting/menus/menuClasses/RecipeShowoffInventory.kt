@@ -110,6 +110,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
         openInventories.remove(inventory)
         try {
             inventory.close()
+            RecipeGroupMenu(player)
         } catch (_: Exception) {}
     }
 

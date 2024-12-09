@@ -128,7 +128,7 @@ class RecipeInventory(player: Player, private val viewType: ViewType, private va
         }
 
         // Set navigation items in the last row
-        setNextAndPrevItem(currentPage)
+        setUpHidItems(currentPage)
     }
 
     /**

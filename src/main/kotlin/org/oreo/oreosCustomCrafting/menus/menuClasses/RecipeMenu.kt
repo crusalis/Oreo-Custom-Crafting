@@ -1,7 +1,6 @@
 package org.oreo.oreosCustomCrafting.menus.menuClasses
 
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.oreo.oreosCustomCrafting.CustomCrafting
@@ -14,7 +13,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
     private val rows = 5
     private val columns = 9
     override val invSize = rows * columns
-    private val recipeMenuInvName = "Recipe settings"
+    private val recipeMenuInvName = "Recipes"
     override val inventory = Bukkit.createInventory(null, invSize, recipeMenuInvName)
 
     private val itemsPerPage = invSize - columns // Reserve last row for navigation
@@ -32,7 +31,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
     }
 
 
-    init {
+    init { //TODO add the close button at the bottom
         addToList()
         loadPage(0)
         openInventory()
@@ -85,7 +84,9 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
         }
 
         // Set navigation items in the last row
-        setNextAndPrevItem(currentPage)
+        setUpHidItems(currentPage)
+
+        inventory.setItem(40, backItem)
     }
 
     /**
@@ -115,18 +116,23 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
 
         val item = inventory.getItem(slot) ?: return
 
-        val name = item.itemMeta?.displayName ?: return
-
-        if (slotToRecipeData.containsKey(slot)) {
-            RecipeShowoffInventory(player, slotToRecipeData.get(slot)!!)
-            closeInventory()
-            return
+        when (item) {
+            backItem -> {
+                closeInventory()
+                RecipeGroupMenu(player)
+            }
+            nextItem -> {
+                loadPage(currentPage + 1)
+            }
+            previousItem -> {
+                loadPage(currentPage - 1)
+            }
         }
 
-        if (name.contains("Next")) {
-            loadPage(currentPage + 1)
-        } else if (name.contains("Previous")) {
-            loadPage(currentPage - 1)
+        if (slotToRecipeData.containsKey(slot)) {
+            RecipeShowoffInventory(player, slotToRecipeData[slot]!!)
+            closeInventory()
+            return
         }
     }
 }

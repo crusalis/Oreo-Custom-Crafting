@@ -32,7 +32,7 @@ class RecipeGroupMenu(private val player: Player) : AbstractInventoryMenu(player
      * Set up all the items for the menu
      */
     private fun initialiseItems() {
-        for (i in 0..inventory.size - 1) {
+        for (i in 0..< inventory.size) {
             inventory.setItem(i, blank)
         }
 

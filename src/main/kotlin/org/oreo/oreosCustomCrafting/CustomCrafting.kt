@@ -25,8 +25,7 @@ import java.lang.NullPointerException
 
 
 class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back instead of closing the entire thing
-    //TODO make a button to add a recipe on the crafting group eventually
-
+//TODO make custom items show up in the recipe show off menu
     private val gson = Gson()
 
     var itemDir: File? = null
@@ -81,12 +80,18 @@ class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back inste
     private fun saveRecipeChanges(){
         for (recipeData in customRecipes.map { it.recipeData }){
 
-            val dirToSave : File = if (recipeData is ShapedRecipeData){
-                shapedRecipeDir!!
-            } else if (recipeData is ShapeLessRecipeData){
-                shapelessRecipeDir!!
-            } else{
-                throw IllegalArgumentException("RecipeData of unexpected type")
+            val dirToSave : File = when (recipeData) {
+                is ShapedRecipeData -> {
+                    shapedRecipeDir!!
+                }
+
+                is ShapeLessRecipeData -> {
+                    shapelessRecipeDir!!
+                }
+
+                else -> {
+                    throw IllegalArgumentException("RecipeData of unexpected type")
+                }
             }
 
 

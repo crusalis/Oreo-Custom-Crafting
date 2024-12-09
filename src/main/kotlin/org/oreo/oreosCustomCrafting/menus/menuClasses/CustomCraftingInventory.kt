@@ -39,7 +39,7 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
 
     private val customRecipeMaterials = arrayListOf<String>()
 
-    var currentGroup : String? = null
+    private var currentGroup : String? = null
 
     init {
         addToList()

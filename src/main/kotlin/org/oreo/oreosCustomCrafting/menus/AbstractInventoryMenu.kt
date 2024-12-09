@@ -9,6 +9,7 @@ abstract class AbstractInventoryMenu(private val player : Player) {
 
     val blank = Utils.createGuiItem(Material.GRAY_STAINED_GLASS_PANE, " ", null)
     val closeItem = Utils.createGuiItem(Material.BARRIER, "§lClose", null)
+    val backItem = Utils.createGuiItem(Material.ARROW, "§5§lBack", null)
 
     val nextItem = Utils.createGuiItem(Material.WARPED_SIGN, "Next", null)
     val previousItem = Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null)
@@ -38,7 +39,7 @@ abstract class AbstractInventoryMenu(private val player : Player) {
         return false
     }
 
-    fun setNextAndPrevItem(currentPage: Int) {
+    fun setUpHidItems(currentPage: Int) {
 
         if (currentPage > 0) {
             inventory.setItem(invSize - 7, Utils.createGuiItem(Material.CRIMSON_SIGN, "Previous", null))

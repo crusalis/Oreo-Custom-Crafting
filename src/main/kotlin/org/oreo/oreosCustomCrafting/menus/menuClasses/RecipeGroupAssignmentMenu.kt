@@ -90,7 +90,7 @@ class RecipeGroupAssignmentMenu(private val player: Player, private val group: S
         inventory.setItem(invSize - 5, groupIcon)
 
         // Set navigation items in the last row
-        setNextAndPrevItem(currentPage)
+        setUpHidItems(currentPage)
     }
 
     /**
