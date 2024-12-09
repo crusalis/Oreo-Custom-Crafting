@@ -31,7 +31,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
     }
 
 
-    init { //TODO add the close button at the bottom
+    init {
         addToList()
         loadPage(0)
         openInventory()
