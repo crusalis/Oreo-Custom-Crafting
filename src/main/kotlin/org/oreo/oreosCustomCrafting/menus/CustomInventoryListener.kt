@@ -13,7 +13,7 @@ class   CustomInventoryListener : Listener {
      * Handles any clicking of items that shouldn't be moved.
      */
     @EventHandler
-    fun handleInvalidClick(e: InventoryClickEvent) {
+    fun handleInvalidClick(e: InventoryClickEvent) { //TODO not working either
 
         val inv = e.clickedInventory ?: return
 

@@ -24,8 +24,8 @@ import java.io.*
 import java.lang.NullPointerException
 
 
-class CustomCrafting : JavaPlugin() { //TODO make the menu buttons go back instead of closing the entire thing
-//TODO make custom items show up in the recipe show off menu
+class CustomCrafting : JavaPlugin() {
+
     private val gson = Gson()
 
     var itemDir: File? = null

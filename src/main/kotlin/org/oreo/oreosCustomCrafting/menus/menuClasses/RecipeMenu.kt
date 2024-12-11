@@ -42,7 +42,7 @@ class RecipeMenu(private val player: Player, group: String?) : AbstractInventory
      * Loads a specified page of recipes into the crafting inventory.
      * @param page The page number to load (0-based).
      */
-    fun loadPage(page: Int) {
+    private fun loadPage(page: Int) {
 
         if (page < 0) throw IllegalArgumentException("Page can't be negative")
 

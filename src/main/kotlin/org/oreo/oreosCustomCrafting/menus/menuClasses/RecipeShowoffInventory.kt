@@ -9,6 +9,7 @@ import org.oreo.oreosCustomCrafting.data.CustomRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapeLessRecipeData
 import org.oreo.oreosCustomCrafting.data.ShapedRecipeData
 import org.oreo.oreosCustomCrafting.menus.AbstractInventoryMenu
+import org.oreo.oreosCustomCrafting.utils.Utils
 
 class RecipeShowoffInventory(private val player: Player, private val recipe: CustomRecipeData): AbstractInventoryMenu(player) {
 
@@ -27,7 +28,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
     /**
      * Initializes the crafting inventory items.
      */
-    private fun initializeMenuItems() {
+    private fun initializeMenuItems() { //TODO not working
 
         val recipeData = recipe.recipeData
 
@@ -40,27 +41,47 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
         if (recipeData is ShapedRecipeData) {
             var slotIndex = 0
 
+            val customItems = recipeData.customIngredients.map { customKey ->
+                Utils.getCustomItem(customKey)
+            }.toMutableList()
+
             // Loop through each row in the recipe
             for (row in recipeData.rows) {
                 // Loop through each character in the row
                 for (char in row) {
+
+                    val slot = CRAFTING_SLOTS[slotIndex]
+
                     if (char == ' ') {
                         // Empty slot in the crafting grid
-                        inventory.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
+                        inventory.setItem(slot, ItemStack(Material.AIR))
                     } else {
-                        // Get the material corresponding to the character from ingredients map
+                        // Get the material corresponding to the character from ingredient map
                         val material = recipeData.ingredients[char]
+
                         if (material != null) {
-                            inventory.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(material))
+
+                            val customItem = customItems.firstOrNull { it.type == material }
+
+                            if (customItem != null) {
+                                inventory.setItem(slot, customItem)
+                                customItems.remove(customItem)
+                            } else {
+                                inventory.setItem(slot, ItemStack(material))
+                            }
                         } else {
                             // If no material is found, set the slot to AIR
-                            inventory.setItem(CRAFTING_SLOTS[slotIndex], ItemStack(Material.AIR))
+                            inventory.setItem(slot, ItemStack(Material.AIR))
                         }
                     }
                     slotIndex++
                 }
             }
         } else if (recipeData is ShapeLessRecipeData) {
+
+            val customItems = recipeData.ingredientsItems.map { customKey ->
+                Utils.getCustomItem(customKey)
+            }.toMutableList()
 
             for (slot in CRAFTING_SLOTS) {
                 inventory.setItem(slot, ItemStack(Material.AIR))
@@ -70,7 +91,15 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
 
                 try {
                     val item = ItemStack(recipeData.ingredientsMaterials[CRAFTING_SLOTS.indexOf(slot)])
-                    inventory.setItem(slot, item)
+
+                    val customItem = customItems.firstOrNull { it.type == item.type }
+
+                    if (customItem != null) {
+                        inventory.setItem(slot, customItem)
+                        customItems.remove(customItem)
+                    } else {
+                        inventory.setItem(slot, item)
+                    }
 
                 } catch (_: IndexOutOfBoundsException) {
                     break
@@ -80,7 +109,6 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
         } else {
             player.sendMessage("${ChatColor.RED}RecipeData is of unknown type")
             throw IllegalArgumentException("RecipeData is of unknown type")
-            player.closeInventory()
         }
 
         // Result slot
