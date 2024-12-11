@@ -15,7 +15,13 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
 
     private val name = recipe.recipeData.name
 
-    private val craftingInvName = name
+    private val suffix = if (recipe.recipeData is ShapedRecipeData){
+        "[Shaped]"
+    } else {
+        "[Shapeless]"
+    }
+
+    private val craftingInvName = "$name $suffix"
     override val inventory = Bukkit.createInventory(null, 9 * 6, craftingInvName)
     override val invSize = inventory.size
 
@@ -28,7 +34,7 @@ class RecipeShowoffInventory(private val player: Player, private val recipe: Cus
     /**
      * Initializes the crafting inventory items.
      */
-    private fun initializeMenuItems() { //TODO not working
+    private fun initializeMenuItems() { //TODO not working on shapeless
 
         val recipeData = recipe.recipeData
 

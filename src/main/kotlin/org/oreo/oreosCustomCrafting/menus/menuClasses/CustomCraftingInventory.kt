@@ -106,7 +106,6 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
         if (inventory.getItem(RESULT_SLOT) != null && Utils.isCustomItem(resultSlotItem) ||
             !Utils.customItemExists(resultSlotItem)
         ) {
-
             Utils.saveCustomItemAsFile(resultSlotItem, plugin)
         }
 
@@ -172,7 +171,20 @@ class CustomCraftingInventory(private val player: Player, private val recipeName
 
         // Fill the list with items
         for (slot in CRAFTING_SLOTS) {
-            val item = inventory.getItem(slot)
+            val item = inventory.getItem(slot) ?: continue
+
+            if (Utils.isCustomItem(item)) {
+                val stringToAdd = if (Utils.customItemExists(item)) {
+                    val customItemName: String = CustomCrafting.customItems.getKeyFromValue(item)!!
+                    customItemName
+                } else {
+                    val fileName = Utils.saveCustomItemAsFile(item, plugin = plugin)!!.name
+                    fileName
+                }
+                customRecipeMaterials.add(stringToAdd)
+            }
+
+
             items.add(item)
         }
 
