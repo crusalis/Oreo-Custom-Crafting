@@ -159,7 +159,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                         return true
                     }
 
-                    "additems" -> {
+                    "addgroup" -> {
 
                         if (CustomCrafting.groups.keys.isEmpty()) {
                             sender.sendMessage("${ChatColor.RED}There are no groups.")
@@ -171,7 +171,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                         return true
                     }
 
-                    "removeitems" -> {
+                    "removegroup" -> {
 
                         if (CustomCrafting.groups.keys.isEmpty()) {
                             sender.sendMessage("${ChatColor.RED}There are no groups.")
@@ -212,7 +212,7 @@ class CraftingCommand(private val plugin: CustomCrafting) : CommandExecutor, Tab
                 val recipes = when (args[0]) {
                     "remove" -> CustomCrafting.customRecipes.map { it.recipeData.name }
                     "toggle" -> listOf("all", "enabled", "disabled")
-                    "groups" -> listOf("add", "remove", "additems", "removeitems")
+                    "groups" -> listOf("add", "remove", "addgroup", "removegroup")
                     else -> emptyList()
                 }
                 recipes
