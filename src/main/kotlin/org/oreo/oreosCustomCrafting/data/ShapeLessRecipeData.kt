@@ -47,13 +47,6 @@ fun dataToShapeLessRecipe(data: ShapeLessRecipeData): ShapelessRecipe {
         recipe.addIngredient(ingredient)
     }
 
-    for (ingredient in data.ingredientsItems) {
-
-        val item = Utils.getCustomItem(ingredient)
-
-        recipe.addIngredient(item)
-    }
-
     return recipe
 }
 

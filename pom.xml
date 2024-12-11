@@ -51,6 +51,31 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <!-- Optional: Relocate dependencies to avoid classpath conflicts -->
+                                <relocation>
+                                    <pattern>org.jetbrains.kotlin</pattern>
+                                    <shadedPattern>my.plugin.shaded.kotlin</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
         <resources>
             <resource>

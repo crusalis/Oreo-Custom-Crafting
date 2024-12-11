@@ -24,7 +24,7 @@ import java.io.*
 import java.lang.NullPointerException
 
 
-class CustomCrafting : JavaPlugin() {
+class CustomCrafting : JavaPlugin() { //TODO make removing recipes remove the file
 
     private val gson = Gson()
 
